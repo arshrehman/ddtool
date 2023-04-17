@@ -42,6 +42,7 @@ wtforms = "==3.0.1"
 pyopenssl = "*"
 flask-sslify = "*"
 flask-bcrypt = "*"
+wtforms-components = "*"
 
 [dev-packages]
 

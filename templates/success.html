@@ -31,14 +31,11 @@
                 {% endif %}
                 {% endwith %}
     </div>
-<div class="container">
+<div class="table-responsive-lg">
     <table class="table table-sm table-bordered table-striped">
         <thead class="thead-dark">
         <tr>
              <th scope="col">Date</th>
-             {% if current_user.bankname!="ALHILAL" %}
-             <th scope="col">EmiratesID</th>
-             {% endif %}
              <th scope="col">Name</th>
              {% if current_user.bankname!="ALHILAL" %}
              <th scope="col">Email</th>
@@ -57,9 +54,6 @@
         <tr>
             {% for row in record %}
 		    <th scope="row">{{datetime.date(row.entry_date)}}</th>
-            {% if current_user.bankname!="ALHILAL" %}
-            <td>{{row.emirates_id}}</td>
-            {% endif %}
             <td>{{row.customer_name}}</td>
             {% if current_user.bankname!="ALHILAL" %}
             <td>{{row.customer_email}}</td>
@@ -71,19 +65,20 @@
             {% endif  %}
             <td>{{row.agent_name}}</td>
             <td>{{row.bank_status}}</td>
-			{% if current_user.bankname=="ALHILAL" %}
+
                <td>
+                   {% if current_user.bankname=="ALHILAL" %}
                   <a href=/updatehilal/{{row.id}} class="btn btn-warning btn-xs">Edit</a>
+                   {% elif current_user.bankname=="ENBD" %}
+                   <a href=/update/{{row.id}} class="btn btn-warning btn-xs">Edit</a>
+                   {% elif current_user.bankname=="ADCB" %}
+                   <a href=/updateadcb/{{row.id}} class="btn btn-warning btn-xs">Edit</a>
+                   {% endif %}
                </td>
-            {% endif %}
-			{% if current_user.bankname=="ENBD" %}
-				<td>
-				    <a href=/update/{{row.id}} class="btn btn-warning btn-xs">Edit</a>
-				</td>
-			{% endif %}
-                </tr>
+        </tr>
             {% endfor %}
-                </tbody></table>
+    </tbody>
+    </table>
   <!-- Modal Add Employee-->
 </div>
   {% endblock %}

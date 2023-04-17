@@ -3,13 +3,14 @@ from wtforms import Form, DateTimeField, SubmitField, StringField, PasswordField
     SelectField, ValidationError, DateField, FileField,DecimalField,HiddenField
 from wtforms.validators import NumberRange, Email, InputRequired, Length, Regexp, DataRequired, Optional
 import pandas as pd
+from wtforms_components import TimeField
 
 #from app import current_user, request
 
 from application import current_user, request
 
 
-df = pd.read_csv("/var/www/html/ecsa/static/nationality.csv")
+df = pd.read_csv("static/nationality.csv")
 lst = list(range(1, 226))
 lst2 = list(zip(lst, df['Nationality']))
 lst3 = list(df['Nationality'])
@@ -179,6 +180,8 @@ class Alhilal(FlaskForm):
 class Download(FlaskForm):
     start = DateField("StartDate", validators=[InputRequired()], format="%Y-%m-%d")
     end = DateField("EndDate", validators=[InputRequired()], format="%Y-%m-%d")
+    stime=TimeField("StartTime")
+    etime = TimeField("EndTime")
     download = SubmitField("Download")
 
 

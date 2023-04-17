@@ -26,7 +26,7 @@ context=SSL.Context(SSL.SSLv23_METHOD)
 from flask_bcrypt import Bcrypt
 
 ALLOWED_EXTENSIONS = set(['xlsx'])
-UPLOADS_FOLDER = "/var/www/html/ecsa/static/files"
+UPLOADS_FOLDER = "static/files"
 
 application = Flask(__name__)
 bootstrap = Bootstrap(application)
@@ -655,7 +655,7 @@ def update(id):
         # for i in lst_dsrd:
         # data.i=form.i.data
         db.session.commit()
-        flash("Employee Updated Successfully")
+        flash("Record Updated Successfully")
         if usr.userlevel=="1":
             return redirect(url_for('aecb'))
         else:
@@ -739,7 +739,7 @@ def updateadcb(id):
         # for i in lst_dsrd:
         # data.i=form.i.data
         db.session.commit()
-        flash("Employee Updated Successfully")
+        flash("Record Updated Successfully")
         if usr.userlevel == "1":
             return redirect(url_for('aecb'))
         else:
@@ -813,7 +813,7 @@ def updatehilal(id):
 
         db.session.commit()
 
-        flash("Employee Updated Successfully")
+        flash("Record Updated Successfully")
         if usr.userlevel == "1":
             return redirect(url_for('aecb'))
         else:
@@ -838,23 +838,29 @@ def updatehilal(id):
 @login_required
 def download():
     global data
-    usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
-    if usr.userlevel not in ["4","5"]:
+    if current_user.userlevel not in ["4","5"]:
         abort(403)
     form = Download(request.form)
     if form.validate_on_submit():
-        sd = form.start.data
-        ed = form.end.data
+        sd1 = form.start.data
+        ed1 = form.end.data
+        st = form.stime.data
+        et = form.etime.data
+        sd2 = datetime.combine(sd1,st)
+        ed2 = datetime.combine(ed1,et)
 
-        if ed < sd:
+        #print(sd2,ed2)
+        #print(str(sd2), str(ed2))
+
+        if ed2 < sd2:
             raise ValidationError("End date must not be less than Start date")
 
-        if usr.userlevel =="4":
-            data = Appdata.query.filter(and_(Appdata.crdntr_hrmsid==usr.hrmsID,
-                                         func.date(Appdata.entry_date)>=sd, func.date(Appdata.entry_date)<=ed)).all()
-        if usr.userlevel =="5":
-            data = Appdata.query.filter(and_(func.date(Appdata.entry_date) >= sd,
-                                             func.date(Appdata.entry_date) <= ed)).all()
+        if current_user.userlevel =="4":
+            data = Appdata.query.filter(and_(Appdata.crdntr_hrmsid==current_user.hrmsID,
+                                         func.datetime(Appdata.entry_date)>=str(sd2), func.datetime(Appdata.entry_date)<=str(ed2))).all()
+        if current_user.userlevel =="5":
+            data = Appdata.query.filter(and_(func.date(Appdata.entry_date) >= str(sd2),
+                                             func.date(Appdata.entry_date) <= str(ed2))).all()
         lst_enbd = ['leadid','entry_date','agent_id','mngrhrmsid', 'agent_name', 'customer_name','customer_email',
                     'gender', 'mobile',  'dob', 'salary','nationality', 'company', 'designation', 'ale_status',
                     'office_emirate', 'HRLandline', 'los', 'emirates_id','emiratesid_expiry','passport',
@@ -871,8 +877,8 @@ def download():
                     'product_type', 'product_name', 'bank_reference', 'bank_status', 'application_type','submission_date',
                     'promo','remarks', 'cpv', 'bookingdate']
 
-        if usr.bankname=='ENBD':
-            with open(f"/var/www/html/ecsa/static/all_record_{usr.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+        if current_user.bankname=='ENBD':
+            with open(f"static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter=csv.writer(csvfile,delimiter=",")
                 csvwriter.writerow(lst_enbd)
                 for p in data:
@@ -882,29 +888,23 @@ def download():
                                         p.length_of_service, p.emirates_id, p.EID_expiry_date, p.passport_number,
                                         p.cheque_number, p.cheque_bank, p.iban,p.bankingwith, p.product_type, p.product_name,
                                         p.bank_reference,p.bank_status, p.application_type,p.remarks,p.cpv, p.bookingdate])
-            return send_file(f"/var/www/html/ecsa/static/all_record_{usr.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
+            return send_file(f"static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
 
-        elif usr.bankname=="ALHILAL":
-            with open(f"/var/www/html/ecsa/static/all_record_{usr.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+        elif current_user.bankname=="ALHILAL":
+            with open(f"static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile, delimiter=",")
                 csvwriter.writerow(lst_hilal)
                 for p in data:
-                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date),p.agent_id, p.tlhrmsid,p.mngrhrmsid,p.agent_name,p.customer_name, p.mobile,
-                                    p.salary, p.company, p.designation, p.ale_status, p.iban, p.cclimit,
-				    p.mothername,p.uaeaddress,p.homecountryaddress,p.homecountrynumber,p.joiningdate,p.ref1name,
-				    p.ref2name,p.ref1mobile,p.ref2mobile,p.product_name,p.bank_reference,p.bank_status,
-                                    p.sent,p.bookingdate,p.remarks
-                                    ])
                     csvwriter.writerow(
                         [p.leadid, datetime.date(p.entry_date),p.agent_id, p.tlhrmsid,p.mngrhrmsid,p.agent_name,p.customer_name,
                          p.mobile,p.salary, p.company, p.designation, p.ale_status, p.iban, p.cclimit,p.mothername,p.uaeaddress,
                          p.homecountryaddress,p.homecountrynumber,p.joiningdate,p.ref1name,p.ref2name,p.ref1mobile,p.ref2mobile,
                          p.product_name,p.bank_reference,p.bank_status,p.sent,p.bookingdate,p.remarks])
-            return send_file(f"static/all_record_{usr.hrmsID}.csv", mimetype='text/csv',
+            return send_file(f"static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
 
-        elif usr.bankname=="ADCB":
-            with open(f"/var/www/html/ecsa/static/all_record_{usr.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+        elif current_user.bankname=="ADCB":
+            with open(f"static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile, delimiter=",")
                 csvwriter.writerow(lst_adcb)
                 for p in data:
@@ -913,7 +913,7 @@ def download():
                          p.mobile,p.customer_email, p.nationality, p.salary, p.company, p.ale_status, p.emirates_id,p.passport_number,
                          p.product_type, p.product_name,p.bank_reference,p.bank_status,p.application_type,p.submissiondate,p.promo,
                          p.remarks, p.cpv, p.bookingdate])
-            return send_file(f"/var/www/html/ecsa/static/all_record_{usr.hrmsID}.csv", mimetype='text/csv',
+            return send_file(f"static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
 
     return render_template('download.html', form=form)
@@ -1028,7 +1028,7 @@ def upload():
                 file.filename = "data" + str(usr.agent_name) + str(datetime.date(datetime.utcnow())) + ".xlsx"
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(application.config['UPLOADS_FOLDER'], filename))
-                df=pd.read_excel(f'/var/www/html/ecsa/static/files/{filename}')
+                df=pd.read_excel(f'static/files/{filename}')
                 lst_df = list(df.columns)
                 lst_df= [x.strip() for x in lst_df]
                 lst_df = [x.lower() for x in lst_df]
@@ -1049,4 +1049,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    application.run()
+    application.run(debug=True)

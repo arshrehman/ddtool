@@ -1,4 +1,4 @@
-{% extends "bootstrap/base.html" %}
+{% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% block title %}
 ECSA
@@ -6,46 +6,46 @@ ECSA
 
 {% block content %}
 
-<div class="container" style="background-color:#C0C0C0">
-<nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-            <span class="sr-only"></span>
-          <a class="navbar-brand" href="{{url_for('success')}}">Home</a>
-          <a class="navbar-brand" href="{{url_for('download')}}">DownloadReport</a>
-          <a class="navbar-brand" href="{{url_for('insert')}}">Add New Record</a>
-          <a class="navbar-brand" href="{{url_for('logout')}}">Logout</a>
-        </div>
-      </div>
-    </nav>
-  </div>
-
-<div class="custom">
+<div class="container">
     <form method="POST" action="/download">
         {{ form.hidden_tag() }}
-        <div class="form-group">{{ form.start.label(class="col-md-4 control-label")}}
-          <div class="col-md-5">{{form.start(type="date", class="form-control")}}</div>
+            <div class="form-row">
+            <div class="col-md-5">{{ form.start.label()}}
+            {{form.start(type="date", class="form-control")}}
+                <ul class="erros">
+                    {% for error in form.start.errors %}
+                    <li>{{error}}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="col-md-5">{{form.stime.label()}}
+            {{form.stime(class="form-control")}}
           <ul class="erros">
             {% for error in form.start.errors %}
                   <li>{{error}}</li>
             {% endfor %}
           </ul>
         </div>
-        <div class="form-group">{{ form.end.label(class="col-md-4 control-label")}}
-          <div class="col-md-5">{{form.end(type="date", class="form-control")}}</div>
+    </div>
+
+    <div class="form-row">
+          <div class="col-md-5">
+          {{ form.end.label()}}
+          {{form.end(type="date", class="form-control")}}
           <ul class="erros">
             {% for error in form.end.errors %}
                   <li>{{error}}</li>
             {% endfor %}
           </ul>
-            {{form.download}}
         </div>
-    </form>
+
+        <div class="col-md-5">
+            {{ form.etime.label()}}
+            {{form.etime(class="form-control")}}
+            </div>
+        </div>
+        <div class="container">{{form.download}}</div>
+        </form>
 </div>
-<style>div.custom {
-  padding-top: 90px;
-  padding-right: 30px;
-  padding-bottom: 50px;
-  padding-left: 80px;
-}</style>
 {% endblock %}
