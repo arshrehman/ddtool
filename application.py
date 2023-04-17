@@ -1,0 +1,1052 @@
+import os
+#from werkzeug.utils import secure_filename
+from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
+from flask import Flask, render_template, request, url_for, flash, redirect, send_file, abort, jsonify
+from wtforms import HiddenField
+import pandas as pd
+from datetime import datetime
+from flask_login import UserMixin, login_user, login_required, logout_user, LoginManager, current_user
+from flask_bootstrap import Bootstrap
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine, text
+from flask_sslify import SSLify
+#import mysql.connector
+#import pymysql.cursors
+from modelform import *
+import smtplib
+from email.message import EmailMessage
+from flask_migrate import Migrate
+#from modelform import Download
+from sqlalchemy import and_, or_,func
+import csv
+import secrets
+from OpenSSL import SSL
+context=SSL.Context(SSL.SSLv23_METHOD)
+from flask_bcrypt import Bcrypt
+
+ALLOWED_EXTENSIONS = set(['xlsx'])
+UPLOADS_FOLDER = "/var/www/html/ecsa/static/files"
+
+application = Flask(__name__)
+bootstrap = Bootstrap(application)
+#x=os.environ['secret_key']
+
+#sslify = SSLify(application)
+secret_key=secrets.token_hex(16)
+application.config['SECRET_KEY'] = 'asdfsadfjsakldfjlksajdfklcmnlskjwkjlkjdsglkamm'
+application.config['UPLOADS_FOLDER'] = UPLOADS_FOLDER
+application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+db = SQLAlchemy(application)
+migrate = Migrate(application, db)
+#engine = create_engine('mysql://root:''@localhost/rak')
+bcrypt=Bcrypt(application)
+
+login_manager = LoginManager()
+login_manager.init_app(application)
+login_manager.login_view = 'login'
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    password = db.Column(db.String(80))
+    agent_name=db.Column(db.String(50))
+    hrmsID = db.Column(db.String(10))
+    bankname = db.Column(db.String(10))
+    tlhrmsid=db.Column(db.String(10))
+    manager = db.Column(db.String(30))
+    mngrhrmsid = db.Column(db.String(30))
+    coordinator_hrmsid =db.Column(db.String(30))
+    location = db.Column(db.String(30))
+    userlevel = db.Column(db.String(10))
+
+
+#class Customer(db.Model):
+    #id = db.Column(db.Integer, primary_key=True)
+    #entry_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    #agent_id = db.Column(db.Integer, nullable=False)
+    #customer_name = db.Column(db.String(200), nullable=False)
+    #customer_email = db.Column(db.String(200), nullable=False)
+    #gender = db.Column(db.String(2), nullable=False, default="M")
+    #dob = db.Column(db.DateTime, nullable=False)
+    #emirates_id = db.Column(db.String(100), nullable=False)
+    #mobile = db.Column(db.String(20), nullable=False)
+    #passport_number = db.Column(db.String(100), nullable=False)
+    #nationality = db.Column(db.String(200), nullable=False, )
+    #salary = db.Column(db.Float, nullable=True)
+    #product = db.Column(db.String(200), nullable=False)
+    #company = db.Column(db.String(200), nullable=False)
+
+
+class Appdata(db.Model):
+    #primary columns
+    id = db.Column(db.Integer, primary_key=True)
+    leadid=db.Column(db.String(30))
+    entry_date = db.Column(db.DateTime, nullable=False, default=datetime.now())
+
+    #agent detection
+    agent_id = db.Column(db.String(20), nullable=False) #will be fetched by session user
+    agent_name = db.Column(db.String(100)) #will be fetched by session user
+    tlhrmsid = db.Column(db.String(100)) #will be fetched by session user
+    mngrhrmsid=db.Column(db.String(50))
+    crdntr_hrmsid=db.Column(db.String(50))
+    agent_location = db.Column(db.String(60)) #will be fetched by session user
+    agent_level=db.Column(db.String(10)) #will be fetched by session user
+
+    #Primary customer information
+    customer_name = db.Column(db.String(200), nullable=False)
+    customer_email = db.Column(db.String(200))
+    gender = db.Column(db.String(10), default="M")
+    mobile = db.Column(db.String(20))
+    dob = db.Column(db.DateTime)
+    salary = db.Column(db.Float)
+    nationality = db.Column(db.String(50))
+    company = db.Column(db.String(100))
+    designation = db.Column(db.String(50))
+    ale_status = db.Column(db.String(10))
+    office_emirates = db.Column(db.String(100))
+    length_of_residence = db.Column(db.String(10))
+    length_of_service = db.Column(db.String(10))
+
+    #Secondary customer informatio
+    emirates_id = db.Column(db.String(30))
+    EID_expiry_date = db.Column(db.DateTime)
+    passport_number = db.Column(db.String(10))
+    passport_expiry = db.Column(db.DateTime)
+    cheque_number = db.Column(db.String(100))
+    cheque_bank = db.Column(db.String(100))
+    iban = db.Column(db.String(100))
+    bankingwith=db.Column(db.String(50))
+    visa_expiry_date = db.Column(db.DateTime)
+    submissiondate=db.Column(db.DateTime)
+    bookingdate=db.Column(db.DateTime)
+
+    # Bank specific group
+    bank_name = db.Column(db.String(50))  # Will be fetched by session user
+    product_type = db.Column(db.String(100))  # Depends on bank name
+    product_name = db.Column(db.String(100))  # Depends on bank name
+    bank_reference = db.Column(db.String(100))  # Depends on bank name
+    bank_status = db.Column(db.String(100))   # Depends on bank name
+    application_type = db.Column(db.String(50))
+    supplementary_card = db.Column(db.String(50))
+    remarks = db.Column(db.String(500))
+    cpv = db.Column(db.String(100))
+
+    # Al Hilal bank specific
+    cclimit = db.Column(db.String(90))
+    mothername = db.Column(db.String(90))
+    uaeaddress = db.Column(db.String(300))
+    homecountryaddress = db.Column(db.String(300))
+    homecountrynumber = db.Column(db.String(20))
+    joiningdate = db.Column(db.DateTime)
+    ref1name = db.Column(db.String(100))
+    ref2name = db.Column(db.String(100))
+    ref1mobile = db.Column(db.String(100))
+    ref2mobile = db.Column(db.String(100))
+    sent = db.Column(db.DateTime)
+    promo = db.Column(db.String(100))
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+@application.route('/')
+def index():
+    return render_template('index.html')
+
+
+@application.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user:
+            g = bcrypt.generate_password_hash(user.password)
+            if user.userlevel == "2":
+                if bcrypt.check_password_hash(g, form.password.data):
+                    login_user(user, remember=True)
+                    return redirect(url_for('success'))
+            if user.userlevel=="1":
+                if bcrypt.check_password_hash(g, form.password.data):
+                    login_user(user, remember=True)
+                    return redirect(url_for('aecb', id=user.hrmsID))
+            if user.userlevel in ["2","3","4"]:
+                if bcrypt.check_password_hash(g, form.password.data):
+                    login_user(user, remember=True)
+                    return redirect(url_for('success'))
+            if user.userlevel == "5":
+                if bcrypt.check_password_hash(g, form.password.data):
+                    login_user(user, remember=True)
+                    return redirect(url_for('success'))
+        else:
+            flash("Invalid user name or password")
+            return redirect(url_for('login'))
+    return render_template('login.html', form=form)
+
+
+#@app.route('/customer', methods=['GET', 'POST'])
+#@login_required
+#def customer():
+    #form1 = Customer1()
+    #if form1.validate_on_submit():
+        #customer_details = Customer()
+        #customer_details.agent_id = form1.agent_id.data
+        #customer_details.customer_name = form1.customer_name.data
+        #customer_details.customer_email = form1.customer_email.data
+        #customer_details.gender = form1.gender.data
+        #customer_details.dob = form1.dob.data
+        #customer_details.emirates_id = form1.emirates_id.data
+        #customer_details.mobile = form1.mobile.data
+        #customer_details.passport_number = form1.passport_number.data
+        #customer_details.nationality = form1.nationality.data
+        #customer_details.salary = form1.salary.data
+        #customer_details.product = form1.product.data
+        #customer_details.company = form1.company.data
+        #db.session.add(customer_details)
+        #db.session.commit()
+        #msg = EmailMessage()
+        #msg['Subject'] = 'Please reply with the mentioned documents in this email'
+        #msg['From'] = 'rehmanarsh781@gmail.com'
+        #msg['To'] = form1.customer_email.data
+        #msg.set_content("Please reply with the required documents to check your AECB Score")
+        #with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+            #smtp.login('rehmanarsh781@gmail.com', 'tzjuimfblnprndnz')
+            #smtp.send_message(msg)
+        #return redirect(url_for('aecb'))
+    #return render_template('customer.html', form1=form1)
+
+
+@application.route('/success')
+@login_required
+def success():
+    if current_user.userlevel not in ["2","3", "4", "5"]:
+        abort(403)
+    elif current_user.userlevel =="2":
+        #q = request.args.get('q')
+        #if q:
+            #all_data = Appdata.query.filter(Appdata.mobile.contains(q))
+        #else:
+        all_data = Appdata.query.filter(and_(Appdata.bank_name==current_user.bankname, Appdata.tlhrmsid==current_user.hrmsID)).all()
+    elif current_user.userlevel=="3":
+        all_data = Appdata.query.filter(and_(Appdata.bank_name == current_user.bankname,
+                                             Appdata.mngrhrmsid == current_user.hrmsID)).all()
+    elif current_user.userlevel=="4":
+        all_data = Appdata.query.filter(and_(Appdata.bank_name == current_user.bankname,
+                                             Appdata.crdntr_hrmsid == current_user.hrmsID)).all()
+    else:
+        all_data = Appdata.query.all()
+    return render_template('success.html', record=all_data, datetime=datetime)
+
+
+@application.route('/aecb', methods=['GET', 'POST'])
+@login_required
+def aecb():
+    aecb_all = Appdata.query.filter(Appdata.agent_id == current_user.hrmsID).all()
+    return render_template('aecb.html', record=aecb_all, id=id, datetime=datetime)
+
+
+# insert data to mysql database via html forms
+@application.route('/insert', methods=['GET', 'POST'])
+@login_required
+def insert():
+    form = Appdata1()
+    usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
+
+    if usr.userlevel=="1":
+        form.bank_status.choices=['InProcess']
+    else:
+        form.bank_status.choices=['InProcess','Booked','Decline']
+
+    if (usr.bankname=="ENBD") & (form.product_type.data=="CreditCard"):
+        form.product_name.choices=["TITANIUM MASTERCARD","GO 4 IT GOLD VISA CARD","GO 4 IT PLATINUM VISA CARD",
+                                   "VISA FLEXI VISA CARD","DNATA PLATINUM MASTERCARD","DNATA WORLD MASTERCARD",
+                                   "BUSINESS MASTERCARD","BUSINESS REWARDS SIGNATURE VISA CARD","MANCHESTER UNITED MASTERCARD",
+                                   "LULU TITANIUM MASTERCARD","LULU PLATINUM MASTERCARD","U BY EMAAR FAMILY VISA CARD",
+                                   "U BY EMAAR SIGNATURE VISA CARD","U BY EMAAR INFINITE VISA CARD","SKYWARDS SIGNATURE VISA CARD",
+                                   "SKYWARDS INFINITE VISA CARD","GENERIC INFINITE VISA CARD","MARRIOTT BONVOY WORLD",
+                                   "ETHIHAD GUEST VISA INSPIRE","ETHIHAD GUEST VISA ELEVATE","PLATINUM VISA CARD","DUO CREDIT CARD"]
+        form.application_type.choices=['PHYSICAL','TAB-StandAlone','Tab-Bundle']
+
+
+    if form.validate_on_submit():
+        appdata = Appdata()
+
+        if usr.bankname=="ENBD":
+            appdata.leadid = "719" + str(form.mobile.data[-4:])
+
+        # customer details
+        appdata.customer_name = form.customer_name.data
+        appdata.mobile = form.mobile.data
+        appdata.customer_email = form.customer_email.data
+        appdata.gender = form.gender.data
+        appdata.nationality = form.nationality.data
+        appdata.salary = form.salary.data
+        appdata.company = form.company.data
+        appdata.designation = form.designation.data
+        appdata.ale_status = form.ale_status.data
+        appdata.office_emirates = form.office_emirates.data
+        appdata.length_of_residence = str(form.length_of_residence.data)
+        appdata.length_of_service = str(form.length_of_service.data)
+        appdata.dob = form.dob.data
+
+        # customer's documents details
+        appdata.emirates_id = form.emirates_id.data
+        appdata.EID_expiry_date = form.EID_expiry_date.data
+        appdata.passport_number = form.passport_number.data
+        appdata.passport_expiry = form.passport_expiry.data
+        appdata.visa_expiry_date = form.visa_expiry_date.data
+        appdata.cheque_number = form.cheque_number.data
+        appdata.cheque_bank = form.cheque_bank.data
+        appdata.iban = form.iban.data
+        appdata.submissiondate=form.submissiondate.data
+        appdata.bookingdate=form.bookingdate.data
+        appdata.bankingwith=form.bankingwith.data
+
+
+        # Agent specific details
+        appdata.agent_id = usr.hrmsID
+        appdata.agent_name = usr.agent_name
+        appdata.agent_level = usr.userlevel
+        appdata.bank_name = usr.bankname
+        appdata.tlhrmsid = usr.tlhrmsid
+        appdata.mngrhrmsid=usr.mngrhrmsid
+        appdata.crdntr_hrmsid=usr.coordinator_hrmsid
+        appdata.agent_location = usr.location
+
+
+
+        # Bank Specific details
+        appdata.product_type = form.product_type.data
+        appdata.product_name = form.product_name.data
+        appdata.bank_reference = form.bank_reference.data
+        appdata.bank_status = form.bank_status.data
+        appdata.application_type=form.application_type.data
+        appdata.supplementary_card=form.supplementary_card.data
+        appdata.remarks=form.remarks.data
+        appdata.cpv=form.cpv.data
+
+
+
+
+        # commiting to the database
+        db.session.add(appdata)
+        db.session.commit()
+        flash("Record Inserted Successfully")
+        if usr.userlevel=="1":
+            return redirect(url_for('aecb'))
+        elif usr.userlevel=="2":
+            return redirect(url_for('success'))
+
+    return render_template('insert.html', form=form, user=usr)
+
+
+
+
+@application.route('/insert2', methods=['GET', 'POST'])
+@login_required
+def insert2():
+    form = Alhilal()
+    usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
+    if usr.bankname !="ALHILAL":
+        abort(403)
+
+    if usr.userlevel=="1":
+        form.bank_status.choices=['InProcess']
+    else:
+        form.bank_status.choices=['InProcess','Booked','Decline']
+
+    if form.validate_on_submit():
+        appdata = Appdata()
+        if usr.bankname == "ALHILAL":
+            appdata.leadid = "779" + str(form.mobile.data[-4:])
+
+        appdata.customer_name=form.customer_name.data
+        appdata.mobile=form.mobile.data
+        appdata.homecountrynumber=form.homecountrynumber.data
+        appdata.salary=form.salary.data
+        appdata.bank_reference=form.bank_reference.data
+        appdata.cclimit=form.cclimit.data
+        appdata.mothername=form.mothername.data
+        appdata.company=form.company.data
+        appdata.designation=form.designation.data
+        appdata.ale_status=form.ale_status.data
+        appdata.uaeaddress=form.uaeaddress.data
+        appdata.homecountryaddress=form.homecountryaddress.data
+        appdata.iban=form.iban.data
+        appdata.ref1name=form.ref1name.data
+        appdata.ref2name=form.ref2name.data
+        appdata.ref1mobile=form.ref1mobile.data
+        appdata.ref2mobile=form.ref2mobile.data
+        appdata.joiningdate=form.joiningdate.data
+        appdata.remarks=form.remarks.data
+        appdata.sent=form.sent.data
+        appdata.bank_status=form.bank_status.data
+        appdata.product_name=form.product_name.data
+
+        # Agent specific details
+        appdata.agent_id = usr.hrmsID
+        appdata.agent_name = usr.agent_name
+        appdata.agent_level = usr.userlevel
+        appdata.bank_name = usr.bankname
+        appdata.tlhrmsid = usr.tlhrmsid
+        appdata.mngrhrmsid = usr.mngrhrmsid
+        appdata.crdntr_hrmsid = usr.coordinator_hrmsid
+        appdata.agent_location = usr.location
+
+        db.session.add(appdata)
+        db.session.commit()
+        flash("Record Inserted Successfully")
+        if usr.userlevel=="1":
+            return redirect(url_for('aecb'))
+        elif usr.userlevel=="2":
+            return redirect(url_for('success'))
+
+    return render_template('insert2.html', form=form, user=usr)
+
+
+@application.route('/insertadcb', methods=['GET', 'POST'])
+@login_required
+def insertadcb():
+    form1 = Appdata1()
+    usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
+
+    if usr.userlevel == "1":
+        form1.bank_status.choices = ['InProcess']
+    else:
+        form1.bank_status.choices = ['InProcess', 'Booked', 'Decline']
+
+    if (usr.bankname == "ADCB") & (form1.product_type.data == "CreditCard"):
+        form1.product_name.choices = ["ADCB INFINITE CARD", "ADCB SIGNATURE CARD ", "CASHBACK CARD", "BETAQTI CARD",
+                                     "ADCB ETIHAD GUEST INFINITE CARD", "ADCB ETIHAD GUEST SIGNATURE CARD",
+                                     "ADCB ETIHAD GUEST PLATINUM CARD",
+                                     "TRAVELLER CREDIT CARD", "TOUCH POINTS INFINITE CARD",
+                                     "TOUCH POINTS PLATINUM CARD", "TOUCH POINTS TITANIUM/GOLD CARD",
+                                     "LULU PLATINUM CARD", "LULU TITANIUM CARD"]
+        form1.application_type.choices = ['CONVENTIONAL', 'ISLAMIC']
+
+
+    form1.gender.validators=[Optional()]
+    form1.office_emirates.validators=[Optional()]
+
+    if form1.validate_on_submit():
+        appdata = Appdata()
+
+        if usr.bankname == "ADCB":
+            appdata.leadid = "769" + str(form1.mobile.data[-4:])
+
+        # customer details
+        appdata.customer_name = form1.customer_name.data
+        appdata.mobile = form1.mobile.data
+        appdata.customer_email = form1.customer_email.data
+        appdata.nationality = form1.nationality.data
+        appdata.salary = form1.salary.data
+        appdata.company = form1.company.data
+        appdata.ale_status = form1.ale_status.data
+
+        # customer's documents details
+        appdata.emirates_id = form1.emirates_id.data
+        appdata.passport_number = form1.passport_number.data
+        appdata.submissiondate = form1.submissiondate.data
+        appdata.bookingdate = form1.bookingdate.data
+
+
+        # Agent specific details
+        appdata.agent_id = usr.hrmsID
+        appdata.agent_name = usr.agent_name
+        appdata.agent_level = usr.userlevel
+        appdata.bank_name = usr.bankname
+        appdata.tlhrmsid = usr.tlhrmsid
+        appdata.mngrhrmsid = usr.mngrhrmsid
+        appdata.crdntr_hrmsid = usr.coordinator_hrmsid
+        appdata.agent_location = usr.location
+
+        # Bank Specific details
+        appdata.product_name = form1.product_name.data
+        appdata.bank_reference = form1.bank_reference.data
+        appdata.bank_status = form1.bank_status.data
+        appdata.application_type = form1.application_type.data
+        appdata.remarks = form1.remarks.data
+        appdata.cpv = form1.cpv.data
+        appdata.promo = form1.promo.data
+
+        # commiting to the database
+        db.session.add(appdata)
+        db.session.commit()
+        flash("Record Inserted Successfully")
+        if usr.userlevel == "1":
+            return redirect(url_for('aecb'))
+        elif usr.userlevel == "2":
+            return redirect(url_for('success'))
+
+    return render_template('insertadcb.html', form=form1, user=usr)
+
+
+
+@application.route('/insertscb', methods=['GET', 'POST'])
+@login_required
+def insertscb():
+    form1 = Appdata1()
+    usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
+
+    if usr.userlevel == "1":
+        form1.bank_status.choices = ['InProcess']
+    else:
+        form1.bank_status.choices = ['InProcess', 'Booked', 'Decline']
+
+    if (usr.bankname == "SCB"):
+        form1.product_name.choices = ["CASHBACK CREDIT CARD", "MANHATTAN REWARD+ CREDIT CARD",
+                                      "SAADIQ", "INFINITE"]
+        form1.application_type.choices = ['DIGITAL','CONVENTIONAL', 'ISLAMIC']
+
+    if usr.bankname != "SCB":
+        abort(403)
+
+    form1.office_emirates.validators=[Optional()]
+
+    if form1.validate_on_submit():
+        appdata = Appdata()
+
+        if usr.bankname == "SCB":
+            appdata.leadid = "779" + str(form1.mobile.data[-4:])
+
+        # customer details
+        appdata.customer_name = form1.customer_name.data
+        appdata.mobile = form1.mobile.data
+        appdata.customer_email = form1.customer_email.data
+        appdata.gender=form1.gender.data
+        appdata.nationality = form1.nationality.data
+        appdata.salary = form1.salary.data
+        appdata.company = form1.company.data
+        appdata.ale_status = form1.ale_status.data
+        appdata.designation=form1.designation.data
+        appdata.bankingwith=form1.bankingwith.data
+
+
+
+
+        # customer's documents details
+        appdata.emirates_id = form1.emirates_id.data
+        appdata.submissiondate = form1.submissiondate.data
+        appdata.bookingdate = form1.bookingdate.data
+
+
+        # Agent specific details
+        appdata.agent_id = usr.hrmsID
+        appdata.agent_name = usr.agent_name
+        appdata.agent_level = usr.userlevel
+        appdata.bank_name = usr.bankname
+        appdata.tlhrmsid = usr.tlhrmsid
+        appdata.mngrhrmsid = usr.mngrhrmsid
+        appdata.crdntr_hrmsid = usr.coordinator_hrmsid
+        appdata.agent_location = usr.location
+
+        # Bank Specific details
+        appdata.product_type=form1.product_type.data
+        appdata.product_name = form1.product_name.data
+        appdata.bank_reference = form1.bank_reference.data
+        appdata.bank_status = form1.bank_status.data
+        appdata.application_type = form1.application_type.data
+        appdata.remarks = form1.remarks.data
+        appdata.cpv = form1.cpv.data
+
+
+        # commiting to the database
+        db.session.add(appdata)
+        db.session.commit()
+        flash("Record Inserted Successfully")
+        if usr.userlevel == "1":
+            return redirect(url_for('aecb'))
+        elif usr.userlevel == "2":
+            return redirect(url_for('success'))
+
+    return render_template('insertscb.html', form=form1, user=usr)
+
+# update customer record
+@application.route('/update/<int:id>', methods=['GET', 'POST'])
+@login_required
+def update(id):
+    data = Appdata.query.get_or_404(id)
+    form = Appdata1()
+    lst = list(data.__dict__.items())
+    dct = dict(lst)
+    form.mobile.validators=[Optional()]
+    usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
+
+    if usr.userlevel=="1":
+        form.bank_status.choices=['InProcess']
+    else:
+        form.bank_status.choices=['InProcess','Booked','Decline']
+
+    if (usr.userlevel=="1") & (data.bank_status in ['Booked', 'Decline']):
+            abort(403)
+
+    if usr.bankname!="ENBD":
+        abort(403)
+
+    if (usr.bankname == "ENBD") & (form.product_type.data == "CreditCard"):
+        form.product_name.choices = ["TITANIUM MASTERCARD", "GO 4 IT GOLD VISA CARD", "GO 4 IT PLATINUM VISA CARD",
+                                     "VISA FLEXI VISA CARD", "DNATA PLATINUM MASTERCARD", "DNATA WORLD MASTERCARD",
+                                     "BUSINESS MASTERCARD", "BUSINESS REWARDS SIGNATURE VISA CARD",
+                                     "MANCHESTER UNITED MASTERCARD",
+                                     "LULU TITANIUM MASTERCARD", "LULU PLATINUM MASTERCARD",
+                                     "U BY EMAAR FAMILY VISA CARD",
+                                     "U BY EMAAR SIGNATURE VISA CARD", "U BY EMAAR INFINITE VISA CARD",
+                                     "SKYWARDS SIGNATURE VISA CARD",
+                                     "SKYWARDS INFINITE VISA CARD", "GENERIC INFINITE VISA CARD",
+                                     "MARRIOTT BONVOY WORLD",
+                                     "ETHIHAD GUEST VISA INSPIRE", "ETHIHAD GUEST VISA ELEVATE", "PLATINUM VISA CARD"]
+        form.application_type.choices = ['PHYSICAL', 'TAB-StandAlone', 'Tab-Bundle']
+
+
+    # dct.pop("entry_date")
+    lst_dsrd = ['customer_name', 'mobile', 'customer_email', 'gender', 'nationality', 'salary', 'company','designation',
+                  'ale_status', 'office_emirates', 'length_of_residence', 'length_of_service',
+                'dob', 'emirates_id', 'EID_expiry_date','passport_number', 'passport_expiry','cheque_number', 'cheque_bank','iban',
+                'visa_expiry_date', 'product_type', 'product_name', 'bank_reference', 'bank_status','bankingwith','submissiondate','bookingdate',
+                'application_type', 'supplementary_card', 'remarks', 'cpv']
+    dct_ordered = {k: dct[k] for k in lst_dsrd}
+    if form.validate_on_submit():
+        data.customer_name = form.customer_name.data
+        data.customer_email = form.customer_email.data
+        data.gender = form.gender.data
+        data.nationality = form.nationality.data
+        data.salary = form.salary.data
+        data.company = form.company.data
+        data.designation = form.designation.data
+        data.ale_status = form.ale_status.data
+        data.office_emirates = form.office_emirates.data
+        data.length_of_residence = str(form.length_of_residence.data)
+        data.length_of_service = str(form.length_of_service.data)
+        data.dob = form.dob.data
+
+
+
+
+        data.emirates_id = form.emirates_id.data
+        data.EID_expiry_date = form.EID_expiry_date.data
+        data.passport_number = form.passport_number.data
+        data.passport_expiry = form.passport_expiry.data
+        data.cheque_number = form.cheque_number.data
+        data.cheque_bank = form.cheque_bank.data
+        data.bankingwith = form.bankingwith.data
+        data.iban = form.iban.data
+
+        data.visa_expiry_date = form.visa_expiry_date.data
+        data.product_type = form.product_type.data
+        data.product_name = form.product_name.data
+        data.bank_reference = form.bank_reference.data
+        data.bank_status = form.bank_status.data
+
+        data.application_type=form.application_type.data
+        data.submissiondate=form.submissiondate.data
+        data.bookingdate=form.bookingdate.data
+        data.supplementary_card=form.supplementary_card.data
+        data.remarks=form.remarks.data
+        data.cpv=form.cpv.data
+
+
+        # for i in lst_dsrd:
+        # data.i=form.i.data
+        db.session.commit()
+        flash("Employee Updated Successfully")
+        if usr.userlevel=="1":
+            return redirect(url_for('aecb'))
+        else:
+            return redirect(url_for('success'))
+    elif request.method == 'GET':
+        form_dct = form.data
+        #print(form.data)
+        dct_ordered_form = {m: form_dct[m] for m in lst_dsrd}
+        dct_form = dict(list(zip(dct_ordered_form, dct_ordered.values())))
+        for i in dct_form.keys():
+            if isinstance(dct_form[i], datetime):
+                form[i].data = dct_form[i]
+            elif isinstance(dct_form[i], float):
+                form[i].data = int(dct_form[i])
+            else:
+                form[i].data = dct_form[i]
+    return render_template('update.html', form=form, id=id, user=usr)
+
+
+@application.route('/updateadcb/<int:id>', methods=['GET', 'POST'])
+@login_required
+def updateadcb(id):
+    data = Appdata.query.get_or_404(id)
+    form = Appdata1()
+    lst = list(data.__dict__.items())
+    dct = dict(lst)
+    form.mobile.validators = [Optional()]
+    usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
+
+    if usr.userlevel == "1":
+        form.bank_status.choices = ['InProcess']
+    else:
+        form.bank_status.choices = ['InProcess', 'Booked', 'Decline']
+
+    if (usr.userlevel == "1") & (data.bank_status in ['Booked', 'Decline']):
+        abort(403)
+
+    if usr.bankname!="ADCB":
+        abort(403)
+    if (usr.bankname == "ADCB"):
+        form.product_name.choices = ["ADCB INFINITE CARD", "ADCB SIGNATURE CARD ", "CASHBACK CARD", "BETAQTI CARD",
+                                      "ADCB ETIHAD GUEST INFINITE CARD", "ADCB ETIHAD GUEST SIGNATURE CARD",
+                                      "ADCB ETIHAD GUEST PLATINUM CARD",
+                                      "TRAVELLER CREDIT CARD", "TOUCH POINTS INFINITE CARD",
+                                      "TOUCH POINTS PLATINUM CARD", "TOUCH POINTS TITANIUM/GOLD CARD",
+                                      "LULU PLATINUM CARD", "LULU TITANIUM CARD"]
+        form.application_type.choices = ['CONVENTIONAL', 'ISLAMIC']
+
+    # dct.pop("entry_date")
+    lst_dsrd = ['customer_name', 'mobile', 'customer_email', 'nationality', 'salary', 'company',
+                'ale_status', 'emirates_id', 'passport_number', 'product_type', 'product_name', 'bank_reference',
+                'bank_status','application_type', 'submissiondate', 'bookingdate', 'promo', 'remarks', 'cpv']
+    dct_ordered = {k: dct[k] for k in lst_dsrd}
+
+    form.mobile.validators=[Optional()]
+    form.gender.validators=[Optional()]
+    form.office_emirates.validators=[Optional()]
+
+
+    if form.validate_on_submit():
+        data.customer_name = form.customer_name.data
+        data.customer_email = form.customer_email.data
+        data.nationality = form.nationality.data
+        data.salary = form.salary.data
+        data.company = form.company.data
+        data.ale_status = form.ale_status.data
+        data.emirates_id = form.emirates_id.data
+        data.passport_number = form.passport_number.data
+        data.product_type = form.product_type.data
+        data.product_name = form.product_name.data
+        data.bank_reference = form.bank_reference.data
+        data.bank_status = form.bank_status.data
+
+        data.application_type = form.application_type.data
+        data.submissiondate = form.submissiondate.data
+        data.bookingdate = form.bookingdate.data
+        data.remarks = form.remarks.data
+        data.cpv = form.cpv.data
+        data.promo=form.promo.data
+        #print("Are you coming here")
+        # for i in lst_dsrd:
+        # data.i=form.i.data
+        db.session.commit()
+        flash("Employee Updated Successfully")
+        if usr.userlevel == "1":
+            return redirect(url_for('aecb'))
+        else:
+            return redirect(url_for('success'))
+    elif request.method == 'GET':
+        form_dct = form.data
+        # print(form.data)
+        dct_ordered_form = {m: form_dct[m] for m in lst_dsrd}
+        dct_form = dict(list(zip(dct_ordered_form, dct_ordered.values())))
+        for i in dct_form.keys():
+            if isinstance(dct_form[i], datetime):
+                form[i].data = dct_form[i]
+            elif isinstance(dct_form[i], float):
+                form[i].data = int(dct_form[i])
+            else:
+                form[i].data = dct_form[i]
+    return render_template('updateadcb.html', form=form, id=id, user=usr)
+
+
+@application.route('/updatehilal/<int:id>', methods=['GET', 'POST'])
+@login_required
+def updatehilal(id):
+    data2 = Appdata.query.get_or_404(id)
+    form = Alhilal()
+    lst = list(data2.__dict__.items())
+    dct = dict(lst)
+
+    # This is the way to override original form validation of any field.
+    form.mobile.validators=[Optional()]
+
+    usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
+    if usr.userlevel=="1":
+        form.bank_status.choices=['InProcess']
+    else:
+        form.bank_status.choices=['InProcess','Booked','Decline']
+
+    if (usr.userlevel=="1") & (data2.bank_status in ['Booked', 'Decline']):
+            abort(403)
+
+    if usr.bankname != "ALHILAL":
+        abort(403)
+
+    lst_dsrd = ['customer_name', 'mobile',  'salary', 'company','designation','ale_status', 'iban', 'product_name','bank_reference',
+                'bank_status', 'remarks', 'cclimit', 'mothername', 'uaeaddress', 'homecountryaddress', 'homecountrynumber',
+                'joiningdate', 'ref1name', 'ref2name','ref1mobile', 'ref2mobile','sent', 'bookingdate']
+    dct_ordered = {k: dct[k] for k in lst_dsrd}
+    if form.validate_on_submit():
+        #print("Print if its reaching here")
+        data2.customer_name=form.customer_name.data
+        data2.homecountrynumber=form.homecountrynumber.data
+        data2.salary=form.salary.data
+        data2.bank_reference=form.bank_reference.data
+        data2.cclimit=form.cclimit.data
+        data2.mothername=form.mothername.data
+        data2.company=form.company.data
+        data2.designation=form.designation.data
+        data2.ale_status=form.ale_status.data
+        data2.uaeaddress=form.uaeaddress.data
+        data2.homecountryaddress=form.homecountryaddress.data
+        data2.iban=form.iban.data
+        data2.ref1name=form.ref1name.data
+        data2.ref2name=form.ref2name.data
+        data2.ref1mobile=form.ref1mobile.data
+        data2.ref2mobile=form.ref2mobile.data
+        data2.joiningdate=form.joiningdate.data
+        data2.remarks=form.remarks.data
+        data2.bank_status=form.bank_status.data
+        data2.product_name=form.product_name.data
+        data2.sent=form.sent.data
+        data2.bookingdate = form.bookingdate.data
+
+        db.session.commit()
+
+        flash("Employee Updated Successfully")
+        if usr.userlevel == "1":
+            return redirect(url_for('aecb'))
+        else:
+            return redirect(url_for('success'))
+    elif request.method == 'GET':
+        form_dct = form.data
+        # print(form.data)
+        dct_ordered_form = {m: form_dct[m] for m in lst_dsrd}
+        dct_form = dict(list(zip(dct_ordered_form, dct_ordered.values())))
+        #print(dct_form)
+        for i in dct_form.keys():
+            if isinstance(dct_form[i], datetime):
+                form[i].data = dct_form[i]
+            elif isinstance(dct_form[i], float):
+                form[i].data = int(dct_form[i])
+            else:
+                form[i].data = dct_form[i]
+    return render_template('update2.html', form=form, id=id, user=usr)
+
+
+@application.route('/download', methods=['GET', 'POST'])
+@login_required
+def download():
+    global data
+    usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
+    if usr.userlevel not in ["4","5"]:
+        abort(403)
+    form = Download(request.form)
+    if form.validate_on_submit():
+        sd = form.start.data
+        ed = form.end.data
+
+        if ed < sd:
+            raise ValidationError("End date must not be less than Start date")
+
+        if usr.userlevel =="4":
+            data = Appdata.query.filter(and_(Appdata.crdntr_hrmsid==usr.hrmsID,
+                                         func.date(Appdata.entry_date)>=sd, func.date(Appdata.entry_date)<=ed)).all()
+        if usr.userlevel =="5":
+            data = Appdata.query.filter(and_(func.date(Appdata.entry_date) >= sd,
+                                             func.date(Appdata.entry_date) <= ed)).all()
+        lst_enbd = ['leadid','entry_date','agent_id','mngrhrmsid', 'agent_name', 'customer_name','customer_email',
+                    'gender', 'mobile',  'dob', 'salary','nationality', 'company', 'designation', 'ale_status',
+                    'office_emirate', 'HRLandline', 'los', 'emirates_id','emiratesid_expiry','passport',
+                    'cheque_number', 'cheque_bank', 'iban', 'bank_name', 'product_type',  'product_name',
+                     'bank_reference', 'bank_status', 'application_type', 'remarks', 'cpv', 'booking_date']
+
+        lst_hilal = ['leadid','entry_date','agent_id','tlhrmsid','mngrhrmsid', 'agent_name', 'customer_name', 'mobile', 'salary',
+                   'company','designation','ale_status', 'iban', 'cclimit', 'mothername', 'uaeaddress', 'homecountryaddress',
+                     'homecountrynumber','joiningdate', 'ref1name', 'ref2name','ref1mobile', 'ref2mobile',
+                     'product_name','bank_reference','bank_status','sent','bookingdate', 'remarks']
+
+        lst_adcb = ['leadid', 'entry_date', 'agent_id', 'tlhrmsid', 'mngrhrmsid', 'agent_name', 'customer_name',
+                     'mobile','customer_email', 'nationality', 'salary','company', 'ale_status', 'emirates_id', 'passport',
+                    'product_type', 'product_name', 'bank_reference', 'bank_status', 'application_type','submission_date',
+                    'promo','remarks', 'cpv', 'bookingdate']
+
+        if usr.bankname=='ENBD':
+            with open(f"/var/www/html/ecsa/static/all_record_{usr.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+                csvwriter=csv.writer(csvfile,delimiter=",")
+                csvwriter.writerow(lst_enbd)
+                for p in data:
+                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date),p.agent_id, p.mngrhrmsid,p.agent_name,p.customer_name,
+                                        p.customer_email,p.gender, p.mobile,p.dob, p.salary, p.nationality, p.company, p.designation,
+                                        p.ale_status, p.office_emirates, p.length_of_residence,
+                                        p.length_of_service, p.emirates_id, p.EID_expiry_date, p.passport_number,
+                                        p.cheque_number, p.cheque_bank, p.iban,p.bankingwith, p.product_type, p.product_name,
+                                        p.bank_reference,p.bank_status, p.application_type,p.remarks,p.cpv, p.bookingdate])
+            return send_file(f"/var/www/html/ecsa/static/all_record_{usr.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
+
+        elif usr.bankname=="ALHILAL":
+            with open(f"/var/www/html/ecsa/static/all_record_{usr.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+                csvwriter = csv.writer(csvfile, delimiter=",")
+                csvwriter.writerow(lst_hilal)
+                for p in data:
+                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date),p.agent_id, p.tlhrmsid,p.mngrhrmsid,p.agent_name,p.customer_name, p.mobile,
+                                    p.salary, p.company, p.designation, p.ale_status, p.iban, p.cclimit,
+				    p.mothername,p.uaeaddress,p.homecountryaddress,p.homecountrynumber,p.joiningdate,p.ref1name,
+				    p.ref2name,p.ref1mobile,p.ref2mobile,p.product_name,p.bank_reference,p.bank_status,
+                                    p.sent,p.bookingdate,p.remarks
+                                    ])
+                    csvwriter.writerow(
+                        [p.leadid, datetime.date(p.entry_date),p.agent_id, p.tlhrmsid,p.mngrhrmsid,p.agent_name,p.customer_name,
+                         p.mobile,p.salary, p.company, p.designation, p.ale_status, p.iban, p.cclimit,p.mothername,p.uaeaddress,
+                         p.homecountryaddress,p.homecountrynumber,p.joiningdate,p.ref1name,p.ref2name,p.ref1mobile,p.ref2mobile,
+                         p.product_name,p.bank_reference,p.bank_status,p.sent,p.bookingdate,p.remarks])
+            return send_file(f"static/all_record_{usr.hrmsID}.csv", mimetype='text/csv',
+                             as_attachment=True)
+
+        elif usr.bankname=="ADCB":
+            with open(f"/var/www/html/ecsa/static/all_record_{usr.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+                csvwriter = csv.writer(csvfile, delimiter=",")
+                csvwriter.writerow(lst_adcb)
+                for p in data:
+                    csvwriter.writerow(
+                        [p.leadid, datetime.date(p.entry_date),p.agent_id, p.tlhrmsid,p.mngrhrmsid,p.agent_name,p.customer_name,
+                         p.mobile,p.customer_email, p.nationality, p.salary, p.company, p.ale_status, p.emirates_id,p.passport_number,
+                         p.product_type, p.product_name,p.bank_reference,p.bank_status,p.application_type,p.submissiondate,p.promo,
+                         p.remarks, p.cpv, p.bookingdate])
+            return send_file(f"/var/www/html/ecsa/static/all_record_{usr.hrmsID}.csv", mimetype='text/csv',
+                             as_attachment=True)
+
+    return render_template('download.html', form=form)
+
+
+# Create Login
+
+@application.route('/create', methods=['GET', 'POST'])
+@login_required
+def create():
+    if current_user.userlevel != "5":
+        abort(403)
+    form = Create()
+    if form.validate_on_submit():
+        usr = User()
+        usr.username = form.username.data
+        usr.password = form.password.data
+        usr.hrmsID=form.hrmsid.data
+        usr.userlevel = form.usergroup.data
+        usr.location = form.location.data
+        usr.agent_name = form.name.data
+        usr.bankname = form.department.data
+        usr.mngrhrmsid=form.mngrhrmsid.data
+        usr.manager=form.manager.data
+        usr.tlhrmsid=form.tlhrmsid.data
+        usr.coordinator_hrmsid=form.crdntrhrmsid.data
+
+
+        usr2 = User.query.filter(or_(User.username == usr.username, User.hrmsID == usr.hrmsID)).first()
+        if usr2:
+            flash("User already exist with this hrmsID or username")
+            return render_template('create.html', form=form)
+        else:
+            db.session.add(usr)
+            db.session.commit()
+            flash("User created successfully")
+            return redirect(url_for('admin'))
+    return render_template('create.html', form=form)
+
+
+@application.route('/admin', methods=['GET', 'POST'])
+@login_required
+def admin():
+    if current_user.userlevel != "5":
+        abort(403)
+    record = User.query.filter(User.userlevel != "5").all()
+    return render_template('admin.html', record=record)
+
+
+@application.route('/delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def delete(id):
+    if current_user.userlevel != "5":
+        abort(403)
+    x = User.query.filter_by(id=id).first()
+    db.session.delete(x)
+    db.session.commit()
+    flash("User deleted successfully")
+    return redirect(url_for('admin'))
+
+@application.route('/updateuser/<int:id>', methods=['GET', 'POST'])
+@login_required
+def updateuser(id):
+    if current_user.userlevel !="5":
+        abort(403)
+
+    data2 = User.query.get_or_404(id)
+    form = Create()
+
+    if form.validate_on_submit():
+        data2.username = form.username.data
+        data2.password = form.password.data
+        data2.hrmsID = form.hrmsid.data
+        data2.bankname=form.department.data
+        data2.manager=form.manager.data
+        data2.location=form.location.data
+        data2.userlevel=form.usergroup.data
+        data2.agent_name=form.name.data
+        data2.mngrhrmsid=form.mngrhrmsid.data
+        data2.tlhrmsid=form.tlhrmsid.data
+        data2.coordinator_hrmsid=form.crdntrhrmsid.data
+
+        db.session.commit()
+        flash("User updated successfully")
+        return redirect(url_for('admin'))
+
+    elif request.method == "GET":
+        form.username.data=data2.username
+        form.password.data=data2.password
+        form.hrmsid.data=data2.hrmsID
+        form.department.data=data2.bankname
+        form.manager.data=data2.manager
+        form.location.data=data2.location
+        form.usergroup.data=data2.userlevel
+        form.name.data=data2.agent_name
+        form.mngrhrmsid.data=data2.mngrhrmsid
+        form.crdntrhrmsid.data=data2.coordinator_hrmsid
+        form.tlhrmsid.data=data2.tlhrmsid
+
+    return render_template('updateuser.html', form=form, id=id)
+
+@application.route('/upload', methods=['GET', 'POST'])
+@login_required
+def upload():
+        if current_user.userlevel not in ["2","3"]:
+            abort(403)
+        usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
+        form = Upload()
+        if form.validate_on_submit():
+            file = form.upload.data
+            if file and allowed_file(file.filename):
+                file.filename = "data" + str(usr.agent_name) + str(datetime.date(datetime.utcnow())) + ".xlsx"
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(application.config['UPLOADS_FOLDER'], filename))
+                df=pd.read_excel(f'/var/www/html/ecsa/static/files/{filename}')
+                lst_df = list(df.columns)
+                lst_df= [x.strip() for x in lst_df]
+                lst_df = [x.lower() for x in lst_df]
+                df.columns = lst_df
+                ar = df.iloc[:,0].values
+                ar2 = df.iloc[:,1].values
+                return redirect(url_for('success'))
+            else:
+                return "<h1> Please upload only a xlsx file</h1>"
+        return render_template('upload.html', form=form,  user=usr)
+
+
+@application.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
+if __name__ == "__main__":
+    application.run()

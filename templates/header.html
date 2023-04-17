@@ -1,0 +1,19 @@
+{% extends "base2.html" %}
+ 
+{% block title %} Welcome {% endblock %}
+ 
+{% block body %}
+<div class="container">
+<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+            <span class="sr-only"></span>
+          <a class="navbar-brand" href="{{url_for('logout')}}">Logout</a>
+          <a class="navbar-brand" href="{{url_for('download')}}">DownloadReport</a>
+          <a class="navbar-brand" href="{{url_for('insert')}}">Add New Record</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+{% endblock %}

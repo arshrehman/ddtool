@@ -1,0 +1,126 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+Customer Details
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('.static', filename='signin.css')}}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+            <span class="sr-only"></span>
+          <a class="navbar-brand" href="{{url_for('aecb')}}">Home</a>
+          <a class="navbar-brand" href="{{url_for('customer')}}">CreateRecord</a>
+          <a class="navbar-brand" href="{{url_for('logout')}}">Logout</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+ <div class="container">
+      <form class="well form-horizontal" method="POST" action="/customer">
+        <legend><center><h2><b>Please fill the details of the customer</b></h2></center></legend><br>
+        {{ form1.hidden_tag() }}
+        <div class="form-group">{{ form1.agent_id.label(class="col-md-4 control-label")}}
+          <div class="col-md-5"> {{form1.agent_id(class="form-control")}}</div>
+          <ul class="erros">
+            {% for error in form1.agent_id.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="form-group">{{ form1.customer_name.label(class="col-md-4 control-label")}}
+          <div class="col-md-5">{{form1.customer_name(class="form-control")}}</div>
+          <ul class="erros">
+            {% for error in form1.customer_name.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="form-group">{{ form1.customer_email.label(class="col-md-4 control-label")}}
+          <div class="col-md-5">{{form1.customer_email(class="form-control")}}</div>
+          <ul class="erros">
+            {% for error in form1.customer_email.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="form-group">{{ form1.gender.label(class="col-md-4 control-label")}}
+          <div class="col-md-5">{{form1.gender(class="form-control")}}</div>
+          <ul class="erros">
+            {% for error in form1.gender.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="form-group">{{ form1.dob.label(class="col-md-4 control-label")}}
+          <div class="col-md-5">{{form1.dob(type="date", class="form-control")}}</div>
+          <ul class="erros">
+            {% for error in form1.dob.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="form-group">{{ form1.emirates_id.label(class="col-md-4 control-label")}}
+          <div class="col-md-5">{{form1.emirates_id(class="form-control")}}</div>
+           <ul class="erros">
+            {% for error in form1.emirates_id.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="form-group">{{ form1.mobile.label(class="col-md-4 control-label")}}
+          <div class="col-md-5">{{form1.mobile(class="form-control")}}</div>
+          <ul class="erros" style="color:red">
+            {% for error in form1.mobile.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="form-group">{{ form1.passport_number.label(class="col-md-4 control-label")}}
+          <div class="col-md-5">{{form1.passport_number(class="form-control")}}</div>
+            <ul class="erros">
+            {% for error in form1.passport_number.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="form-group">{{ form1.nationality.label(class="col-md-4 control-label")}}
+          <div class="col-md-5">{{form1.nationality(class="form-control")}}</div>
+            <ul class="erros">
+            {% for error in form1.nationality.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="form-group">{{ form1.salary.label(class="col-md-4 control-label")}}
+          <div class="col-md-5">{{form1.salary(class="form-control")}}</div>
+            <ul class="erros">
+            {% for error in form1.salary.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="form-group">{{ form1.product.label(class = "col-md-4 control-label")}}
+          <div class="col-md-5">{{form1.product(class="form-control")}}</div>
+        </div>
+        <div class="form-group">{{ form1.company.label(class="col-md-4 control-label")}}
+          <div class="col-md-5">{{form1.company(class="form-control")}}</div>
+        </div>
+        <div class="text-center">{{form1.submit}}</div>
+
+        </form>
+
+ </div> <!-- /container -->
+<style>
+.erros{
+color:red
+}</style>
+{% endblock %}

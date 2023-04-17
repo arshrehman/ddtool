@@ -1,0 +1,193 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+ECSA
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+            <span class="sr-only"></span>
+          <a class="navbar-brand" href="{{url_for('logout')}}">Logout</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="{{ url_for('download') }}">Download</a></li>
+          </ul>
+          <ul class="nav navbar-nav">
+            <li><a href="{{ url_for('success') }}">AllRecords</a></li>
+          </ul>
+
+          <ul class="nav navbar-nav">
+            <li><a href="{{ url_for('create') }}">CreateUser</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+  </div>
+
+<div class="custom"></div>
+<div class="container">
+      <div class="input-group mb-3">
+
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+
+                {% for message in messages %}
+                <div class="alert alert-success alert-dismissable" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                {{message}}
+                </div>
+                {% endfor %}
+
+                {% endif %}
+                {% endwith %} </div>
+<div class="container">
+      <form method="POST" action=/create>
+        {{ form.hidden_tag() }}
+
+        <div class="form-row">
+
+          <div class="form-group col-xs-4">
+            {{ form.username.label(class="col-md-4 control-label")}}
+            {{form.username(class="form-control", placeholder="UserName")}}
+            <ul class="erros">
+              {% for error in form.username.errors %}
+                  <li>{{error}}</li>
+              {% endfor %}
+            </ul>
+          </div>
+
+        <div class="form-group col-xs-4">
+          {{ form.password.label(class="col-md-4 control-label")}}
+          {{form.password(class="form-control", placeholder="Password")}}
+          <ul class="erros">
+            {% for error in form.password.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="form-group col-xs-4">
+          {{ form.hrmsid.label(class="col-md-4 control-label")}}
+          {{form.hrmsid(class="form-control", placeholder="Password")}}
+          <ul class="erros">
+            {% for error in form.password.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+
+        <div class="form-group col-xs-4">
+          {{ form.department.label(class="col-md-4 control-label")}}
+          {{form.department(class="form-control")}}
+            <ul class="erros">
+            {% for error in form.location.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+
+
+        <div class="form-group col-xs-4">
+          {{ form.name.label(class="col-md-4 control-label")}}
+          {{form.name(class="form-control")}}
+          <ul class="erros">
+            {% for error in form.name.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="form-group col-xs-4">
+          {{ form.tlhrmsid.label(class="col-md-4 control-label")}}
+          {{form.tlhrmsid(class="form-control")}}
+          <ul class="erros">
+            {% for error in form.tlhrmsid.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="form-group col-xs-4">
+          {{ form.crdntrhrmsid.label(class="col-md-4 control-label")}}
+          {{form.crdntrhrmsid(class="form-control")}}
+          <ul class="erros">
+            {% for error in form.crdntrhrmsid.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+
+
+         <div class="form-group col-xs-4">
+          {{ form.manager.label(class="col-md-4 control-label")}}
+          {{form.manager(class="form-control")}}
+          <ul class="erros">
+            {% for error in form.manager.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="form-group col-xs-4">
+          {{ form.location.label(class="col-md-4 control-label")}}
+          {{form.location(class="form-control")}}
+            <ul class="erros">
+            {% for error in form.location.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+
+
+          <div class="form-group col-xs-4">
+          {{ form.usergroup.label(class="col-md-6 control-label")}}
+          {{form.usergroup(class="form-control")}}
+            <ul class="erros">
+            {% for error in form.usergroup.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+
+        <div class="form-group col-xs-4">
+          {{ form.mngrhrmsid.label(class="col-md-6 control-label")}}
+          {{form.mngrhrmsid(class="form-control")}}
+            <ul class="erros">
+            {% for error in form.mngrhrmsid.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+
+
+
+      <div class="container">
+            {{form.CreateUser(class="btn btn-primary btn-lg btn-block")}}
+        </div>
+
+        </div></div>
+      </form></div>
+
+<style>div.custom {
+  padding-top: 30px;
+  padding-right: 30px;
+  padding-bottom: 30px;
+  padding-left: 30px;
+}</style>
+
+
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+
+{% block title %}
+ECSA
+{% endblock %}
+{% block content %}
+
+<div class="container">
+<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+            <span class="sr-only"></span>
+            {% if user.userlevel in ["2","3"] %}
+          <a class="navbar-brand" href="{{url_for('success')}}">Home</a>
+          <a class="navbar-brand" href="{{url_for('download')}}">DownloadReport</a>
+          <a class="navbar-brand" href="{{url_for('insert')}}">Add New Record</a>
+          <a class="navbar-brand" href="{{url_for('logout')}}">Logout</a>
+            {% else %}
+           <a class="navbar-brand" href="#"></a>
+          <a class="navbar-brand" href="{{url_for('aecb')}}">Home</a>
+          <a class="navbar-brand" href="{{url_for('insert')}}">Add New Record</a>
+          <a class="navbar-brand" href="{{url_for('logout')}}">Logout</a>
+            {% endif %}
+        </div>
+      </div>
+    </nav>
+  </div>
+
+
+
+<div><p>"Please upload only xlsx file which must have two columns ['leadid','bankstatus'] or ['bankreference','bankstatus']</p></div>
+
+<div class="custom">
+    <form method="POST" enctype="multipart/form-data">
+       <dl>
+       {{ wtf.quick_form(form)}}
+        </dl>
+    </form>
+</div>
+<div><p>"Please upload only xlsx file which must have two columns ['leadid','bankstatus'] or ['bankreference','bankstatus']</p></div>
+
+<style>div.custom {
+  padding-top: 90px;
+  padding-right: 30px;
+  padding-bottom: 50px;
+  padding-left: 80px;
+}</style>
+{% endblock %}
