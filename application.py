@@ -26,7 +26,7 @@ context=SSL.Context(SSL.SSLv23_METHOD)
 from flask_bcrypt import Bcrypt
 
 ALLOWED_EXTENSIONS = set(['xlsx'])
-UPLOADS_FOLDER = "static/files"
+UPLOADS_FOLDER = "/static/files"
 
 application = Flask(__name__)
 bootstrap = Bootstrap(application)
@@ -34,7 +34,7 @@ bootstrap = Bootstrap(application)
 
 #sslify = SSLify(application)
 secret_key=secrets.token_hex(16)
-application.config['SECRET_KEY'] = 'asdfsadfjsakldfjlksajdfklcmnlskjwkjlkjdsglkamm'
+application.config['SECRET_KEY'] = os.environ.get('secret_key2')
 application.config['UPLOADS_FOLDER'] = UPLOADS_FOLDER
 application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 db = SQLAlchemy(application)
@@ -878,7 +878,7 @@ def download():
                     'promo','remarks', 'cpv', 'bookingdate']
 
         if current_user.bankname=='ENBD':
-            with open(f"static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+            with open(f"/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter=csv.writer(csvfile,delimiter=",")
                 csvwriter.writerow(lst_enbd)
                 for p in data:
@@ -888,10 +888,10 @@ def download():
                                         p.length_of_service, p.emirates_id, p.EID_expiry_date, p.passport_number,
                                         p.cheque_number, p.cheque_bank, p.iban,p.bankingwith, p.product_type, p.product_name,
                                         p.bank_reference,p.bank_status, p.application_type,p.remarks,p.cpv, p.bookingdate])
-            return send_file(f"static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
+            return send_file(f"/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
 
         elif current_user.bankname=="ALHILAL":
-            with open(f"static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+            with open(f"/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile, delimiter=",")
                 csvwriter.writerow(lst_hilal)
                 for p in data:
@@ -900,11 +900,11 @@ def download():
                          p.mobile,p.salary, p.company, p.designation, p.ale_status, p.iban, p.cclimit,p.mothername,p.uaeaddress,
                          p.homecountryaddress,p.homecountrynumber,p.joiningdate,p.ref1name,p.ref2name,p.ref1mobile,p.ref2mobile,
                          p.product_name,p.bank_reference,p.bank_status,p.sent,p.bookingdate,p.remarks])
-            return send_file(f"static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
+            return send_file(f"/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
 
         elif current_user.bankname=="ADCB":
-            with open(f"static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+            with open(f"/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile, delimiter=",")
                 csvwriter.writerow(lst_adcb)
                 for p in data:
@@ -913,7 +913,7 @@ def download():
                          p.mobile,p.customer_email, p.nationality, p.salary, p.company, p.ale_status, p.emirates_id,p.passport_number,
                          p.product_type, p.product_name,p.bank_reference,p.bank_status,p.application_type,p.submissiondate,p.promo,
                          p.remarks, p.cpv, p.bookingdate])
-            return send_file(f"static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
+            return send_file(f"/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
 
     return render_template('download.html', form=form)
@@ -1028,7 +1028,7 @@ def upload():
                 file.filename = "data" + str(usr.agent_name) + str(datetime.date(datetime.utcnow())) + ".xlsx"
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(application.config['UPLOADS_FOLDER'], filename))
-                df=pd.read_excel(f'static/files/{filename}')
+                df=pd.read_excel(f'/static/files/{filename}')
                 lst_df = list(df.columns)
                 lst_df= [x.strip() for x in lst_df]
                 lst_df = [x.lower() for x in lst_df]
