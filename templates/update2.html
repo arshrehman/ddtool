@@ -1,4 +1,4 @@
-{% extends "bootstrap/base.html" %}
+{% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
 
@@ -10,36 +10,6 @@ ECSA
 {% block content %}
 
 <div class="container">
-<nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-            <span class="sr-only"></span>
-            {% if user.userlevel in ["4","5"] %}
-          <a class="navbar-brand" href="{{url_for('success')}}">Home</a>
-          <a class="navbar-brand" href="{{url_for('download')}}">DownloadReport</a>
-          <!--a class="navbar-brand" href="{{url_for('insert2')}}">Add New Record</a-->
-          <a class="navbar-brand" href="{{url_for('logout')}}">Logout</a>
-            {% elif user.userlevel in ["2","3"] %}
-           <a class="navbar-brand" href="#"></a>
-          <a class="navbar-brand" href="{{url_for('success')}}">Home</a>
-          <!--a class="navbar-brand" href="{{url_for('insert2')}}">Add New Record</a-->
-          <a class="navbar-brand" href="{{url_for('logout')}}">Logout</a>
-            {% else %}
-          <a class="navbar-brand" href="{{url_for('aecb')}}">Home</a>
-          <!--a class="navbar-brand" href="{{url_for('insert2')}}">Add New Record</a-->
-          <a class="navbar-brand" href="{{url_for('logout')}}">Logout</a>
-
-            {% endif %}
-        </div>
-      </div>
-    </nav>
-  </div>
-
-
-
-
-
-<div class="custom">
       <div class="input-group mb-3">
 
                 {% with messages = get_flashed_messages() %}
@@ -55,14 +25,16 @@ ECSA
                 {% endfor %}
 
                 {% endif %}
-                {% endwith %} </div>
+                {% endwith %}
+      </div>
+</div>
 
-      <form method="POST" action=/updatehilal/{{id}}>
+<form method="POST" action=/updatehilal/{{id}}>
         {{ form.hidden_tag() }}
 
         <div class="form-row">
 
-          <div class="form-group col-xs-6">
+          <div class="col">
             {{ form.customer_name.label()}}
             {{form.customer_name(class="form-control")}}
             <ul class="errors">
@@ -73,7 +45,7 @@ ECSA
           </div>
 
 
-          <div class="form-group col-xs-6">
+          <div class="col">
             {{ form.homecountrynumber.label()}}
             {{form.homecountrynumber(class="form-control")}}
             <ul class="errors">
@@ -82,8 +54,10 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+        </div>
 
-            <div class="form-group col-xs-6">
+    <div class="form-row">
+            <div class="col">
             {{ form.salary.label()}}
             {{form.salary(class="form-control")}}
             <ul class="errors">
@@ -93,7 +67,7 @@ ECSA
             </ul>
           </div>
 
-            <div class="form-group col-xs-6">
+            <div class="col">
             {{ form.bank_reference.label()}}
             {{form.bank_reference(class="form-control")}}
             <ul class="errors">
@@ -102,9 +76,10 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+    </div>
 
-
-            <div class="form-group col-xs-6">
+    <div class="form-row">
+            <div class="col">
             {{ form.cclimit.label()}}
             {{form.cclimit(class="form-control")}}
             <ul class="errors">
@@ -114,7 +89,7 @@ ECSA
             </ul>
           </div>
 
-            <div class="form-group col-xs-6">
+            <div class="col">
             {{ form.mothername.label()}}
             {{form.mothername(class="form-control")}}
             <ul class="errors">
@@ -123,8 +98,10 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+    </div>
 
-            <div class="form-group col-xs-6">
+    <div class="form-row">
+            <div class="col">
             {{ form.company.label()}}
             {{form.company(class="form-control")}}
             <ul class="errors">
@@ -134,7 +111,7 @@ ECSA
             </ul>
           </div>
 
-            <div class="form-group col-xs-6">
+            <div class="col">
             {{ form.designation.label()}}
             {{form.designation(class="form-control")}}
             <ul class="errors">
@@ -143,8 +120,10 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+    </div>
 
-            <div class="form-group col-xs-6">
+    <div class="form-row">
+            <div class="col">
             {{ form.ale_status.label()}}
             {{form.ale_status(class="form-control")}}
             <ul class="errors">
@@ -155,7 +134,7 @@ ECSA
           </div>
 
 
-           <div class="form-group col-xs-6">
+           <div class="col">
             {{ form.uaeaddress.label()}}
             {{form.uaeaddress(class="form-control")}}
             <ul class="errors">
@@ -164,8 +143,10 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+    </div>
 
-            <div class="form-group col-xs-6">
+    <div class="form-control">
+            <div class="col">
             {{ form.homecountryaddress.label()}}
             {{form.homecountryaddress(class="form-control")}}
             <ul class="errors">
@@ -176,7 +157,7 @@ ECSA
           </div>
 
 
-            <div class="form-group col-xs-6">
+            <div class="col">
             {{ form.iban.label()}}
             {{form.iban(class="form-control")}}
             <ul class="errors">
@@ -185,8 +166,10 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+    </div>
 
-            <div class="form-group col-xs-6">
+          <div class="form-row">
+            <div class="col">
             {{ form.ref1name.label()}}
             {{form.ref1name(class="form-control")}}
             <ul class="errors">
@@ -196,7 +179,7 @@ ECSA
             </ul>
           </div>
 
-            <div class="form-group col-xs-6">
+            <div class="col">
             {{ form.ref2name.label()}}
             {{form.ref2name(class="form-control")}}
             <ul class="errors">
@@ -205,8 +188,10 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+          </div>
 
-            <div class="form-group col-xs-6">
+    <div class="form-row">
+            <div class="col">
             {{ form.ref1mobile.label()}}
             {{form.ref1mobile(class="form-control")}}
             <ul class="errors">
@@ -216,7 +201,7 @@ ECSA
             </ul>
           </div>
 
-         <div class="form-group col-xs-6">
+         <div class="col">
             {{ form.ref2mobile.label()}}
             {{form.ref2mobile(class="form-control")}}
             <ul class="errors">
@@ -225,8 +210,10 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+    </div>
 
-            <div class="form-group col-xs-6">
+    <div class="form-row">
+            <div class="col">
             {{ form.joiningdate.label()}}
             {{form.joiningdate(class="form-control")}}
             <ul class="errors">
@@ -235,19 +222,7 @@ ECSA
               {% endfor %}
             </ul>
           </div>
-
-
-            <div class="form-group col-xs-6">
-            {{ form.remarks.label()}}
-            {{form.remarks(class="form-control")}}
-            <ul class="errors">
-              {% for error in form.remarks.errors %}
-                  <li>{{error}}</li>
-              {% endfor %}
-            </ul>
-          </div>
-
-            <div class="form-group col-xs-6">
+        <div class="col">
             {{ form.bank_status.label()}}
             {{form.bank_status(class="form-control")}}
             <ul class="errors">
@@ -256,8 +231,11 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+    </div>
 
-            <div class="form-group col-xs-6">
+    <div class="form-row">
+
+        <div class="col">
             {{ form.product_name.label()}}
             {{form.product_name(class="form-control")}}
             <ul class="errors">
@@ -267,8 +245,21 @@ ECSA
             </ul>
           </div>
 
-          {% if user.userlevel=="4" %}
-            <div class="form-group col-xs-6">
+            <div class="col">
+            {{ form.remarks.label()}}
+            {{form.remarks(class="form-control")}}
+            <ul class="errors">
+              {% for error in form.remarks.errors %}
+                  <li>{{error}}</li>
+              {% endfor %}
+            </ul>
+          </div>
+
+    </div>
+
+    <div class="form-row">
+            {% if user.userlevel=="4" %}
+            <div class="col">
             {{ form.sent.label()}}
             {{form.sent(class="form-control")}}
             <ul class="errors">
@@ -280,7 +271,7 @@ ECSA
             {% endif %}
 
           {% if user.userlevel=="4" %}
-            <div class="form-group col-xs-6">
+            <div class="col">
             {{ form.bookingdate.label()}}
             {{form.bookingdate(class="form-control")}}
             <ul class="errors">
@@ -289,21 +280,17 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+    </div>
             {% endif %}
 
 
-            <div>
+            <div class="container">
             {{form.submit(class="form-control", class="btn btn-primary btn-lg btn-block")}}
         </div>
 
-            </div>
-      </form></div>
+
+      </form>
 
 
-<style>div.custom {
-  padding-top: 60px;
-  padding-right: 30px;
-  padding-bottom: 30px;
-  padding-left: 30px;
-}</style>
+
 {% endblock %}

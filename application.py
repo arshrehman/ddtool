@@ -87,7 +87,7 @@ class Appdata(db.Model):
     #primary columns
     id = db.Column(db.Integer, primary_key=True)
     leadid=db.Column(db.String(30))
-    entry_date = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    entry_date = db.Column(db.DateTime, nullable=False)
 
     #agent detection
     agent_id = db.Column(db.String(20), nullable=False) #will be fetched by session user
@@ -282,6 +282,8 @@ def insert():
             appdata.leadid = "719" + str(form.mobile.data[-4:])
 
         # customer details
+        print(datetime.now())
+        appdata.entry_date=datetime.now()
         appdata.customer_name = form.customer_name.data
         appdata.mobile = form.mobile.data
         appdata.customer_email = form.customer_email.data
@@ -368,6 +370,7 @@ def insert2():
             appdata.leadid = "779" + str(form.mobile.data[-4:])
 
         appdata.customer_name=form.customer_name.data
+        appdata.entry_date=datetime.now()
         appdata.mobile=form.mobile.data
         appdata.homecountrynumber=form.homecountrynumber.data
         appdata.salary=form.salary.data
@@ -423,12 +426,14 @@ def insertadcb():
         form1.bank_status.choices = ['InProcess', 'Booked', 'Decline']
 
     if (usr.bankname == "ADCB") & (form1.product_type.data == "CreditCard"):
-        form1.product_name.choices = ["ADCB INFINITE CARD", "ADCB SIGNATURE CARD ", "CASHBACK CARD", "BETAQTI CARD",
-                                     "ADCB ETIHAD GUEST INFINITE CARD", "ADCB ETIHAD GUEST SIGNATURE CARD",
-                                     "ADCB ETIHAD GUEST PLATINUM CARD",
-                                     "TRAVELLER CREDIT CARD", "TOUCH POINTS INFINITE CARD",
-                                     "TOUCH POINTS PLATINUM CARD", "TOUCH POINTS TITANIUM/GOLD CARD",
-                                     "LULU PLATINUM CARD", "LULU TITANIUM CARD"]
+        form1.product_name.choices = ["43-ETIHAD VISA ETIHAD PLATINUM CARD", "365-CASHBACK ISLAMIC CARD",
+                                     "201-VISA ISLAMIC COVERED GOLD","200-VISA ISLAMIC COVERED PLATINUM",
+                                      "356-VISA 365 CASHBACK CARD","357-VISA VISA ISLAMIC COVERED",
+                                     "132-MASTERCARD WORLD TRAVELLER CREDIT CARD", "119-MASTERCARD SIMPLYLIFE CASHBACK CARD",
+                                     "9-MASTERCARD TOUCH POINTS PLATINUM CARD", "8-MASTERCARD TOUCH POINTS TITANIUM CARD",
+                                      "14-VISA TOUCH POINTS GOLD CARD","16-VISA TOUCH POINTS PLATINUM CARD",
+                                     "32-MASTERCARD LULU PLATINUM CARD", "30-MASTERCARD LULU TITANIUM CARD",
+                                      "ADCB INFINITE CARD", "ADCB SIGNATURE CARD ", "CASHBACK CARD", "BETAQTI CARD"]
         form1.application_type.choices = ['CONVENTIONAL', 'ISLAMIC']
 
 
@@ -443,6 +448,7 @@ def insertadcb():
 
         # customer details
         appdata.customer_name = form1.customer_name.data
+        appdata.entry_date=datetime.now()
         appdata.mobile = form1.mobile.data
         appdata.customer_email = form1.customer_email.data
         appdata.nationality = form1.nationality.data
@@ -518,6 +524,7 @@ def insertscb():
 
         # customer details
         appdata.customer_name = form1.customer_name.data
+        appdata.entry_date=datetime.now()
         appdata.mobile = form1.mobile.data
         appdata.customer_email = form1.customer_email.data
         appdata.gender=form1.gender.data
