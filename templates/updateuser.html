@@ -1,4 +1,4 @@
-{% extends "bootstrap/base.html" %}
+{% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
 
@@ -7,49 +7,138 @@
 ECSA
 {% endblock %}
 {% block content %}
+<form method="POST" action=/updateuser/{{id}}>
+       {{ form.hidden_tag() }}
 
+    <div class="form-row">
+       <div class="col">
+            {{ form.username.label()}}
+            {{form.username(class="form-control", placeholder="UserName")}}
+            <ul class="erros">
+              {% for error in form.username.errors %}
+                  <li>{{error}}</li>
+              {% endfor %}
+            </ul>
+          </div>
 
-
-<div class="container">
-<nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-            <span class="sr-only"></span>
-          <a class="navbar-brand" href="{{url_for('logout')}}">Logout</a>
+        <div class="col">
+          {{ form.password.label()}}
+          {{form.password(class="form-control", placeholder="Password")}}
+          <ul class="erros">
+            {% for error in form.password.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
         </div>
-        <div id="navbar" class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li><a href="{{ url_for('admin') }}">Home</a></li>
-          </ul>
+    </div>
 
-          <ul class="nav navbar-nav">
-            <li><a href="{{ url_for('download') }}">Download</a></li>
+    <div class="form-row">
+        <div class="col">
+          {{ form.hrmsid.label()}}
+          {{form.hrmsid(class="form-control", placeholder="Password")}}
+          <ul class="erros">
+            {% for error in form.password.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
           </ul>
+        </div>
 
-          <ul class="nav navbar-nav">
-            <li><a href="{{ url_for('success') }}">AllRecords</a></li>
+
+        <div class="col">
+          {{ form.department.label()}}
+          {{form.department(class="form-control")}}
+            <ul class="erros">
+            {% for error in form.location.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
           </ul>
+        </div>
+    </div>
 
-          <ul class="nav navbar-nav">
-            <li><a href="{{ url_for('create') }}">CreateUser</a></li>
+    <div class="form-row">
+        <div class="col">
+          {{ form.name.label()}}
+          {{form.name(class="form-control")}}
+          <ul class="erros">
+            {% for error in form.name.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
           </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
-  </div>
+        </div>
 
-<div class="custom">
-    <form method="POST" action=/updateuser/{{id}}>
-       <dl>
-       {{ wtf.quick_form(form)}}
-        </dl>
+        <div class="col">
+          {{ form.tlhrmsid.label()}}
+          {{form.tlhrmsid(class="form-control")}}
+          <ul class="erros">
+            {% for error in form.tlhrmsid.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="col">
+          {{ form.crdntrhrmsid.label()}}
+          {{form.crdntrhrmsid(class="form-control")}}
+          <ul class="erros">
+            {% for error in form.crdntrhrmsid.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+
+
+         <div class="col">
+          {{ form.manager.label()}}
+          {{form.manager(class="form-control")}}
+          <ul class="erros">
+            {% for error in form.manager.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="col">
+          {{ form.location.label()}}
+          {{form.location(class="form-control")}}
+            <ul class="erros">
+            {% for error in form.location.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+
+
+          <div class="col">
+          {{ form.usergroup.label()}}
+          {{form.usergroup(class="form-control")}}
+            <ul class="erros">
+            {% for error in form.usergroup.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="col">
+          {{ form.mngrhrmsid.label()}}
+          {{form.mngrhrmsid(class="form-control")}}
+            <ul class="erros">
+            {% for error in form.mngrhrmsid.errors %}
+                  <li>{{error}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="col m-3">
+           {{form.CreateUser(class="btn btn-primary btn-lg")}}
+        </div></div>
+
     </form>
-</div>
-
-<style>div.custom {
-  padding-top: 90px;
-  padding-right: 30px;
-  padding-bottom: 50px;
-  padding-left: 80px;
-}</style>
 {% endblock %}

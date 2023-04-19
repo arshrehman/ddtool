@@ -594,8 +594,9 @@ def update(id):
     if (usr.userlevel=="1") & (data.bank_status in ['Booked', 'Decline']):
             abort(403)
 
-    if usr.bankname!="ENBD":
+    if (current_user.bankname not in ["ENBD"]) and (current_user.userlevel !="5"):
         abort(403)
+
 
     if (usr.bankname == "ENBD") & (form.product_type.data == "CreditCard"):
         form.product_name.choices = ["TITANIUM MASTERCARD", "GO 4 IT GOLD VISA CARD", "GO 4 IT PLATINUM VISA CARD",
@@ -700,8 +701,9 @@ def updateadcb(id):
     if (usr.userlevel == "1") & (data.bank_status in ['Booked', 'Decline']):
         abort(403)
 
-    if usr.bankname!="ADCB":
+    if (current_user.bankname not in ["ADCB"]) and (current_user.userlevel !="5"):
         abort(403)
+
     if (usr.bankname == "ADCB"):
         form.product_name.choices = ["ADCB INFINITE CARD", "ADCB SIGNATURE CARD ", "CASHBACK CARD", "BETAQTI CARD",
                                       "ADCB ETIHAD GUEST INFINITE CARD", "ADCB ETIHAD GUEST SIGNATURE CARD",
@@ -776,17 +778,15 @@ def updatehilal(id):
 
     # This is the way to override original form validation of any field.
     form.mobile.validators=[Optional()]
-
-    usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
-    if usr.userlevel=="1":
+    if current_user.userlevel=="1":
         form.bank_status.choices=['InProcess']
     else:
         form.bank_status.choices=['InProcess','Booked','Decline']
 
-    if (usr.userlevel=="1") & (data2.bank_status in ['Booked', 'Decline']):
+    if (current_user.userlevel=="1") & (data2.bank_status in ['Booked', 'Decline']):
             abort(403)
 
-    if usr.bankname != "ALHILAL":
+    if (current_user.bankname not in ["ALHILAL"]) and (current_user.userlevel !="5"):
         abort(403)
 
     lst_dsrd = ['customer_name', 'mobile',  'salary', 'company','designation','ale_status', 'iban', 'product_name','bank_reference',
@@ -821,7 +821,7 @@ def updatehilal(id):
         db.session.commit()
 
         flash("Record Updated Successfully")
-        if usr.userlevel == "1":
+        if current_user.userlevel == "1":
             return redirect(url_for('aecb'))
         else:
             return redirect(url_for('success'))
@@ -838,7 +838,7 @@ def updatehilal(id):
                 form[i].data = int(dct_form[i])
             else:
                 form[i].data = dct_form[i]
-    return render_template('update2.html', form=form, id=id, user=usr)
+    return render_template('update2.html', form=form, id=id, user=current_user)
 
 
 @application.route('/download', methods=['GET', 'POST'])
@@ -957,17 +957,17 @@ def create():
             db.session.add(usr)
             db.session.commit()
             flash("User created successfully")
-            return redirect(url_for('admin'))
+            return redirect(url_for('users'))
     return render_template('create.html', form=form)
 
 
-@application.route('/admin', methods=['GET', 'POST'])
+@application.route('/users', methods=['GET', 'POST'])
 @login_required
-def admin():
+def users():
     if current_user.userlevel != "5":
         abort(403)
     record = User.query.filter(User.userlevel != "5").all()
-    return render_template('admin.html', record=record)
+    return render_template('users.html', record=record)
 
 
 @application.route('/delete/<int:id>', methods=['GET', 'POST'])
@@ -975,11 +975,23 @@ def admin():
 def delete(id):
     if current_user.userlevel != "5":
         abort(403)
+    x = Appdata.query.filter_by(id=id).first()
+    db.session.delete(x)
+    db.session.commit()
+    flash("Record deleted successfully")
+    return redirect(url_for('success'))
+
+
+@application.route('/delete_user/<int:id>', methods=['GET', 'POST'])
+@login_required
+def delete_user(id):
+    if current_user.userlevel != "5":
+        abort(403)
     x = User.query.filter_by(id=id).first()
     db.session.delete(x)
     db.session.commit()
     flash("User deleted successfully")
-    return redirect(url_for('admin'))
+    return redirect(url_for('users'))
 
 @application.route('/updateuser/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -989,7 +1001,6 @@ def updateuser(id):
 
     data2 = User.query.get_or_404(id)
     form = Create()
-
     if form.validate_on_submit():
         data2.username = form.username.data
         data2.password = form.password.data
@@ -1005,7 +1016,7 @@ def updateuser(id):
 
         db.session.commit()
         flash("User updated successfully")
-        return redirect(url_for('admin'))
+        return redirect(url_for('users'))
 
     elif request.method == "GET":
         form.username.data=data2.username

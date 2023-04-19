@@ -188,7 +188,7 @@ class Download(FlaskForm):
 
 class Create(FlaskForm):
     username = StringField("UserName", validators=[InputRequired()])
-    password = PasswordField("Password", validators=[InputRequired()])
+    password = StringField("Password", validators=[InputRequired()])
     hrmsid=StringField("AgntHRMS", validators=[InputRequired()])
     department = SelectField("Department", choices=['ENBD', 'EIB', 'RAK', 'ADCB', 'SCB', 'CBD', 'ALHILAL'])
     name = StringField("AgentName", validators=[InputRequired()])

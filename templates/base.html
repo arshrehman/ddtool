@@ -31,6 +31,10 @@
   {% if current_user.userlevel in ["4", "5"] %}
     <a class="navbar-brand" href="{{url_for('download')}}">Download</a>
   {% endif %}
+  {% if current_user.userlevel == "5" %}
+    <a class="navbar-brand" href="{{url_for('users')}}">Users</a>
+    <a class="navbar-brand" href="{{url_for('create')}}">CreateUser</a>
+  {% endif %}
   </div>
   <form class="form-inline" style="padding-left:10px">
     <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">

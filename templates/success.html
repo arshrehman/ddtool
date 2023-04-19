@@ -48,6 +48,9 @@
              <th scope="col">Agent</th>
              <th scope="col">Status</th>
              <th scope="col">Action</th>
+            {% if current_user.userlevel=="5" %}
+            <th scope="col">Delete</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
@@ -67,12 +70,17 @@
             <td>{{row.bank_status}}</td>
 
                <td>
-                   {% if current_user.bankname=="ALHILAL" %}
+                   {% if row.bank_name=="ALHILAL" %}
                   <a href=/updatehilal/{{row.id}} class="btn btn-warning btn-xs">Edit</a>
-                   {% elif current_user.bankname=="ENBD" %}
+                   {% elif row.bank_name=="ENBD" %}
                    <a href=/update/{{row.id}} class="btn btn-warning btn-xs">Edit</a>
-                   {% elif current_user.bankname=="ADCB" %}
+                   {% elif row.bank_name =="ADCB" %}
                    <a href=/updateadcb/{{row.id}} class="btn btn-warning btn-xs">Edit</a>
+                   {% endif %}
+                   </td>
+               <td>
+                   {% if current_user.userlevel == "5" %}
+                   <a href=/delete/{{row.id}} class="btn btn-warning btn-xs">Delete</a>
                    {% endif %}
                </td>
         </tr>

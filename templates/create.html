@@ -1,4 +1,4 @@
-{% extends "bootstrap/base.html" %}
+{% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block title %}
@@ -7,30 +7,6 @@ ECSA
 
 
 {% block content %}
-<div class="container">
-<nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-            <span class="sr-only"></span>
-          <a class="navbar-brand" href="{{url_for('logout')}}">Logout</a>
-        </div>
-        <div id="navbar" class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li><a href="{{ url_for('download') }}">Download</a></li>
-          </ul>
-          <ul class="nav navbar-nav">
-            <li><a href="{{ url_for('success') }}">AllRecords</a></li>
-          </ul>
-
-          <ul class="nav navbar-nav">
-            <li><a href="{{ url_for('create') }}">CreateUser</a></li>
-          </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
-  </div>
-
-<div class="custom"></div>
 <div class="container">
       <div class="input-group mb-3">
 
@@ -48,13 +24,13 @@ ECSA
 
                 {% endif %}
                 {% endwith %} </div>
-<div class="container">
-      <form method="POST" action=/create>
-        {{ form.hidden_tag() }}
+</div>
 
-        <div class="form-row">
+<form method="POST" action=/create>
+  {{ form.hidden_tag() }}
 
-          <div class="form-group col-xs-4">
+    <div class="form-row">
+       <div class="col">
             {{ form.username.label(class="col-md-4 control-label")}}
             {{form.username(class="form-control", placeholder="UserName")}}
             <ul class="erros">
@@ -64,7 +40,7 @@ ECSA
             </ul>
           </div>
 
-        <div class="form-group col-xs-4">
+        <div class="col">
           {{ form.password.label(class="col-md-4 control-label")}}
           {{form.password(class="form-control", placeholder="Password")}}
           <ul class="erros">
@@ -73,8 +49,10 @@ ECSA
             {% endfor %}
           </ul>
         </div>
+    </div>
 
-        <div class="form-group col-xs-4">
+    <div class="form-row">
+        <div class="col">
           {{ form.hrmsid.label(class="col-md-4 control-label")}}
           {{form.hrmsid(class="form-control", placeholder="Password")}}
           <ul class="erros">
@@ -85,7 +63,7 @@ ECSA
         </div>
 
 
-        <div class="form-group col-xs-4">
+        <div class="col">
           {{ form.department.label(class="col-md-4 control-label")}}
           {{form.department(class="form-control")}}
             <ul class="erros">
@@ -94,10 +72,10 @@ ECSA
             {% endfor %}
           </ul>
         </div>
+    </div>
 
-
-
-        <div class="form-group col-xs-4">
+    <div class="form-row">
+        <div class="col">
           {{ form.name.label(class="col-md-4 control-label")}}
           {{form.name(class="form-control")}}
           <ul class="erros">
@@ -107,7 +85,7 @@ ECSA
           </ul>
         </div>
 
-        <div class="form-group col-xs-4">
+        <div class="col">
           {{ form.tlhrmsid.label(class="col-md-4 control-label")}}
           {{form.tlhrmsid(class="form-control")}}
           <ul class="erros">
@@ -116,8 +94,10 @@ ECSA
             {% endfor %}
           </ul>
         </div>
+    </div>
 
-        <div class="form-group col-xs-4">
+    <div class="form-row">
+        <div class="col">
           {{ form.crdntrhrmsid.label(class="col-md-4 control-label")}}
           {{form.crdntrhrmsid(class="form-control")}}
           <ul class="erros">
@@ -129,7 +109,7 @@ ECSA
 
 
 
-         <div class="form-group col-xs-4">
+         <div class="col">
           {{ form.manager.label(class="col-md-4 control-label")}}
           {{form.manager(class="form-control")}}
           <ul class="erros">
@@ -138,8 +118,10 @@ ECSA
             {% endfor %}
           </ul>
         </div>
+    </div>
 
-        <div class="form-group col-xs-4">
+    <div class="form-row">
+        <div class="col">
           {{ form.location.label(class="col-md-4 control-label")}}
           {{form.location(class="form-control")}}
             <ul class="erros">
@@ -151,7 +133,7 @@ ECSA
 
 
 
-          <div class="form-group col-xs-4">
+          <div class="col">
           {{ form.usergroup.label(class="col-md-6 control-label")}}
           {{form.usergroup(class="form-control")}}
             <ul class="erros">
@@ -160,9 +142,10 @@ ECSA
             {% endfor %}
           </ul>
         </div>
+    </div>
 
-
-        <div class="form-group col-xs-4">
+    <div class="form-row">
+        <div class="col">
           {{ form.mngrhrmsid.label(class="col-md-6 control-label")}}
           {{form.mngrhrmsid(class="form-control")}}
             <ul class="erros">
@@ -175,19 +158,10 @@ ECSA
 
 
 
-      <div class="container">
+      <div class="col m-3">
             {{form.CreateUser(class="btn btn-primary btn-lg btn-block")}}
-        </div>
-
         </div></div>
-      </form></div>
 
-<style>div.custom {
-  padding-top: 30px;
-  padding-right: 30px;
-  padding-bottom: 30px;
-  padding-left: 30px;
-}</style>
-
+      </form>
 
 {% endblock %}
