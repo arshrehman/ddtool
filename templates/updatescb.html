@@ -28,7 +28,7 @@ ECSA
       </div>
 </div>
 
-<form method="POST" action=/insertscb>
+<form method="POST" action=/updatescb/{{id}}>
         {{ form.hidden_tag() }}
 
   <div class="form-row">
@@ -42,19 +42,6 @@ ECSA
             </ul>
           </div>
 
-            <div class="col">
-            {{ form.mobile.label()}}
-            {{form.mobile(class="form-control")}}
-            <ul class="erros">
-              {% for error in form.mobile.errors %}
-                  <li>{{error}}</li>
-              {% endfor %}
-            </ul>
-          </div>
-  </div>
-
-  <div class="form-row">
-
           <div class="col">
             {{ form.customer_email.label()}}
             {{form.customer_email(class="form-control", placeholder="Official-email")}}
@@ -65,6 +52,11 @@ ECSA
             </ul>
           </div>
 
+  </div>
+
+  <div class="form-row">
+
+
             <div class="col">
             {{ form.gender.label()}}
             {{form.gender(class="form-control")}}
@@ -74,9 +66,7 @@ ECSA
               {% endfor %}
             </ul>
           </div>
-  </div>
 
-  <div class="form-row">
             <div class="col">
             {{ form.nationality.label()}}
             {{form.nationality(class="form-control")}}
@@ -86,8 +76,9 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+  </div>
 
-
+    <div class="form-row">
             <div class="col">
             {{ form.salary.label()}}
             {{form.salary(class="form-control")}}
@@ -97,9 +88,7 @@ ECSA
               {% endfor %}
             </ul>
           </div>
-  </div>
 
-  <div class="form-row">
             <div class="col">
             {{ form.company.label()}}
             {{form.company(class="form-control")}}
@@ -109,7 +98,9 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+    </div>
 
+    <div class="form-row">
             <div class="col">
             {{ form.designation.label()}}
             {{form.designation(class="form-control")}}
@@ -119,9 +110,6 @@ ECSA
               {% endfor %}
             </ul>
           </div>
-  </div>
-
-  <div class="form-row">
 
             <div class="col">
             {{ form.ale_status.label()}}
@@ -132,7 +120,9 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+    </div>
 
+    <div class="form-row">
             <div class="col">
             {{ form.emirates_id.label()}}
             {{form.emirates_id(class="form-control")}}
@@ -142,9 +132,6 @@ ECSA
               {% endfor %}
             </ul>
           </div>
-  </div>
-
-  <div class="form-row">
     <div class="col">
             {{ form.bankingwith.label()}}
             {{form.bankingwith(class="form-control")}}
@@ -154,9 +141,10 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+    </div>
 
-
-            <div class="col">
+    <div class="form-row">
+        <div class="col">
             {{ form.product_type.label()}}
             {{form.product_type(class="form-control")}}
             <ul class="erros">
@@ -165,9 +153,7 @@ ECSA
               {% endfor %}
             </ul>
           </div>
-  </div>
 
-  <div class="form-row">
             <div class="col">
             {{ form.product_name.label()}}
             {{form.product_name(class="form-control")}}
@@ -177,7 +163,9 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+    </div>
 
+    <div class="form-row">
             <div class="col">
             {{ form.bank_reference.label()}}
             {{form.bank_reference(class="form-control")}}
@@ -187,9 +175,7 @@ ECSA
               {% endfor %}
             </ul>
           </div>
-  </div>
 
-  <div class="form-row">
             <div class="col">
             {{ form.bank_status.label()}}
             {{form.bank_status(class="form-control")}}
@@ -199,7 +185,9 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+    </div>
 
+    <div class="form-row">
             <div class="col">
             {{ form.application_type.label()}}
             {{form.application_type(class="form-control")}}
@@ -209,9 +197,7 @@ ECSA
               {% endfor %}
             </ul>
           </div>
-  </div>
 
-  <div class="form-row">
           <div class="col">
             {{ form.submissiondate.label()}}
             {{form.submissiondate(class="form-control")}}
@@ -221,6 +207,9 @@ ECSA
               {% endfor %}
             </ul>
           </div>
+    </div>
+
+    <div class="form-row">
     <div class="col">
             {{ form.supplementary_card.label()}}
             {{form.supplementary_card(class="form-control")}}
@@ -230,35 +219,7 @@ ECSA
               {% endfor %}
             </ul>
           </div>
-  </div>
 
-  <div class="form-row">
-            {% if user.userlevel in ["2","3","4","5"] %}
-            <div class="col">
-            {{ form.bookingdate.label()}}
-            {{form.bookingdate(class="form-control")}}
-            <ul class="erros">
-              {% for error in form.bookingdate.errors %}
-                  <li>{{error}}</li>
-              {% endfor %}
-            </ul>
-          </div>
-            {% endif %}
-
-            {% if user.userlevel in ["2","3","4","5"] %}
-            <div class="col">
-            {{ form.cpv.label()}}
-            {{form.cpv(class="form-control")}}
-            <ul class="erros">
-              {% for error in form.cpv.errors %}
-                  <li>{{error}}</li>
-              {% endfor %}
-            </ul>
-          </div>
-            {% endif %}
-  </div>
-
-        <div class="form-row">
             <div class="col">
             {{ form.remarks.label()}}
             {{form.remarks(class="form-control", placeholder="remarks for SCB")}}
@@ -270,7 +231,31 @@ ECSA
           </div>
         </div>
 
+  <div class="form-row">
+            {% if current_user.userlevel in ["2","3","4","5"] %}
+            <div class="col">
+            {{ form.bookingdate.label()}}
+            {{form.bookingdate(class="form-control")}}
+            <ul class="erros">
+              {% for error in form.bookingdate.errors %}
+                  <li>{{error}}</li>
+              {% endfor %}
+            </ul>
+          </div>
+            {% endif %}
 
+            {% if current_user.userlevel in ["2","3","4","5"] %}
+            <div class="col">
+            {{ form.cpv.label()}}
+            {{form.cpv(class="form-control")}}
+            <ul class="erros">
+              {% for error in form.cpv.errors %}
+                  <li>{{error}}</li>
+              {% endfor %}
+            </ul>
+          </div>
+            {% endif %}
+  </div>
             <div class="container">
             {{form.submit(class="form-control", class="btn btn-primary btn-lg btn-block")}}
         </div>

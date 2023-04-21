@@ -43,12 +43,14 @@
       <td>{{row.company}}</td>
       <td>{{row.bank_status}}</td>
       {% if row.bank_status not in ['Booked','Decline'] %}
-      {% if current_user.bankname == "ALHILAL" %}
+      {% if row.bank_name=="ALHILAL" %}
         <td><a href=/updatehilal/{{row.id}} class="btn btn-warning btn-xs">Edit</a></td>
-      {% elif current_user.bankname == "ENBD" %}
+      {% elif row.bank_name == "ENBD" %}
     <td><a href=/update/{{row.id}} class="btn btn-warning btn-xs">Edit</a></td>
-      {% elif current_user.bankname == "ADCB" %}
+      {% elif row.bank_name == "ADCB" %}
     <td><a href=/updateadcb/{{row.id}} class="btn btn-warning btn-xs">Edit</a></td>
+      {% elif row.bank_name == "SCB" %}
+    <td><a href=/updatescb/{{row.id}} class="btn btn-warning btn-xs">Edit</a></td>
       {% endif %}
       {% endif %}</tr>
     {% endfor %}</tbody></table>

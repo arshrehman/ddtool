@@ -841,6 +841,89 @@ def updatehilal(id):
     return render_template('update2.html', form=form, id=id, user=current_user)
 
 
+
+@application.route('/updatescb/<int:id>', methods=['GET', 'POST'])
+@login_required
+def updatescb(id):
+    data = Appdata.query.get_or_404(id)
+    form = Appdata1()
+    lst = list(data.__dict__.items())
+    dct = dict(lst)
+    form.mobile.validators = [Optional()]
+
+    if current_user.userlevel == "1":
+        form.bank_status.choices = ['InProcess']
+    else:
+        form.bank_status.choices = ['InProcess', 'Booked', 'Decline']
+
+    if (current_user.userlevel == "1") & (data.bank_status in ['Booked', 'Decline']):
+        abort(403)
+
+    if (current_user.bankname not in ["SCB"]) and (current_user.userlevel !="5"):
+        abort(403)
+
+    if (current_user.bankname == "SCB"):
+        form.product_name.choices = ["CASHBACK CREDIT CARD", "MANHATTAN REWARD+ CREDIT CARD",
+                                      "SAADIQ", "INFINITE"]
+
+        form.application_type.choices = ['DIGITAL','CONVENTIONAL', 'ISLAMIC']
+
+    # dct.pop("entry_date")
+    lst_dsrd = ['customer_name', 'mobile', 'customer_email', 'gender', 'nationality', 'salary', 'company','designation',
+                'ale_status', 'emirates_id', 'bankingwith', 'product_type', 'product_name', 'bank_reference',
+                'bank_status','application_type', 'submissiondate','supplementary_card', 'bookingdate',
+                'remarks']
+    dct_ordered = {k: dct[k] for k in lst_dsrd}
+
+    form.mobile.validators=[Optional()]
+    form.gender.validators=[Optional()]
+    form.office_emirates.validators=[Optional()]
+
+
+    if form.validate_on_submit():
+        data.customer_name = form.customer_name.data
+        data.customer_email = form.customer_email.data
+        data.gender = form.gender.data
+        data.nationality = form.nationality.data
+        data.salary = form.salary.data
+        data.company = form.company.data
+        data.designation=form.designation.data
+        data.ale_status = form.ale_status.data
+        data.emirates_id = form.emirates_id.data
+        data.bankingwith=form.bankingwith.data
+        data.product_type = form.product_type.data
+        data.product_name = form.product_name.data
+        data.bank_reference = form.bank_reference.data
+        data.bank_status = form.bank_status.data
+
+        data.application_type = form.application_type.data
+        data.submissiondate = form.submissiondate.data
+        data.supplementary_card=form.supplementary_card.data
+        data.bookingdate = form.bookingdate.data
+        data.remarks = form.remarks.data
+        #print("Are you coming here")
+        # for i in lst_dsrd:
+        # data.i=form.i.data
+        db.session.commit()
+        flash("Record Updated Successfully")
+        if current_user.userlevel == "1":
+            return redirect(url_for('aecb'))
+        else:
+            return redirect(url_for('success'))
+    elif request.method == 'GET':
+        form_dct = form.data
+        # print(form.data)
+        dct_ordered_form = {m: form_dct[m] for m in lst_dsrd}
+        dct_form = dict(list(zip(dct_ordered_form, dct_ordered.values())))
+        for i in dct_form.keys():
+            if isinstance(dct_form[i], datetime):
+                form[i].data = dct_form[i]
+            elif isinstance(dct_form[i], float):
+                form[i].data = int(dct_form[i])
+            else:
+                form[i].data = dct_form[i]
+    return render_template('updatescb.html', form=form, id=id)
+
 @application.route('/download', methods=['GET', 'POST'])
 @login_required
 def download():
@@ -872,7 +955,7 @@ def download():
                     'gender', 'mobile',  'dob', 'salary','nationality', 'company', 'designation', 'ale_status',
                     'office_emirate', 'HRLandline', 'los', 'emirates_id','emiratesid_expiry','passport',
                     'cheque_number', 'cheque_bank', 'iban', 'bank_name', 'product_type',  'product_name',
-                     'bank_reference', 'bank_status', 'application_type', 'remarks', 'cpv', 'booking_date']
+                     'bank_reference', 'bank_status', 'application_type', 'submission_date','remarks', 'cpv', 'booking_date']
 
         lst_hilal = ['leadid','entry_date','agent_id','tlhrmsid','mngrhrmsid', 'agent_name', 'customer_name', 'mobile', 'salary',
                    'company','designation','ale_status', 'iban', 'cclimit', 'mothername', 'uaeaddress', 'homecountryaddress',
@@ -884,8 +967,13 @@ def download():
                     'product_type', 'product_name', 'bank_reference', 'bank_status', 'application_type','submission_date',
                     'promo','remarks', 'cpv', 'bookingdate']
 
+        lst_scb = ['leadid', 'entry_date', 'agent_id', 'mngrhrmsid', 'agent_name', 'customer_name', 'customer_email',
+                    'gender', 'mobile', 'salary', 'nationality', 'company', 'designation', 'ale_status',
+                    'emirates_id', 'salary_account', 'product_type', 'product_name',
+                    'bank_reference', 'bank_status', 'application_type', 'submission_date', 'remarks', 'booking_date']
+
         if current_user.bankname=='ENBD':
-            with open(f"/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+            with open(f"static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter=csv.writer(csvfile,delimiter=",")
                 csvwriter.writerow(lst_enbd)
                 for p in data:
@@ -894,11 +982,11 @@ def download():
                                         p.ale_status, p.office_emirates, p.length_of_residence,
                                         p.length_of_service, p.emirates_id, p.EID_expiry_date, p.passport_number,
                                         p.cheque_number, p.cheque_bank, p.iban,p.bankingwith, p.product_type, p.product_name,
-                                        p.bank_reference,p.bank_status, p.application_type,p.remarks,p.cpv, p.bookingdate])
-            return send_file(f"/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
+                                        p.bank_reference,p.bank_status, p.application_type,p.submissiondate,p.remarks,p.cpv, p.bookingdate])
+            return send_file(f"static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
 
         elif current_user.bankname=="ALHILAL":
-            with open(f"/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+            with open(f"static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile, delimiter=",")
                 csvwriter.writerow(lst_hilal)
                 for p in data:
@@ -907,11 +995,11 @@ def download():
                          p.mobile,p.salary, p.company, p.designation, p.ale_status, p.iban, p.cclimit,p.mothername,p.uaeaddress,
                          p.homecountryaddress,p.homecountrynumber,p.joiningdate,p.ref1name,p.ref2name,p.ref1mobile,p.ref2mobile,
                          p.product_name,p.bank_reference,p.bank_status,p.sent,p.bookingdate,p.remarks])
-            return send_file(f"/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
+            return send_file(f"static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
 
         elif current_user.bankname=="ADCB":
-            with open(f"/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+            with open(f"static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile, delimiter=",")
                 csvwriter.writerow(lst_adcb)
                 for p in data:
@@ -920,8 +1008,22 @@ def download():
                          p.mobile,p.customer_email, p.nationality, p.salary, p.company, p.ale_status, p.emirates_id,p.passport_number,
                          p.product_type, p.product_name,p.bank_reference,p.bank_status,p.application_type,p.submissiondate,p.promo,
                          p.remarks, p.cpv, p.bookingdate])
-            return send_file(f"/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
+            return send_file(f"static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
+
+        elif current_user.bankname=="SCB":
+            with open(f"static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+                csvwriter = csv.writer(csvfile, delimiter=",")
+                csvwriter.writerow(lst_scb)
+                for p in data:
+                    csvwriter.writerow(
+                        [p.leadid, datetime.date(p.entry_date),p.agent_id, p.mngrhrmsid,p.agent_name,p.customer_name,
+                         p.customer_email, p.gender, p.mobile, p.salary,p.nationality,p.company, p.designation,p.ale_status,
+                         p.emirates_id,p.bankingwith,p.product_type, p.product_name,p.bank_reference,p.bank_status,
+                         p.application_type,p.submissiondate,p.remarks, p.bookingdate])
+            return send_file(f"static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
+                             as_attachment=True)
+
 
     return render_template('download.html', form=form)
 
