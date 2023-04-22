@@ -43,6 +43,7 @@ pyopenssl = "*"
 flask-sslify = "*"
 flask-bcrypt = "*"
 wtforms-components = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
