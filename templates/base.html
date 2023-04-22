@@ -19,7 +19,7 @@
   {% else %}
     <a class="navbar-brand" href="{{url_for('success')}}">Home</a>
   {% endif %}
-  {% if current_user.bankname=="ENBD" %}
+  {% if (current_user.bankname=="ENBD") %}
   <a class="navbar-brand" href="{{url_for('insert')}}">Create</a>
   {% elif current_user.bankname=="ALHILAL" %}
     <a class="navbar-brand" href="{{url_for('insert2')}}">Create</a>

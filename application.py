@@ -264,7 +264,10 @@ def insert():
     else:
         form.bank_status.choices=['InProcess','Booked','Decline']
 
-    if (usr.bankname=="ENBD") & (form.product_type.data=="CreditCard"):
+    if (current_user.bankname not in ["ENBD"]) and (current_user.userlevel !="5"):
+        abort(403)
+
+    if (usr.bankname=="ENBD") or (current_user.userlevel=="5"):
         form.product_name.choices=["TITANIUM MASTERCARD","GO 4 IT GOLD VISA CARD","GO 4 IT PLATINUM VISA CARD",
                                    "VISA FLEXI VISA CARD","DNATA PLATINUM MASTERCARD","DNATA WORLD MASTERCARD",
                                    "BUSINESS MASTERCARD","BUSINESS REWARDS SIGNATURE VISA CARD","MANCHESTER UNITED MASTERCARD",
@@ -278,7 +281,7 @@ def insert():
     if form.validate_on_submit():
         appdata = Appdata()
 
-        if usr.bankname=="ENBD":
+        if (usr.bankname=="ENBD") or (current_user.userlevel=="5"):
             appdata.leadid = "719" + str(form.mobile.data[-4:])
 
         # customer details
@@ -343,7 +346,7 @@ def insert():
         flash("Record Inserted Successfully")
         if usr.userlevel=="1":
             return redirect(url_for('aecb'))
-        elif usr.userlevel=="2":
+        else:
             return redirect(url_for('success'))
 
     return render_template('insert.html', form=form, user=usr)
@@ -356,17 +359,18 @@ def insert():
 def insert2():
     form = Alhilal()
     usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
-    if usr.bankname !="ALHILAL":
-        abort(403)
 
     if usr.userlevel=="1":
         form.bank_status.choices=['InProcess']
     else:
         form.bank_status.choices=['InProcess','Booked','Decline']
 
+    if (current_user.bankname not in ["ALHILAL"]) and (current_user.userlevel !=5):
+        abort(403)
+
     if form.validate_on_submit():
         appdata = Appdata()
-        if usr.bankname == "ALHILAL":
+        if (usr.bankname == "ALHILAL") or (current_user.userlevel=="5"):
             appdata.leadid = "779" + str(form.mobile.data[-4:])
 
         appdata.customer_name=form.customer_name.data
@@ -408,7 +412,7 @@ def insert2():
         flash("Record Inserted Successfully")
         if usr.userlevel=="1":
             return redirect(url_for('aecb'))
-        elif usr.userlevel=="2":
+        else:
             return redirect(url_for('success'))
 
     return render_template('insert2.html', form=form, user=usr)
@@ -425,7 +429,10 @@ def insertadcb():
     else:
         form1.bank_status.choices = ['InProcess', 'Booked', 'Decline']
 
-    if (usr.bankname == "ADCB") & (form1.product_type.data == "CreditCard"):
+    if (current_user.bankname not in ["ADCB"]) and (current_user.userlevel !="5"):
+        abort(403)
+
+    if (usr.bankname == "ADCB") & (current_user.userlevel=="5"):
         form1.product_name.choices = ["43-ETIHAD VISA ETIHAD PLATINUM CARD", "365-CASHBACK ISLAMIC CARD",
                                      "201-VISA ISLAMIC COVERED GOLD","200-VISA ISLAMIC COVERED PLATINUM",
                                       "356-VISA 365 CASHBACK CARD","357-VISA VISA ISLAMIC COVERED",
@@ -443,7 +450,7 @@ def insertadcb():
     if form1.validate_on_submit():
         appdata = Appdata()
 
-        if usr.bankname == "ADCB":
+        if (usr.bankname == "ADCB") or (current_user.userlevel=="5"):
             appdata.leadid = "769" + str(form1.mobile.data[-4:])
 
         # customer details
@@ -488,7 +495,7 @@ def insertadcb():
         flash("Record Inserted Successfully")
         if usr.userlevel == "1":
             return redirect(url_for('aecb'))
-        elif usr.userlevel == "2":
+        else:
             return redirect(url_for('success'))
 
     return render_template('insertadcb.html', form=form1, user=usr)
@@ -506,12 +513,12 @@ def insertscb():
     else:
         form1.bank_status.choices = ['InProcess', 'Booked', 'Decline']
 
-    if (usr.bankname == "SCB"):
+    if (usr.bankname == "SCB") or (current_user.userlevel=="5"):
         form1.product_name.choices = ["CASHBACK CREDIT CARD", "MANHATTAN REWARD+ CREDIT CARD",
                                       "SAADIQ", "INFINITE"]
         form1.application_type.choices = ['DIGITAL','CONVENTIONAL', 'ISLAMIC']
 
-    if usr.bankname != "SCB":
+    if (current_user.bankname not in ["SCB"]) and (current_user.userlevel !="5"):
         abort(403)
 
     form1.office_emirates.validators=[Optional()]
@@ -519,7 +526,7 @@ def insertscb():
     if form1.validate_on_submit():
         appdata = Appdata()
 
-        if usr.bankname == "SCB":
+        if (usr.bankname == "SCB") or (current_user.userlevel=="5"):
             appdata.leadid = "779" + str(form1.mobile.data[-4:])
 
         # customer details
@@ -570,7 +577,7 @@ def insertscb():
         flash("Record Inserted Successfully")
         if usr.userlevel == "1":
             return redirect(url_for('aecb'))
-        elif usr.userlevel == "2":
+        else:
             return redirect(url_for('success'))
 
     return render_template('insertscb.html', form=form1, user=usr)
@@ -598,7 +605,7 @@ def update(id):
         abort(403)
 
 
-    if (usr.bankname == "ENBD") & (form.product_type.data == "CreditCard"):
+    if (usr.bankname == "ENBD") or (current_user.userlevel=="5"):
         form.product_name.choices = ["TITANIUM MASTERCARD", "GO 4 IT GOLD VISA CARD", "GO 4 IT PLATINUM VISA CARD",
                                      "VISA FLEXI VISA CARD", "DNATA PLATINUM MASTERCARD", "DNATA WORLD MASTERCARD",
                                      "BUSINESS MASTERCARD", "BUSINESS REWARDS SIGNATURE VISA CARD",
@@ -704,7 +711,7 @@ def updateadcb(id):
     if (current_user.bankname not in ["ADCB"]) and (current_user.userlevel !="5"):
         abort(403)
 
-    if (usr.bankname == "ADCB"):
+    if (usr.bankname == "ADCB") or (current_user.userlevel=="5"):
         form.product_name.choices = ["ADCB INFINITE CARD", "ADCB SIGNATURE CARD ", "CASHBACK CARD", "BETAQTI CARD",
                                       "ADCB ETIHAD GUEST INFINITE CARD", "ADCB ETIHAD GUEST SIGNATURE CARD",
                                       "ADCB ETIHAD GUEST PLATINUM CARD",
@@ -862,7 +869,7 @@ def updatescb(id):
     if (current_user.bankname not in ["SCB"]) and (current_user.userlevel !="5"):
         abort(403)
 
-    if (current_user.bankname == "SCB"):
+    if (current_user.bankname =="SCB") or (current_user.userlevel =="5"):
         form.product_name.choices = ["CASHBACK CREDIT CARD", "MANHATTAN REWARD+ CREDIT CARD",
                                       "SAADIQ", "INFINITE"]
 
@@ -1024,6 +1031,17 @@ def download():
             return send_file(f"static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
 
+        else:
+            lst_admin=list(data[0].__dict__.keys())
+            with open("static/all_record_admin.csv",'w',encoding='UTF8',newline='') as csvfile:
+                csvwriter=csv.writer(csvfile,delimiter=',')
+                csvwriter.writerow(lst_admin[1:])
+                for p in data:
+                    dct = p.__dict__
+                    dct.pop('_sa_instance_state')
+                    lst_dct=dct.values()
+                    csvwriter.writerow(lst_dct)
+            return send_file("static/all_record_admin.csv", mimetype='text/csv', as_attachment=True)
 
     return render_template('download.html', form=form)
 
