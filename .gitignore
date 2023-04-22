@@ -18,7 +18,7 @@ lib/
 lib64/
 parts/
 sdist/
-var/
+#var/
 wheels/
 pip-wheel-metadata/
 share/python-wheels/
@@ -62,7 +62,7 @@ db.sqlite3
 db.sqlite3-journal
 
 # Flask stuff:
-instance/
+instance/site.db
 .webassets-cache
 
 # Scrapy stuff:
@@ -73,6 +73,7 @@ docs/_build/
 
 # PyBuilder
 target/
+instance/
 
 # Jupyter Notebook
 .ipynb_checkpoints
