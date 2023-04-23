@@ -1164,6 +1164,8 @@ def upload():
         if current_user.userlevel not in ["4","5"]:
             abort(403)
         form = Upload()
+        lst_not_updated=[]
+        lst_updated=[]
         if form.validate_on_submit():
             file = form.upload.data
             if file and allowed_file(file.filename):
@@ -1175,31 +1177,29 @@ def upload():
                 lst_df= [x.strip() for x in lst_df]
                 lst_df = [x.lower() for x in lst_df]
                 df.columns = lst_df
-                df.iloc[:,0]=df.iloc[:,0].astype(str)
-                df.iloc[:, 0] = df.iloc[:, 0].str.strip()
-                df.iloc[:, 1] = df.iloc[:, 1].astype(str)
-                df.iloc[:, 1] = df.iloc[:, 1].str.strip().str.capitalize()
                 ar = df.iloc[:,0].values
                 ar2 = df.iloc[:,1].values
-                if len(ar)!=len(ar2):
-                    flash("You uploaded a file where count of leadid and count of status are not equal. System will not process it.")
+                print(df.isnull().sum().sum())
+                print(df)
+
+                if (df.isnull().sum().sum())>0:
+                    flash("You uploaded a file which has null values. System will not process it.")
                     return redirect(url_for('upload'))
-                for i in range(len(ar)):
-                    if not ar[i].isdigit():
-                        flash(f"First column must have leadid number and each cell must have only digits {i}th cell in first column has invalid value \'{ar[i]}\'")
-                        return redirect(url_for('upload'))
-                lst_not_updated=[]
-                lst_updated=[]
-                for i in range(len(ar)):
-                    row = Appdata.query.filter_by(leadid=ar[i]).order_by(Appdata.id.desc()).first()
-                    if row:
-                        lst_updated.append(ar[i])
-                        row.bank_status=ar2[i]
-                        db.session.commit()
-                    else:
-                        lst_not_updated.append(ar[i])
-                flash(f"{len(lst_updated)} records are updated and {len(lst_not_updated)} records are not matched, not matched leadids are {lst_not_updated}")
-                return redirect(url_for('upload'))
+                else:
+                    for i in range(len(ar)):
+                        if not str(ar[i]).isdigit():
+                            flash(f"First column must have leadid number and each cell must have only digits {i}th cell in first column has invalid value \'{ar[i]}\'")
+                            return redirect(url_for('upload'))
+                        else:
+                            row = Appdata.query.filter_by(leadid=str(ar[i])).order_by(Appdata.id.desc()).first()
+                            if row:
+                                lst_updated.append(str(ar[i]))
+                                row.bank_status=str(ar2[i]).strip().capitalize()
+                                db.session.commit()
+                            else:
+                                lst_not_updated.append(str(ar[i]))
+                    flash(f"{len(lst_updated)} records are updated and {len(lst_not_updated)} records are not matched, not matched leadids are {lst_not_updated}")
+                    return redirect(url_for('upload'))
             else:
                 flash("Not uploaded, please upload only xlsx file")
                 return redirect(url_for('upload'))
