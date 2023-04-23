@@ -30,14 +30,15 @@
   {% endif %}
   {% if current_user.userlevel in ["4", "5"] %}
     <a class="navbar-brand" href="{{url_for('download')}}">Download</a>
+    <a class="navbar-brand" href="{{url_for('upload')}}">BulkUpdate</a>
   {% endif %}
   {% if current_user.userlevel == "5" %}
     <a class="navbar-brand" href="{{url_for('users')}}">Users</a>
     <a class="navbar-brand" href="{{url_for('create')}}">CreateUser</a>
   {% endif %}
   </div>
-  <form class="form-inline" style="padding-left:10px">
-    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+  <form class="form-inline" style="padding-left:10px" method="GET">
+    <input class="form-control mr-sm-2" type="search" placeholder="Search with email" aria-label="Search" name="q">
     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
   </form>
 </nav></div>

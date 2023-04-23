@@ -12,7 +12,6 @@ ECSA
 
 {% block content %}
     <div class="container">
-    <div class="input-group mb-3">
     {% with messages = get_flashed_messages() %}
     {% if messages %}
     {% for message in messages %}
@@ -22,7 +21,9 @@ ECSA
      </div>
     {% endfor %}
     {% endif %}
-    {% endwith %}</div>
+    {% endwith %}
+    </div>
+
       <form class="form-signin" method="POST" action="/login">
         <h2 class="form-signin-heading">Please sign in</h2>
         {{ form.hidden_tag() }}

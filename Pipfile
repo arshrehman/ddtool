@@ -44,6 +44,7 @@ flask-sslify = "*"
 flask-bcrypt = "*"
 wtforms-components = "*"
 python-dotenv = "*"
+openpyxl = "*"
 
 [dev-packages]
 
