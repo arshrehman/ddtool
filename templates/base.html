@@ -37,10 +37,19 @@
     <a class="navbar-brand" href="{{url_for('create')}}">CreateUser</a>
   {% endif %}
   </div>
+    {% if (request.path=="/success") %}
   <form class="form-inline" style="padding-left:10px" method="GET">
     <input class="form-control mr-sm-2" type="search" placeholder="Search with email" aria-label="Search" name="q">
     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
   </form>
+    {% endif %}
+
+    {% if (request.path=="/aecb") %}
+  <form class="form-inline" style="padding-left:10px" method="GET">
+    <input class="form-control mr-sm-2" type="search" placeholder="Search with name" aria-label="Search" name="q">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+  </form>
+    {% endif %}
 </nav></div>
 
         {% block content %}{% endblock %}

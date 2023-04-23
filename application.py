@@ -259,7 +259,11 @@ def success():
 @application.route('/aecb', methods=['GET', 'POST'])
 @login_required
 def aecb():
-    aecb_all = Appdata.query.filter(Appdata.agent_id == current_user.hrmsID).order_by(Appdata.id.desc()).all()
+    q = request.args.get('q')
+    if q:
+        aecb_all = Appdata.query.filter(Appdata.customer_name.contains(q)).order_by(Appdata.id.desc()).all()
+    else:
+        aecb_all = Appdata.query.filter(Appdata.agent_id == current_user.hrmsID).order_by(Appdata.id.desc()).all()
     return render_template('aecb.html', record=aecb_all, id=id, datetime=datetime)
 
 
@@ -273,7 +277,7 @@ def insert():
     if usr.userlevel=="1":
         form.bank_status.choices=['InProcess']
     else:
-        form.bank_status.choices=['InProcess','Booked','Decline']
+        form.bank_status.choices=['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
 
     if (current_user.bankname not in ["ENBD"]) and (current_user.userlevel !="5"):
         abort(403)
@@ -374,8 +378,7 @@ def insert2():
     if usr.userlevel=="1":
         form.bank_status.choices=['InProcess']
     else:
-        form.bank_status.choices=['InProcess','Booked','Decline']
-
+        form.bank_status.choices=['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
     if (current_user.bankname not in ["ALHILAL"]) and (current_user.userlevel !=5):
         abort(403)
 
@@ -438,7 +441,7 @@ def insertadcb():
     if usr.userlevel == "1":
         form1.bank_status.choices = ['InProcess']
     else:
-        form1.bank_status.choices = ['InProcess', 'Booked', 'Decline']
+        form1.bank_status.choices = ['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
 
     if (current_user.bankname not in ["ADCB"]) and (current_user.userlevel !="5"):
         abort(403)
@@ -522,7 +525,7 @@ def insertscb():
     if usr.userlevel == "1":
         form1.bank_status.choices = ['InProcess']
     else:
-        form1.bank_status.choices = ['InProcess', 'Booked', 'Decline']
+        form1.bank_status.choices = ['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
 
     if (usr.bankname == "SCB") or (current_user.userlevel=="5"):
         form1.product_name.choices = ["CASHBACK CREDIT CARD", "MANHATTAN REWARD+ CREDIT CARD",
@@ -604,13 +607,11 @@ def update(id):
     form.mobile.validators=[Optional()]
     usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
 
-    if usr.userlevel=="1":
-        form.bank_status.choices=['InProcess']
-    else:
-        form.bank_status.choices=['InProcess','Booked','Decline']
+    if current_user.userlevel=="4":
+        form.bank_status.choices=['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
 
-    if (usr.userlevel=="1") & (data.bank_status in ['Booked', 'Decline']):
-            abort(403)
+    if current_user.userlevel=="1":
+        form.bank_status.choices=[data.bank_status]
 
     if (current_user.bankname not in ["ENBD"]) and (current_user.userlevel !="5"):
         abort(403)
@@ -711,13 +712,11 @@ def updateadcb(id):
     form.mobile.validators = [Optional()]
     usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
 
-    if usr.userlevel == "1":
-        form.bank_status.choices = ['InProcess']
+    if current_user.userlevel == "1":
+        form.bank_status.choices = [data.bank_status]
     else:
-        form.bank_status.choices = ['InProcess', 'Booked', 'Decline']
+        form.bank_status.choices = ['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
 
-    if (usr.userlevel == "1") & (data.bank_status in ['Booked', 'Decline']):
-        abort(403)
 
     if (current_user.bankname not in ["ADCB"]) and (current_user.userlevel !="5"):
         abort(403)
@@ -797,12 +796,10 @@ def updatehilal(id):
     # This is the way to override original form validation of any field.
     form.mobile.validators=[Optional()]
     if current_user.userlevel=="1":
-        form.bank_status.choices=['InProcess']
+        form.bank_status.choices=[data.bank_status]
     else:
-        form.bank_status.choices=['InProcess','Booked','Decline']
+        form.bank_status.choices=['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
 
-    if (current_user.userlevel=="1") & (data2.bank_status in ['Booked', 'Decline']):
-            abort(403)
 
     if (current_user.bankname not in ["ALHILAL"]) and (current_user.userlevel !="5"):
         abort(403)
@@ -870,12 +867,9 @@ def updatescb(id):
     form.mobile.validators = [Optional()]
 
     if current_user.userlevel == "1":
-        form.bank_status.choices = ['InProcess']
+        form.bank_status.choices = [data.bank_status]
     else:
-        form.bank_status.choices = ['InProcess', 'Booked', 'Decline']
-
-    if (current_user.userlevel == "1") & (data.bank_status in ['Booked', 'Decline']):
-        abort(403)
+        form.bank_status.choices = ['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
 
     if (current_user.bankname not in ["SCB"]) and (current_user.userlevel !="5"):
         abort(403)
