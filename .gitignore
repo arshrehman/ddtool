@@ -122,7 +122,7 @@ venv.bak/
 /site
 .idea
 static/
-static/*.csv
+styles_css/
 #instance/site.db
 # mypy
 .mypy_cache/

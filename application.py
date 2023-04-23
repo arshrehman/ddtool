@@ -27,7 +27,7 @@ from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
 load_dotenv()
 ALLOWED_EXTENSIONS = set(['xlsx'])
-UPLOADS_FOLDER = "var/www/html/ecsa/static/files"
+UPLOADS_FOLDER = "static/files"
 
 application = Flask(__name__)
 bootstrap = Bootstrap(application)
@@ -227,29 +227,39 @@ def login():
 @application.route('/success')
 @login_required
 def success():
+    q = request.args.get('q')
     if current_user.userlevel not in ["2","3", "4", "5"]:
         abort(403)
     elif current_user.userlevel =="2":
-        #q = request.args.get('q')
-        #if q:
-            #all_data = Appdata.query.filter(Appdata.mobile.contains(q))
-        #else:
-        all_data = Appdata.query.filter(and_(Appdata.bank_name==current_user.bankname, Appdata.tlhrmsid==current_user.hrmsID)).all()
+        if q:
+            all_data = Appdata.query.filter(Appdata.customer_email.contains(q)).all()
+        else:
+            all_data = Appdata.query.filter(and_(Appdata.bank_name==current_user.bankname, Appdata.tlhrmsid==current_user.hrmsID)).all()
     elif current_user.userlevel=="3":
-        all_data = Appdata.query.filter(and_(Appdata.bank_name == current_user.bankname,
-                                             Appdata.mngrhrmsid == current_user.hrmsID)).all()
+        if q:
+            all_data = Appdata.query.filter(Appdata.customer_email.contains(q)).all()
+        else:
+            all_data = Appdata.query.filter(and_(Appdata.bank_name == current_user.bankname,
+                                             Appdata.mngrhrmsid == current_user.hrmsID)).order_by(Appdata.id.desc()).all()
     elif current_user.userlevel=="4":
-        all_data = Appdata.query.filter(and_(Appdata.bank_name == current_user.bankname,
-                                             Appdata.crdntr_hrmsid == current_user.hrmsID)).all()
+        if q:
+            all_data = Appdata.query.filter(Appdata.customer_email.contains(q)).all()
+        else:
+            all_data = Appdata.query.filter(and_(Appdata.bank_name == current_user.bankname,
+                                             Appdata.crdntr_hrmsid == current_user.hrmsID)).order_by(Appdata.id.desc()).all()
+
     else:
-        all_data = Appdata.query.all()
+        if q:
+            all_data = Appdata.query.filter(Appdata.customer_email.contains(q)).all()
+        else:
+            all_data = Appdata.query.order_by(Appdata.id.desc()).all()
     return render_template('success.html', record=all_data, datetime=datetime)
 
 
 @application.route('/aecb', methods=['GET', 'POST'])
 @login_required
 def aecb():
-    aecb_all = Appdata.query.filter(Appdata.agent_id == current_user.hrmsID).all()
+    aecb_all = Appdata.query.filter(Appdata.agent_id == current_user.hrmsID).order_by(Appdata.id.desc()).all()
     return render_template('aecb.html', record=aecb_all, id=id, datetime=datetime)
 
 
@@ -283,7 +293,7 @@ def insert():
         appdata = Appdata()
 
         if (usr.bankname=="ENBD") or (current_user.userlevel=="5"):
-            appdata.leadid = "719" + str(form.mobile.data[-4:])
+            appdata.leadid = "719" + str(form.mobile.data[-6:]) + "EN23"
 
         # customer details
         print(datetime.now())
@@ -372,7 +382,7 @@ def insert2():
     if form.validate_on_submit():
         appdata = Appdata()
         if (usr.bankname == "ALHILAL") or (current_user.userlevel=="5"):
-            appdata.leadid = "779" + str(form.mobile.data[-4:])
+            appdata.leadid = "779" + str(form.mobile.data[-6:]) + "AH23"
 
         appdata.customer_name=form.customer_name.data
         appdata.entry_date=datetime.now()
@@ -452,7 +462,7 @@ def insertadcb():
         appdata = Appdata()
 
         if (usr.bankname == "ADCB") or (current_user.userlevel=="5"):
-            appdata.leadid = "769" + str(form1.mobile.data[-4:])
+            appdata.leadid = "769" + str(form1.mobile.data[-6:]) + "AD23"
 
         # customer details
         appdata.customer_name = form1.customer_name.data
@@ -528,7 +538,7 @@ def insertscb():
         appdata = Appdata()
 
         if (usr.bankname == "SCB") or (current_user.userlevel=="5"):
-            appdata.leadid = "779" + str(form1.mobile.data[-4:])
+            appdata.leadid = "779" + str(form1.mobile.data[-6:]) + "SC23"
 
         # customer details
         appdata.customer_name = form1.customer_name.data
@@ -1157,27 +1167,49 @@ def updateuser(id):
 @application.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
-        if current_user.userlevel not in ["2","3"]:
+        if current_user.userlevel not in ["4","5"]:
             abort(403)
-        usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
         form = Upload()
         if form.validate_on_submit():
             file = form.upload.data
             if file and allowed_file(file.filename):
-                file.filename = "data" + str(usr.agent_name) + str(datetime.date(datetime.utcnow())) + ".xlsx"
+                file.filename = "data" + str(current_user.hrmsID) + str(datetime.date(datetime.utcnow())) + ".xlsx"
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(application.config['UPLOADS_FOLDER'], filename))
-                df=pd.read_excel(f'var/www/html/ecsa/static/files/{filename}')
+                df=pd.read_excel(f'static/files/{filename}')
                 lst_df = list(df.columns)
                 lst_df= [x.strip() for x in lst_df]
                 lst_df = [x.lower() for x in lst_df]
                 df.columns = lst_df
+                df.iloc[:,0]=df.iloc[:,0].astype(str)
+                df.iloc[:, 0] = df.iloc[:, 0].str.strip()
+                df.iloc[:, 1] = df.iloc[:, 1].astype(str)
+                df.iloc[:, 1] = df.iloc[:, 1].str.strip().str.capitalize()
                 ar = df.iloc[:,0].values
                 ar2 = df.iloc[:,1].values
-                return redirect(url_for('success'))
+                if len(ar)!=len(ar2):
+                    flash("You uploaded a file where count of leadid and count of status are not equal. System will not process it.")
+                    return redirect(url_for('upload'))
+                for i in range(len(ar)):
+                    if not ar[i].isdigit():
+                        flash(f"First column must have leadid number and each cell must have only digits {i}th cell in first column has invalid value \'{ar[i]}\'")
+                        return redirect(url_for('upload'))
+                lst_not_updated=[]
+                lst_updated=[]
+                for i in range(len(ar)):
+                    row = Appdata.query.filter_by(leadid=ar[i]).order_by(Appdata.id.desc()).first()
+                    if row:
+                        lst_updated.append(ar[i])
+                        row.bank_status=ar2[i]
+                        db.session.commit()
+                    else:
+                        lst_not_updated.append(ar[i])
+                flash(f"{len(lst_updated)} records are updated and {len(lst_not_updated)} records are not matched, not matched leadids are {lst_not_updated}")
+                return redirect(url_for('upload'))
             else:
-                return "<h1> Please upload only a xlsx file</h1>"
-        return render_template('upload.html', form=form,  user=usr)
+                flash("Not uploaded, please upload only xlsx file")
+                return redirect(url_for('upload'))
+        return render_template('upload.html', form=form)
 
 
 @application.route('/logout')
