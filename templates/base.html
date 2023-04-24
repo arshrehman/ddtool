@@ -32,13 +32,15 @@
       <a class="navbar-brand" href="{{url_for('download')}}">Download</a>
   <ul class="navbar-nav">
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
           BulkUpdate
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" href="{{url_for('upload_cpv')}}">CPV</a>
           <a class="dropdown-item" href="{{url_for('upload')}}">BankStatus</a>
-          <a class="dropdown-item" href="{{url_for('upload')}}">BankReference</a>
+          {% if current_user.bankname!="ALHILAL" %}
+          <a class="dropdown-item" href="{{url_for('upload_cpv')}}">CPV</a>
+          {% endif %}
+          <a class="dropdown-item" href="{{url_for('upload_bankref')}}">BankReference</a>
         </div></li></ul>
     {% endif %}
   {% if current_user.userlevel == "5" %}
