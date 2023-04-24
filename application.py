@@ -1206,6 +1206,7 @@ def upload():
                             if row:
                                 lst_updated.append(str(ar[i]))
                                 row.bank_status=str(ar2[i]).strip().capitalize()
+                                row.bookingdate=datetime.now()
                                 db.session.commit()
                             else:
                                 lst_not_updated.append(str(ar[i]))
@@ -1298,7 +1299,7 @@ def upload_bankref():
                         row = Appdata.query.filter_by(leadid=str(ar[i])).order_by(Appdata.id.desc()).first()
                         if row:
                             lst_updated.append(str(ar[i]))
-                            row.bank_status=str(ar2[i]).strip().capitalize()
+                            row.bank_reference=str(ar2[i]).strip().capitalize()
                             db.session.commit()
                         else:
                             lst_not_updated.append(str(ar[i]))
