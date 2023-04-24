@@ -135,7 +135,7 @@ class Appdata1(FlaskForm):
     bookingdate = DateField("BookingDate", validators=[Optional()])
     supplementary_card=SelectField("SupplCard", validators=[Optional()], choices=['NotRequired', 'Required'],default="NotRequired")
     remarks=StringField("Remarks", validators=[Optional()])
-    cpv=SelectField("CPV", validators=[Optional()], choices=['Verified', 'NotVerified'])
+    cpv=SelectField("CPV", validators=[Optional()])
     submit = SubmitField('Submit')
     promo = SelectField("Promo", validators=[Optional()], choices=['AECB', 'NCC', 'STC', 'CHLD', 'EMRT'])
 

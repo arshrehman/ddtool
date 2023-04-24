@@ -15,9 +15,9 @@
   <div class="row">
     <a class="navbar-brand" style="padding:5px;m-5" href="{{url_for('logout')}}">Logout</a>
   {% if current_user.userlevel == "1" %}
-    <a class="navbar-brand" href="{{url_for('aecb')}}">Home</a>
+    <a class="navbar-brand" href="{{url_for('aecb')}}">Home<span class="sr-only">(current)</span> </a>
   {% else %}
-    <a class="navbar-brand" href="{{url_for('success')}}">Home</a>
+    <a class="navbar-brand" href="{{url_for('success')}}">Home<span class="sr-only">(current)</span> </a>
   {% endif %}
   {% if (current_user.bankname=="ENBD") %}
   <a class="navbar-brand" href="{{url_for('insert')}}">Create</a>
@@ -29,9 +29,17 @@
     <a class="navbar-brand" href="{{url_for('insertscb')}}">Create</a>
   {% endif %}
   {% if current_user.userlevel in ["4", "5"] %}
-    <a class="navbar-brand" href="{{url_for('download')}}">Download</a>
-    <a class="navbar-brand" href="{{url_for('upload')}}">BulkUpdate</a>
-  {% endif %}
+      <a class="navbar-brand" href="{{url_for('download')}}">Download</a>
+  <ul class="navbar-nav">
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          BulkUpdate
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="{{url_for('upload_cpv')}}">CPV</a>
+          <a class="dropdown-item" href="{{url_for('upload')}}">BankStatus</a>
+        </div></li></ul>
+    {% endif %}
   {% if current_user.userlevel == "5" %}
     <a class="navbar-brand" href="{{url_for('users')}}">Users</a>
     <a class="navbar-brand" href="{{url_for('create')}}">CreateUser</a>

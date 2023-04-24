@@ -446,7 +446,7 @@ def insertadcb():
     if (current_user.bankname not in ["ADCB"]) and (current_user.userlevel !="5"):
         abort(403)
 
-    if (usr.bankname == "ADCB") & (current_user.userlevel=="5"):
+    if (usr.bankname == "ADCB") or (current_user.userlevel=="5"):
         form1.product_name.choices = ["43-ETIHAD VISA ETIHAD PLATINUM CARD", "365-CASHBACK ISLAMIC CARD",
                                      "201-VISA ISLAMIC COVERED GOLD","200-VISA ISLAMIC COVERED PLATINUM",
                                       "356-VISA 365 CASHBACK CARD","357-VISA VISA ISLAMIC COVERED",
@@ -526,6 +526,7 @@ def insertscb():
         form1.bank_status.choices = ['InProcess']
     else:
         form1.bank_status.choices = ['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
+
 
     if (usr.bankname == "SCB") or (current_user.userlevel=="5"):
         form1.product_name.choices = ["CASHBACK CREDIT CARD", "MANHATTAN REWARD+ CREDIT CARD",
@@ -609,6 +610,9 @@ def update(id):
 
     if current_user.userlevel=="4":
         form.bank_status.choices=['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
+        form.bank_status.default=[data.bank_status]
+        form.cpv.choices=['Verified','Not-verified']
+        form.cpv.default=[data.cpv]
 
     if current_user.userlevel=="1":
         form.bank_status.choices=[data.bank_status]
@@ -716,6 +720,9 @@ def updateadcb(id):
         form.bank_status.choices = [data.bank_status]
     else:
         form.bank_status.choices = ['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
+        form.bank_status.default=[data.bank_status]
+        form.cpv.choices=['Verified','Not-verified']
+        form.cpv.default=[data.cpv]
 
 
     if (current_user.bankname not in ["ADCB"]) and (current_user.userlevel !="5"):
@@ -799,6 +806,7 @@ def updatehilal(id):
         form.bank_status.choices=[data.bank_status]
     else:
         form.bank_status.choices=['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
+        form.bank_status.default=[data.bank_status]
 
 
     if (current_user.bankname not in ["ALHILAL"]) and (current_user.userlevel !="5"):
@@ -870,6 +878,9 @@ def updatescb(id):
         form.bank_status.choices = [data.bank_status]
     else:
         form.bank_status.choices = ['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
+        form.bank_status.default=[data.bank_status]
+        form.cpv.choices=['Verified', 'Not-verified']
+        form.cpv.default=[data.cpv]
 
     if (current_user.bankname not in ["SCB"]) and (current_user.userlevel !="5"):
         abort(403)
@@ -1169,7 +1180,7 @@ def upload():
         if form.validate_on_submit():
             file = form.upload.data
             if file and allowed_file(file.filename):
-                file.filename = "data" + str(current_user.hrmsID) + str(datetime.date(datetime.utcnow())) + ".xlsx"
+                file.filename = "data_bankstatus" + str(current_user.hrmsID) + str(datetime.date(datetime.utcnow())) + ".xlsx"
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(application.config['UPLOADS_FOLDER'], filename))
                 df=pd.read_excel(f'static/files/{filename}')
@@ -1187,8 +1198,8 @@ def upload():
                     return redirect(url_for('upload'))
                 else:
                     for i in range(len(ar)):
-                        if not str(ar[i]).isdigit():
-                            flash(f"First column must have leadid number and each cell must have only digits {i}th cell in first column has invalid value \'{ar[i]}\'")
+                        if str(ar2[i]).strip().capitalize() not in ['InProcess','Booked','Decline','DSA-Pending','DocsRequired']:
+                            flash(f"second column must have any one of [InProcess,Booked,Decline,DSA-Pending,DocsRequired], {i}th cell in second column has invalid value \'{ar2[i]}\'")
                             return redirect(url_for('upload'))
                         else:
                             row = Appdata.query.filter_by(leadid=str(ar[i])).order_by(Appdata.id.desc()).first()
@@ -1205,6 +1216,56 @@ def upload():
                 return redirect(url_for('upload'))
         return render_template('upload.html', form=form)
 
+
+
+@application.route('/upload_cpv', methods=['GET', 'POST'])
+@login_required
+def upload_cpv():
+        if current_user.userlevel not in ["4","5"]:
+            abort(403)
+        form = Upload()
+        lst_not_updated=[]
+        lst_updated=[]
+        if form.validate_on_submit():
+            file = form.upload.data
+            if file and allowed_file(file.filename):
+                file.filename = "data_cpv" + str(current_user.hrmsID) + str(datetime.date(datetime.utcnow())) + ".xlsx"
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(application.config['UPLOADS_FOLDER'], filename))
+                df=pd.read_excel(f'static/files/{filename}')
+                lst_df = list(df.columns)
+                lst_df= [x.strip() for x in lst_df]
+                lst_df = [x.lower() for x in lst_df]
+                df.columns = lst_df
+                ar = df.iloc[:,0].values
+                ar2 = df.iloc[:,1].values
+                print(df.isnull().sum().sum())
+                print(df)
+
+                if (df.isnull().sum().sum())>0:
+                    flash("You uploaded a file which has null values. System will not process it.")
+                    return redirect(url_for('upload_cpv'))
+                else:
+                    for i in range(len(ar2)):
+                        #ar2[i]=str(ar2[i]).strip().capitalize().replace(" ", "_")
+                        #ar2[i]="".join(y.capitalize() for y in ar2[i].split("_"))
+                        if str(ar2[i]).strip().capitalize() not in ['Verified','Not-verified']:
+                            flash(f"Second column must have any one of [Verified, Not-verified] value, {i}th cell in second column has invalid value \'{ar2[i]}\'")
+                            return redirect(url_for('upload_cpv'))
+                        else:
+                            row = Appdata.query.filter_by(leadid=str(ar[i])).order_by(Appdata.id.desc()).first()
+                            if row:
+                                lst_updated.append(str(ar[i]))
+                                row.cpv=str(ar2[i]).strip().capitalize()
+                                db.session.commit()
+                            else:
+                                lst_not_updated.append(str(ar[i]))
+                    flash(f"{len(lst_updated)} records are updated and {len(lst_not_updated)} records are not matched, not matched leadids are {lst_not_updated}")
+                    return redirect(url_for('upload_cpv'))
+            else:
+                flash("Not uploaded, please upload only xlsx file")
+                return redirect(url_for('upload_cpv'))
+        return render_template('upload_cpv.html', form=form)
 
 @application.route('/logout')
 @login_required
