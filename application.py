@@ -1239,8 +1239,6 @@ def upload_cpv():
                 df.columns = lst_df
                 ar = df.iloc[:,0].values
                 ar2 = df.iloc[:,1].values
-                print(df.isnull().sum().sum())
-                print(df)
 
                 if (df.isnull().sum().sum())>0:
                     flash("You uploaded a file which has null values. System will not process it.")
@@ -1266,6 +1264,50 @@ def upload_cpv():
                 flash("Not uploaded, please upload only xlsx file")
                 return redirect(url_for('upload_cpv'))
         return render_template('upload_cpv.html', form=form)
+
+
+@application.route('/upload_bankref', methods=['GET', 'POST'])
+@login_required
+def upload_bankref():
+        if current_user.userlevel not in ["4","5"]:
+            abort(403)
+        form = Upload()
+        lst_not_updated=[]
+        lst_updated=[]
+        if form.validate_on_submit():
+            file = form.upload.data
+            if file and allowed_file(file.filename):
+                file.filename = "data_bankref" + str(current_user.hrmsID) + str(datetime.date(datetime.utcnow())) + ".xlsx"
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(application.config['UPLOADS_FOLDER'], filename))
+                df=pd.read_excel(f'static/files/{filename}')
+                lst_df = list(df.columns)
+                lst_df= [x.strip() for x in lst_df]
+                lst_df = [x.lower() for x in lst_df]
+                df.columns = lst_df
+                ar = df.iloc[:,0].values
+                ar2 = df.iloc[:,1].values
+
+                if (df.isnull().sum().sum())>0:
+                    flash("You uploaded a file which has null values. System will not process it.")
+                    return redirect(url_for('upload_bankref'))
+                else:
+                    for i in range(len(ar2)):
+                        #ar2[i]=str(ar2[i]).strip().capitalize().replace(" ", "_")
+                        #ar2[i]="".join(y.capitalize() for y in ar2[i].split("_"))
+                        row = Appdata.query.filter_by(leadid=str(ar[i])).order_by(Appdata.id.desc()).first()
+                        if row:
+                            lst_updated.append(str(ar[i]))
+                            row.bank_status=str(ar2[i]).strip().capitalize()
+                            db.session.commit()
+                        else:
+                            lst_not_updated.append(str(ar[i]))
+                    flash(f"{len(lst_updated)} records are updated and {len(lst_not_updated)} records are not matched, not matched leadids are {lst_not_updated}")
+                    return redirect(url_for('upload_bankref'))
+            else:
+                flash("Not uploaded, please upload only xlsx file")
+                return redirect(url_for('upload_bankref'))
+        return render_template('upload_bankref.html', form=form)
 
 @application.route('/logout')
 @login_required
