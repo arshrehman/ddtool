@@ -38,6 +38,7 @@
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
           <a class="dropdown-item" href="{{url_for('upload_cpv')}}">CPV</a>
           <a class="dropdown-item" href="{{url_for('upload')}}">BankStatus</a>
+          <a class="dropdown-item" href="{{url_for('upload')}}">BankReference</a>
         </div></li></ul>
     {% endif %}
   {% if current_user.userlevel == "5" %}
