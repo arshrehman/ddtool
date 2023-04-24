@@ -31,6 +31,7 @@
           <th scope="col">Date</th>
           <th scope="col">Name</th>
           <th scope="col">Company</th>
+          <th scope="col">CPV</th>
           <th scope="col">Status</th>
           <th scope="col">Action</th>
         </tr>
@@ -41,8 +42,8 @@
       <th scope="row">{{datetime.date(row.entry_date)}}</th>
       <td>{{row.customer_name}}</td>
       <td>{{row.company}}</td>
+      <td>{{row.cpv}}</td>
       <td>{{row.bank_status}}</td>
-      {% if row.bank_status not in ['Booked','Decline'] %}
       {% if row.bank_name=="ALHILAL" %}
         <td><a href=/updatehilal/{{row.id}} class="btn btn-warning btn-xs">Edit</a></td>
       {% elif row.bank_name == "ENBD" %}
@@ -51,7 +52,6 @@
     <td><a href=/updateadcb/{{row.id}} class="btn btn-warning btn-xs">Edit</a></td>
       {% elif row.bank_name == "SCB" %}
     <td><a href=/updatescb/{{row.id}} class="btn btn-warning btn-xs">Edit</a></td>
-      {% endif %}
       {% endif %}</tr>
     {% endfor %}</tbody></table>
 {% endblock %}

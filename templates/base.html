@@ -37,7 +37,9 @@
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
           <a class="dropdown-item" href="{{url_for('upload')}}">BankStatus</a>
+          {% if current_user.bankname!="ALHILAL" %}
           <a class="dropdown-item" href="{{url_for('upload_cpv')}}">CPV</a>
+          {% endif %}
           <a class="dropdown-item" href="{{url_for('upload_bankref')}}">BankReference</a>
         </div></li></ul>
     {% endif %}

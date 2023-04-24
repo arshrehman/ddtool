@@ -274,10 +274,12 @@ def insert():
     form = Appdata1()
     usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
 
+    form.cpv.choices=['Verified', 'Not-verified']
+
     if usr.userlevel=="1":
         form.bank_status.choices=['InProcess']
     else:
-        form.bank_status.choices=['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
+        form.bank_status.choices=['InProcess','Booked','Declined','Dsa-pending','Docs-required']
 
     if (current_user.bankname not in ["ENBD"]) and (current_user.userlevel !="5"):
         abort(403)
@@ -378,7 +380,7 @@ def insert2():
     if usr.userlevel=="1":
         form.bank_status.choices=['InProcess']
     else:
-        form.bank_status.choices=['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
+        form.bank_status.choices=['InProcess','Booked','Declined','Dsa-pending','Docs-required']
     if (current_user.bankname not in ["ALHILAL"]) and (current_user.userlevel !=5):
         abort(403)
 
@@ -437,11 +439,11 @@ def insert2():
 def insertadcb():
     form1 = Appdata1()
     usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
-
+    form1.cpv.choices=['Verified', 'Not-verified']
     if usr.userlevel == "1":
         form1.bank_status.choices = ['InProcess']
     else:
-        form1.bank_status.choices = ['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
+        form1.bank_status.choices = ['InProcess','Booked','Declined','Dsa-pending','Docs-required']
 
     if (current_user.bankname not in ["ADCB"]) and (current_user.userlevel !="5"):
         abort(403)
@@ -521,11 +523,13 @@ def insertadcb():
 def insertscb():
     form1 = Appdata1()
     usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
+    form1.cpv.choices = ['Verified', 'Not-verified']
 
     if usr.userlevel == "1":
         form1.bank_status.choices = ['InProcess']
     else:
-        form1.bank_status.choices = ['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
+        form1.bank_status.choices = ['InProcess','Booked','Declined','Dsa-pending','Docs-required']
+
 
 
     if (usr.bankname == "SCB") or (current_user.userlevel=="5"):
@@ -609,19 +613,20 @@ def update(id):
     usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
 
     if current_user.userlevel=="4":
-        form.bank_status.choices=['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
-        form.bank_status.default=[data.bank_status]
+        form.bank_status.choices=['InProcess','Booked','Declined','Dsa-pending','Docs-required']
         form.cpv.choices=['Verified','Not-verified']
-        form.cpv.default=[data.cpv]
+        form.cpv.choices[0]=data.cpv
+        form.bank_status.choices[0]=data.bank_status
 
     if current_user.userlevel=="1":
         form.bank_status.choices=[data.bank_status]
+        form.cpv.choices=[data.cpv]
 
     if (current_user.bankname not in ["ENBD"]) and (current_user.userlevel !="5"):
         abort(403)
 
 
-    if (usr.bankname == "ENBD") or (current_user.userlevel=="5"):
+    if (current_user.userlevel=="4") or (current_user.userlevel=="5"):
         form.product_name.choices = ["TITANIUM MASTERCARD", "GO 4 IT GOLD VISA CARD", "GO 4 IT PLATINUM VISA CARD",
                                      "VISA FLEXI VISA CARD", "DNATA PLATINUM MASTERCARD", "DNATA WORLD MASTERCARD",
                                      "BUSINESS MASTERCARD", "BUSINESS REWARDS SIGNATURE VISA CARD",
@@ -634,6 +639,11 @@ def update(id):
                                      "MARRIOTT BONVOY WORLD",
                                      "ETHIHAD GUEST VISA INSPIRE", "ETHIHAD GUEST VISA ELEVATE", "PLATINUM VISA CARD"]
         form.application_type.choices = ['PHYSICAL', 'TAB-StandAlone', 'Tab-Bundle']
+        form.product_name.choices[0]=data.product_name
+        form.application_type.choices[0]=data.application_type
+    else:
+        form.product_name.choices=[data.product_name]
+        form.application_type.choices=[data.application_type]
 
 
     # dct.pop("entry_date")
@@ -696,6 +706,7 @@ def update(id):
         #print(form.data)
         dct_ordered_form = {m: form_dct[m] for m in lst_dsrd}
         dct_form = dict(list(zip(dct_ordered_form, dct_ordered.values())))
+        print(dct_form)
         for i in dct_form.keys():
             if isinstance(dct_form[i], datetime):
                 form[i].data = dct_form[i]
@@ -718,17 +729,18 @@ def updateadcb(id):
 
     if current_user.userlevel == "1":
         form.bank_status.choices = [data.bank_status]
+        form.cpv.choices=[data.cpv]
     else:
-        form.bank_status.choices = ['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
-        form.bank_status.default=[data.bank_status]
+        form.bank_status.choices = ['InProcess','Booked','Declined','Dsa-pending','Docs-required']
+        form.bank_status.choices[0]=data.bank_status
         form.cpv.choices=['Verified','Not-verified']
-        form.cpv.default=[data.cpv]
+        form.cpv.choices[0]=data.cpv
 
 
     if (current_user.bankname not in ["ADCB"]) and (current_user.userlevel !="5"):
         abort(403)
 
-    if (usr.bankname == "ADCB") or (current_user.userlevel=="5"):
+    if (current_user.userlevel == "4") or (current_user.userlevel=="5"):
         form.product_name.choices = ["ADCB INFINITE CARD", "ADCB SIGNATURE CARD ", "CASHBACK CARD", "BETAQTI CARD",
                                       "ADCB ETIHAD GUEST INFINITE CARD", "ADCB ETIHAD GUEST SIGNATURE CARD",
                                       "ADCB ETIHAD GUEST PLATINUM CARD",
@@ -736,6 +748,11 @@ def updateadcb(id):
                                       "TOUCH POINTS PLATINUM CARD", "TOUCH POINTS TITANIUM/GOLD CARD",
                                       "LULU PLATINUM CARD", "LULU TITANIUM CARD"]
         form.application_type.choices = ['CONVENTIONAL', 'ISLAMIC']
+        form.application_type.choices[0]=data.application_type
+        form.application_type.choices[0]=data.product_name
+    else:
+        form.product_name.choices=[data.product_name]
+        form.application_type.choices=[data.application_type]
 
     # dct.pop("entry_date")
     lst_dsrd = ['customer_name', 'mobile', 'customer_email', 'nationality', 'salary', 'company',
@@ -803,10 +820,11 @@ def updatehilal(id):
     # This is the way to override original form validation of any field.
     form.mobile.validators=[Optional()]
     if current_user.userlevel=="1":
-        form.bank_status.choices=[data.bank_status]
+        form.bank_status.choices=[data2.bank_status]
+
     else:
-        form.bank_status.choices=['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
-        form.bank_status.default=[data.bank_status]
+        form.bank_status.choices=['InProcess','Booked','Declined','Dsa-pending','Docs-required']
+        form.bank_status.choices[0]=data2.bank_status
 
 
     if (current_user.bankname not in ["ALHILAL"]) and (current_user.userlevel !="5"):
@@ -876,20 +894,26 @@ def updatescb(id):
 
     if current_user.userlevel == "1":
         form.bank_status.choices = [data.bank_status]
+        form.cpv.choices=[data.cpv]
     else:
-        form.bank_status.choices = ['InProcess','Booked','Decline','DSA-Pending','DocsRequired']
-        form.bank_status.default=[data.bank_status]
+        form.bank_status.choices = ['InProcess','Booked','Declined','Dsa-pending','Docs-required']
+        form.bank_status.choices[0]=data.bank_status
         form.cpv.choices=['Verified', 'Not-verified']
-        form.cpv.default=[data.cpv]
+        form.cpv.choices[0]=data.cpv
 
     if (current_user.bankname not in ["SCB"]) and (current_user.userlevel !="5"):
         abort(403)
 
-    if (current_user.bankname =="SCB") or (current_user.userlevel =="5"):
+    if (current_user.userlevel =="4") or (current_user.userlevel =="5"):
         form.product_name.choices = ["CASHBACK CREDIT CARD", "MANHATTAN REWARD+ CREDIT CARD",
                                       "SAADIQ", "INFINITE"]
 
-        form.application_type.choices = ['DIGITAL','CONVENTIONAL', 'ISLAMIC']
+        form.application_type.choices = ['DIGITAL','TAB', 'ISLAMIC']
+        form.product_name.choices[0]=data.product_name
+        form.application_type.choices[0]=data.application_type
+    else:
+        form.application_type.choices=[data.application_type]
+        form.product_name.choices=[data.product_name]
 
     # dct.pop("entry_date")
     lst_dsrd = ['customer_name', 'mobile', 'customer_email', 'gender', 'nationality', 'salary', 'company','designation',
@@ -1198,8 +1222,8 @@ def upload():
                     return redirect(url_for('upload'))
                 else:
                     for i in range(len(ar)):
-                        if str(ar2[i]).strip().capitalize() not in ['InProcess','Booked','Decline','DSA-Pending','DocsRequired']:
-                            flash(f"second column must have any one of [InProcess,Booked,Decline,DSA-Pending,DocsRequired], {i}th cell in second column has invalid value \'{ar2[i]}\'")
+                        if str(ar2[i]).strip().capitalize() not in ['InProcess','Booked','Declined','Dsa-pending','Docs-required']:
+                            flash(f"second column must have any one of [InProcess,Booked,Declined,Dsa-pending,Docs-required], {i}th cell in second column has invalid value \'{ar2[i]}\'")
                             return redirect(url_for('upload'))
                         else:
                             row = Appdata.query.filter_by(leadid=str(ar[i])).order_by(Appdata.id.desc()).first()
