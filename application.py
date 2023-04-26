@@ -27,7 +27,7 @@ from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
 load_dotenv()
 ALLOWED_EXTENSIONS = set(['xlsx'])
-UPLOADS_FOLDER = "static/files"
+UPLOADS_FOLDER = "/var/www/html/ecsa/static/files"
 
 application = Flask(__name__)
 bootstrap = Bootstrap(application)
@@ -535,7 +535,7 @@ def insertscb():
     if (usr.bankname == "SCB") or (current_user.userlevel=="5"):
         form1.product_name.choices = ["CASHBACK CREDIT CARD", "MANHATTAN REWARD+ CREDIT CARD",
                                       "SAADIQ", "INFINITE"]
-        form1.application_type.choices = ['DIGITAL','CONVENTIONAL', 'ISLAMIC']
+        form1.application_type.choices = ['DIGITAL','IPAD']
 
     if (current_user.bankname not in ["SCB"]) and (current_user.userlevel !="5"):
         abort(403)
@@ -908,7 +908,7 @@ def updatescb(id):
         form.product_name.choices = ["CASHBACK CREDIT CARD", "MANHATTAN REWARD+ CREDIT CARD",
                                       "SAADIQ", "INFINITE"]
 
-        form.application_type.choices = ['DIGITAL','TAB', 'ISLAMIC']
+        form.application_type.choices = ['DIGITAL','IPAD']
         form.product_name.choices[0]=data.product_name
         form.application_type.choices[0]=data.application_type
     else:
@@ -1020,7 +1020,7 @@ def download():
                     'bank_reference', 'bank_status', 'application_type', 'submission_date', 'remarks', 'booking_date']
 
         if current_user.bankname=='ENBD':
-            with open(f"var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+            with open(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter=csv.writer(csvfile,delimiter=",")
                 csvwriter.writerow(lst_enbd)
                 for p in data:
@@ -1030,10 +1030,10 @@ def download():
                                         p.length_of_service, p.emirates_id, p.EID_expiry_date, p.passport_number,
                                         p.cheque_number, p.cheque_bank, p.iban,p.bankingwith, p.product_type, p.product_name,
                                         p.bank_reference,p.bank_status, p.application_type,p.submissiondate,p.remarks,p.cpv, p.bookingdate])
-            return send_file(f"var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
+            return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
 
         elif current_user.bankname=="ALHILAL":
-            with open(f"var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+            with open(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile, delimiter=",")
                 csvwriter.writerow(lst_hilal)
                 for p in data:
@@ -1042,11 +1042,11 @@ def download():
                          p.mobile,p.salary, p.company, p.designation, p.ale_status, p.iban, p.cclimit,p.mothername,p.uaeaddress,
                          p.homecountryaddress,p.homecountrynumber,p.joiningdate,p.ref1name,p.ref2name,p.ref1mobile,p.ref2mobile,
                          p.product_name,p.bank_reference,p.bank_status,p.sent,p.bookingdate,p.remarks])
-            return send_file(f"var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
+            return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
 
         elif current_user.bankname=="ADCB":
-            with open(f"var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+            with open(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile, delimiter=",")
                 csvwriter.writerow(lst_adcb)
                 for p in data:
@@ -1055,11 +1055,11 @@ def download():
                          p.mobile,p.customer_email, p.nationality, p.salary, p.company, p.ale_status, p.emirates_id,p.passport_number,
                          p.product_type, p.product_name,p.bank_reference,p.bank_status,p.application_type,p.submissiondate,p.promo,
                          p.remarks, p.cpv, p.bookingdate])
-            return send_file(f"var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
+            return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
 
         elif current_user.bankname=="SCB":
-            with open(f"var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+            with open(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile, delimiter=",")
                 csvwriter.writerow(lst_scb)
                 for p in data:
@@ -1068,12 +1068,12 @@ def download():
                          p.customer_email, p.gender, p.mobile, p.salary,p.nationality,p.company, p.designation,p.ale_status,
                          p.emirates_id,p.bankingwith,p.product_type, p.product_name,p.bank_reference,p.bank_status,
                          p.application_type,p.submissiondate,p.remarks, p.bookingdate])
-            return send_file(f"var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
+            return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
 
         else:
             lst_admin=list(data[0].__dict__.keys())
-            with open("var/www/html/ecsa/static/all_record_admin.csv",'w',encoding='UTF8',newline='') as csvfile:
+            with open("/var/www/html/ecsa/static/all_record_admin.csv",'w',encoding='UTF8',newline='') as csvfile:
                 csvwriter=csv.writer(csvfile,delimiter=',')
                 csvwriter.writerow(lst_admin[1:])
                 for p in data:
@@ -1081,7 +1081,7 @@ def download():
                     dct.pop('_sa_instance_state')
                     lst_dct=dct.values()
                     csvwriter.writerow(lst_dct)
-            return send_file("var/www/html/ecsa/static/all_record_admin.csv", mimetype='text/csv', as_attachment=True)
+            return send_file("/var/www/html/ecsa/static/all_record_admin.csv", mimetype='text/csv', as_attachment=True)
 
     return render_template('download.html', form=form)
 
@@ -1207,7 +1207,7 @@ def upload():
                 file.filename = "data_bankstatus" + str(current_user.hrmsID) + str(datetime.date(datetime.utcnow())) + ".xlsx"
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(application.config['UPLOADS_FOLDER'], filename))
-                df=pd.read_excel(f'static/files/{filename}')
+                df=pd.read_excel(f'/var/www/html/ecsa/static/files/{filename}')
                 lst_df = list(df.columns)
                 lst_df= [x.strip() for x in lst_df]
                 lst_df = [x.lower() for x in lst_df]
@@ -1257,7 +1257,7 @@ def upload_cpv():
                 file.filename = "data_cpv" + str(current_user.hrmsID) + str(datetime.date(datetime.utcnow())) + ".xlsx"
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(application.config['UPLOADS_FOLDER'], filename))
-                df=pd.read_excel(f'static/files/{filename}')
+                df=pd.read_excel(f'/var/www/html/ecsa/static/files/{filename}')
                 lst_df = list(df.columns)
                 lst_df= [x.strip() for x in lst_df]
                 lst_df = [x.lower() for x in lst_df]
@@ -1305,7 +1305,7 @@ def upload_bankref():
                 file.filename = "data_bankref" + str(current_user.hrmsID) + str(datetime.date(datetime.utcnow())) + ".xlsx"
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(application.config['UPLOADS_FOLDER'], filename))
-                df=pd.read_excel(f'static/files/{filename}')
+                df=pd.read_excel(f'/var/www/html/ecsa/static/files/{filename}')
                 lst_df = list(df.columns)
                 lst_df= [x.strip() for x in lst_df]
                 lst_df = [x.lower() for x in lst_df]
