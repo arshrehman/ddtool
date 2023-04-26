@@ -47,6 +47,9 @@
              {% endif %}
              <th scope="col">Agent</th>
              <th scope="col">Status</th>
+            {% if current_user.userlevel=="5" %}
+            <th scope="col">Bank</th>
+            {% endif %}
              <th scope="col">Action</th>
             {% if current_user.userlevel=="5" %}
             <th scope="col">Delete</th>
@@ -68,6 +71,7 @@
             {% endif  %}
             <td>{{row.agent_name}}</td>
             <td>{{row.bank_status}}</td>
+            <td>{{row.bank_name}}</td>
 
                <td>
                    {% if row.bank_name=="ALHILAL" %}
