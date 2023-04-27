@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, url_for, flash, redirect, send_file, abort, jsonify
 from wtforms import HiddenField
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_login import UserMixin, login_user, login_required, logout_user, LoginManager, current_user
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
@@ -234,19 +234,22 @@ def success():
         if q:
             all_data = Appdata.query.filter(Appdata.customer_email.contains(q)).all()
         else:
-            all_data = Appdata.query.filter(and_(Appdata.bank_name==current_user.bankname, Appdata.tlhrmsid==current_user.hrmsID)).all()
+            all_data = Appdata.query.filter(and_(Appdata.bank_name==current_user.bankname, Appdata.tlhrmsid==current_user.hrmsID
+                                                 ,Appdata.entry_date>=datetime.today()-timedelta(31))).all()
     elif current_user.userlevel=="3":
         if q:
             all_data = Appdata.query.filter(Appdata.customer_email.contains(q)).all()
         else:
             all_data = Appdata.query.filter(and_(Appdata.bank_name == current_user.bankname,
-                                             Appdata.mngrhrmsid == current_user.hrmsID)).order_by(Appdata.id.desc()).all()
+                                             Appdata.mngrhrmsid == current_user.hrmsID,
+                                        Appdata.entry_date>=datetime.today()-timedelta(31))).order_by(Appdata.id.desc()).all()
     elif current_user.userlevel=="4":
         if q:
             all_data = Appdata.query.filter(Appdata.customer_email.contains(q)).all()
         else:
             all_data = Appdata.query.filter(and_(Appdata.bank_name == current_user.bankname,
-                                             Appdata.crdntr_hrmsid == current_user.hrmsID)).order_by(Appdata.id.desc()).all()
+                                             Appdata.crdntr_hrmsid == current_user.hrmsID,
+                                             Appdata.entry_date>=datetime.today()-timedelta(days=31))).order_by(Appdata.id.desc()).all()
 
     else:
         if q:
@@ -263,7 +266,7 @@ def aecb():
     if q:
         aecb_all = Appdata.query.filter(Appdata.customer_name.contains(q)).order_by(Appdata.id.desc()).all()
     else:
-        aecb_all = Appdata.query.filter(Appdata.agent_id == current_user.hrmsID).order_by(Appdata.id.desc()).all()
+        aecb_all = Appdata.query.filter(and_(Appdata.agent_id == current_user.hrmsID, Appdata.entry_date>=datetime.today()-timedelta(days=31))).order_by(Appdata.id.desc()).all()
     return render_template('aecb.html', record=aecb_all, id=id, datetime=datetime)
 
 
