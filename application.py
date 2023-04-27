@@ -986,6 +986,9 @@ def download():
         sd2 = datetime.combine(sd1,st)
         ed2 = datetime.combine(ed1,et)
 
+        print(sd2)
+        print(ed2)
+
         #print(sd2,ed2)
         #print(str(sd2), str(ed2))
 
@@ -996,8 +999,8 @@ def download():
             data = Appdata.query.filter(and_(Appdata.crdntr_hrmsid==current_user.hrmsID,
                                          func.datetime(Appdata.entry_date)>=str(sd2), func.datetime(Appdata.entry_date)<=str(ed2))).all()
         if current_user.userlevel =="5":
-            data = Appdata.query.filter(and_(func.date(Appdata.entry_date) >= str(sd2),
-                                             func.date(Appdata.entry_date) <= str(ed2))).all()
+            data = Appdata.query.filter(and_(func.datetime(Appdata.entry_date) >= str(sd2),
+                                             func.datetime(Appdata.entry_date) <= str(ed2))).all()
         lst_enbd = ['leadid','entry_date','agent_id','mngrhrmsid', 'agent_name', 'customer_name','customer_email',
                     'gender', 'mobile',  'dob', 'salary','nationality', 'company', 'designation', 'ale_status',
                     'office_emirate', 'HRLandline', 'los', 'emirates_id','emiratesid_expiry','passport',
@@ -1072,17 +1075,20 @@ def download():
                              as_attachment=True)
 
         else:
-            lst_admin=list(data[0].__dict__.keys())
-            with open("/var/www/html/ecsa/static/all_record_admin.csv",'w',encoding='UTF8',newline='') as csvfile:
-                csvwriter=csv.writer(csvfile,delimiter=',')
-                csvwriter.writerow(lst_admin[1:])
-                for p in data:
-                    dct = p.__dict__
-                    dct.pop('_sa_instance_state')
-                    lst_dct=dct.values()
-                    csvwriter.writerow(lst_dct)
-            return send_file("/var/www/html/ecsa/static/all_record_admin.csv", mimetype='text/csv', as_attachment=True)
-
+            if data:
+                lst_admin=list(data[0].__dict__.keys())
+                with open("/var/www/html/ecsa/static/all_record_admin.csv",'w',encoding='UTF8',newline='') as csvfile:
+                    csvwriter=csv.writer(csvfile,delimiter=',')
+                    csvwriter.writerow(lst_admin[1:])
+                    for p in data:
+                        dct = p.__dict__
+                        dct.pop('_sa_instance_state')
+                        lst_dct=dct.values()
+                        csvwriter.writerow(lst_dct)
+                return send_file("/var/www/html/ecsa/static/all_record_admin.csv", mimetype='text/csv', as_attachment=True)
+            else:
+                flash("There are no records created between selected dates and time")
+                return redirect(url_for('download'))
     return render_template('download.html', form=form)
 
 
