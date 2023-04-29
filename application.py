@@ -1223,6 +1223,7 @@ def upload():
                 df.columns = lst_df
                 ar = df.iloc[:,0].values
                 ar2 = df.iloc[:,1].values
+                ar3 = df.iloc[:,2]
                 print(df.isnull().sum().sum())
                 print(df)
 
@@ -1239,7 +1240,7 @@ def upload():
                             if row:
                                 lst_updated.append(str(ar[i]))
                                 row.bank_status=str(ar2[i]).strip().capitalize()
-                                row.bookingdate=datetime.now()
+                                row.bookingdate=ar3[i]
                                 db.session.commit()
                             else:
                                 lst_not_updated.append(str(ar[i]))
