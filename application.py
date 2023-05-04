@@ -1015,10 +1015,10 @@ def download():
                     'product_type', 'product_name', 'bank_reference', 'bank_status', 'application_type','submission_date',
                     'promo','remarks', 'cpv', 'bookingdate']
 
-        lst_scb = ['leadid', 'entry_date', 'agent_id', 'mngrhrmsid', 'agent_name', 'customer_name', 'customer_email',
-                    'gender', 'mobile', 'salary', 'nationality', 'company', 'designation', 'ale_status',
-                    'emirates_id', 'salary_account', 'product_type', 'product_name',
-                    'bank_reference', 'bank_status', 'application_type', 'submission_date', 'remarks', 'booking_date']
+        lst_scb = ['leadid', 'entry_date', 'agent_id', 'mngrhrmsid', 'agent_name', 'bank_reference','application_type',
+                   'customer_name', 'mobile','company','salary','designation','nationality','ale_status','customer_email',
+                    'gender', 'emirates_id', 'salary_account', 'product_type', 'product_name',
+                     'bank_status',  'submission_date', 'remarks', 'booking_date']
 
         if current_user.bankname=='ENBD':
             with open(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
