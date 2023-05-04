@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, url_for, flash, redirect, send_file, abort, jsonify
 from wtforms import HiddenField
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 from flask_login import UserMixin, login_user, login_required, logout_user, LoginManager, current_user
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
@@ -20,6 +20,7 @@ from flask_migrate import Migrate
 #from modelform import Download
 from sqlalchemy import and_, or_,func
 import csv
+import re
 import secrets
 from OpenSSL import SSL
 context=SSL.Context(SSL.SSLv23_METHOD)
@@ -234,22 +235,19 @@ def success():
         if q:
             all_data = Appdata.query.filter(Appdata.customer_email.contains(q)).all()
         else:
-            all_data = Appdata.query.filter(and_(Appdata.bank_name==current_user.bankname, Appdata.tlhrmsid==current_user.hrmsID
-                                                 ,Appdata.entry_date>=datetime.today()-timedelta(31))).all()
+            all_data = Appdata.query.filter(and_(Appdata.bank_name==current_user.bankname, Appdata.tlhrmsid==current_user.hrmsID)).all()
     elif current_user.userlevel=="3":
         if q:
             all_data = Appdata.query.filter(Appdata.customer_email.contains(q)).all()
         else:
             all_data = Appdata.query.filter(and_(Appdata.bank_name == current_user.bankname,
-                                             Appdata.mngrhrmsid == current_user.hrmsID,
-                                        Appdata.entry_date>=datetime.today()-timedelta(31))).order_by(Appdata.id.desc()).all()
+                                             Appdata.mngrhrmsid == current_user.hrmsID)).order_by(Appdata.id.desc()).all()
     elif current_user.userlevel=="4":
         if q:
             all_data = Appdata.query.filter(Appdata.customer_email.contains(q)).all()
         else:
             all_data = Appdata.query.filter(and_(Appdata.bank_name == current_user.bankname,
-                                             Appdata.crdntr_hrmsid == current_user.hrmsID,
-                                             Appdata.entry_date>=datetime.today()-timedelta(days=31))).order_by(Appdata.id.desc()).all()
+                                             Appdata.crdntr_hrmsid == current_user.hrmsID)).order_by(Appdata.id.desc()).all()
 
     else:
         if q:
@@ -266,7 +264,7 @@ def aecb():
     if q:
         aecb_all = Appdata.query.filter(Appdata.customer_name.contains(q)).order_by(Appdata.id.desc()).all()
     else:
-        aecb_all = Appdata.query.filter(and_(Appdata.agent_id == current_user.hrmsID, Appdata.entry_date>=datetime.today()-timedelta(days=31))).order_by(Appdata.id.desc()).all()
+        aecb_all = Appdata.query.filter(Appdata.agent_id == current_user.hrmsID).order_by(Appdata.id.desc()).all()
     return render_template('aecb.html', record=aecb_all, id=id, datetime=datetime)
 
 
@@ -989,9 +987,6 @@ def download():
         sd2 = datetime.combine(sd1,st)
         ed2 = datetime.combine(ed1,et)
 
-        print(sd2)
-        print(ed2)
-
         #print(sd2,ed2)
         #print(str(sd2), str(ed2))
 
@@ -1002,8 +997,8 @@ def download():
             data = Appdata.query.filter(and_(Appdata.crdntr_hrmsid==current_user.hrmsID,
                                          func.datetime(Appdata.entry_date)>=str(sd2), func.datetime(Appdata.entry_date)<=str(ed2))).all()
         if current_user.userlevel =="5":
-            data = Appdata.query.filter(and_(func.datetime(Appdata.entry_date) >= str(sd2),
-                                             func.datetime(Appdata.entry_date) <= str(ed2))).all()
+            data = Appdata.query.filter(and_(func.date(Appdata.entry_date) >= str(sd2),
+                                             func.date(Appdata.entry_date) <= str(ed2))).all()
         lst_enbd = ['leadid','entry_date','agent_id','mngrhrmsid', 'agent_name', 'customer_name','customer_email',
                     'gender', 'mobile',  'dob', 'salary','nationality', 'company', 'designation', 'ale_status',
                     'office_emirate', 'HRLandline', 'los', 'emirates_id','emiratesid_expiry','passport',
@@ -1056,9 +1051,14 @@ def download():
                 csvwriter = csv.writer(csvfile, delimiter=",")
                 csvwriter.writerow(lst_adcb)
                 for p in data:
+                    eid=p.emirates_id
+                    if eid:
+                        eid2 = str.join("-",re.findall('(\w{3})(\w{4})(\w{7})(\w{1})', eid)[0])
+                    else:
+                        eid2=eid
                     csvwriter.writerow(
                         [p.leadid, datetime.date(p.entry_date),p.agent_id, p.tlhrmsid,p.mngrhrmsid,p.agent_name,p.customer_name,
-                         p.mobile,p.customer_email, p.nationality, p.salary, p.company, p.ale_status, p.emirates_id,p.passport_number,
+                         p.mobile,p.customer_email, p.nationality, p.salary, p.company, p.ale_status, eid2,p.passport_number,
                          p.product_type, p.product_name,p.bank_reference,p.bank_status,p.application_type,p.submissiondate,p.promo,
                          p.remarks, p.cpv, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
@@ -1070,28 +1070,25 @@ def download():
                 csvwriter.writerow(lst_scb)
                 for p in data:
                     csvwriter.writerow(
-                        [p.leadid, datetime.date(p.entry_date),p.agent_id, p.mngrhrmsid,p.agent_name,p.customer_name,
-                         p.customer_email, p.gender, p.mobile, p.salary,p.nationality,p.company, p.designation,p.ale_status,
-                         p.emirates_id,p.bankingwith,p.product_type, p.product_name,p.bank_reference,p.bank_status,
-                         p.application_type,p.submissiondate,p.remarks, p.bookingdate])
+                        [p.leadid, datetime.date(p.entry_date),p.agent_id, p.mngrhrmsid,p.agent_name,p.bank_reference,p.application_type,p.customer_name,p.mobile,p.company,p.salary,p.designation,
+                         p.nationality,p.ale_status,p.customer_email, p.gender,
+                         p.emirates_id,p.bankingwith,p.product_type, p.product_name,p.bank_status,
+                         p.submissiondate,p.remarks, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
 
         else:
-            if data:
-                lst_admin=list(data[0].__dict__.keys())
-                with open("/var/www/html/ecsa/static/all_record_admin.csv",'w',encoding='UTF8',newline='') as csvfile:
-                    csvwriter=csv.writer(csvfile,delimiter=',')
-                    csvwriter.writerow(lst_admin[1:])
-                    for p in data:
-                        dct = p.__dict__
-                        dct.pop('_sa_instance_state')
-                        lst_dct=dct.values()
-                        csvwriter.writerow(lst_dct)
-                return send_file("/var/www/html/ecsa/static/all_record_admin.csv", mimetype='text/csv', as_attachment=True)
-            else:
-                flash("There are no records created between selected dates and time")
-                return redirect(url_for('download'))
+            lst_admin=list(data[0].__dict__.keys())
+            with open("/var/www/html/ecsa/static/all_record_admin.csv",'w',encoding='UTF8',newline='') as csvfile:
+                csvwriter=csv.writer(csvfile,delimiter=',')
+                csvwriter.writerow(lst_admin[1:])
+                for p in data:
+                    dct = p.__dict__
+                    dct.pop('_sa_instance_state')
+                    lst_dct=dct.values()
+                    csvwriter.writerow(lst_dct)
+            return send_file("/var/www/html/ecsa/static/all_record_admin.csv", mimetype='text/csv', as_attachment=True)
+
     return render_template('download.html', form=form)
 
 
@@ -1223,7 +1220,7 @@ def upload():
                 df.columns = lst_df
                 ar = df.iloc[:,0].values
                 ar2 = df.iloc[:,1].values
-                ar3 = pd.to_datetime(df.iloc[:,2])
+                ar3 = df.iloc[:,2].values
                 print(df.isnull().sum().sum())
                 print(df)
 
@@ -1343,12 +1340,6 @@ def upload_bankref():
                 flash("Not uploaded, please upload only xlsx file")
                 return redirect(url_for('upload_bankref'))
         return render_template('upload_bankref.html', form=form)
-
-@application.route('/agnt_prfrmnc')
-@login_required
-def agnt_prfrmnc():
-    pass
-
 
 @application.route('/logout')
 @login_required
