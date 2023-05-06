@@ -6,6 +6,9 @@
     <!--link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous"-->
     <!--link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.css"-->
     <link rel="stylesheet" href="/static/pad.css">
+    <link rel="stylesheet" href="/styles_css/aside.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,300,700' rel='stylesheet' type='text/css'>
   </head>
 
   <body>
@@ -47,6 +50,9 @@
     <a class="navbar-brand" href="{{url_for('users')}}">Users</a>
     <a class="navbar-brand" href="{{url_for('create')}}">CreateUser</a>
   {% endif %}
+    {% if current_user.userlevel in ["2","3","4","5"] %}
+    <a class="navbar-brand" href="#">agnt_prfrmnc</a>
+    {% endif %}
   </div>
     {% if (request.path=="/success") %}
   <form class="form-inline" style="padding-left:10px" method="GET">
@@ -72,5 +78,10 @@
     <!--script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.js"></script-->
     {% block scripts %} {% endblock %}
+
+
+
+
+
   </body>
 </html>

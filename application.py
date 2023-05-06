@@ -161,15 +161,20 @@ def load_user(user_id):
 
 @application.route('/')
 def index():
-    return render_template('index.html')
+    form=LoginForm()
+    return render_template('login3.html', form=form)
+
 
 
 @application.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    print("I am the boss")
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
+            print(user)
+            print(user.password)
             g = bcrypt.generate_password_hash(user.password)
             if user.userlevel == "2":
                 if bcrypt.check_password_hash(g, form.password.data):
@@ -190,7 +195,7 @@ def login():
         else:
             flash("Invalid user name or password")
             return redirect(url_for('login'))
-    return render_template('login.html', form=form)
+    return render_template('login3.html', form=form)
 
 
 #@app.route('/customer', methods=['GET', 'POST'])
@@ -1057,9 +1062,11 @@ def download():
                     else:
                         eid2=eid
                     csvwriter.writerow(
-                        [p.leadid, datetime.date(p.entry_date),p.agent_id, p.tlhrmsid,p.mngrhrmsid,str(p.agent_name).upper(),str(p.customer_name).upper(),
-                         p.mobile,str(p.customer_email).upper(), str(p.nationality).upper(), p.salary, str(p.company).upper(), str(p.ale_status).upper(), eid2,p.passport_number,
-                         str(p.product_type).upper(), str(p.product_name).upper(),str(p.bank_reference).upper(),str(p.bank_status).upper(),str(p.application_type).upper(),p.submissiondate,str(p.promo).upper(),
+                      [p.leadid, datetime.date(p.entry_date),p.agent_id, p.tlhrmsid,p.mngrhrmsid,str(p.agent_name).upper(),
+                         str(p.customer_name).upper(),p.mobile,str(p.customer_email).upper(), str(p.nationality).upper(),
+                         p.salary, str(p.company).upper(), str(p.ale_status).upper(), eid2,str(p.passport_number).upper(),
+                         str(p.product_type).upper(), str(p.product_name).upper(),str(p.bank_reference).upper(),
+                         str(p.bank_status).upper(),str(p.application_type).upper(),p.submissiondate,str(p.promo).upper(),
                          str(p.remarks).upper(), p.cpv, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
