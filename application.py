@@ -68,21 +68,6 @@ class User(db.Model, UserMixin):
     userlevel = db.Column(db.String(10))
 
 
-#class Customer(db.Model):
-    #id = db.Column(db.Integer, primary_key=True)
-    #entry_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
-    #agent_id = db.Column(db.Integer, nullable=False)
-    #customer_name = db.Column(db.String(200), nullable=False)
-    #customer_email = db.Column(db.String(200), nullable=False)
-    #gender = db.Column(db.String(2), nullable=False, default="M")
-    #dob = db.Column(db.DateTime, nullable=False)
-    #emirates_id = db.Column(db.String(100), nullable=False)
-    #mobile = db.Column(db.String(20), nullable=False)
-    #passport_number = db.Column(db.String(100), nullable=False)
-    #nationality = db.Column(db.String(200), nullable=False, )
-    #salary = db.Column(db.Float, nullable=True)
-    #product = db.Column(db.String(200), nullable=False)
-    #company = db.Column(db.String(200), nullable=False)
 
 
 class Appdata(db.Model):
@@ -197,37 +182,6 @@ def login():
             return redirect(url_for('login'))
     return render_template('login3.html', form=form)
 
-
-#@app.route('/customer', methods=['GET', 'POST'])
-#@login_required
-#def customer():
-    #form1 = Customer1()
-    #if form1.validate_on_submit():
-        #customer_details = Customer()
-        #customer_details.agent_id = form1.agent_id.data
-        #customer_details.customer_name = form1.customer_name.data
-        #customer_details.customer_email = form1.customer_email.data
-        #customer_details.gender = form1.gender.data
-        #customer_details.dob = form1.dob.data
-        #customer_details.emirates_id = form1.emirates_id.data
-        #customer_details.mobile = form1.mobile.data
-        #customer_details.passport_number = form1.passport_number.data
-        #customer_details.nationality = form1.nationality.data
-        #customer_details.salary = form1.salary.data
-        #customer_details.product = form1.product.data
-        #customer_details.company = form1.company.data
-        #db.session.add(customer_details)
-        #db.session.commit()
-        #msg = EmailMessage()
-        #msg['Subject'] = 'Please reply with the mentioned documents in this email'
-        #msg['From'] = 'rehmanarsh781@gmail.com'
-        #msg['To'] = form1.customer_email.data
-        #msg.set_content("Please reply with the required documents to check your AECB Score")
-        #with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-            #smtp.login('rehmanarsh781@gmail.com', 'tzjuimfblnprndnz')
-            #smtp.send_message(msg)
-        #return redirect(url_for('aecb'))
-    #return render_template('customer.html', form1=form1)
 
 
 @application.route('/success')
