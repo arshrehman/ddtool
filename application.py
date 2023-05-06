@@ -1183,8 +1183,6 @@ def upload():
                 ar2 = df.iloc[:,1].values
                 df.iloc[:,2] = pd.to_datetime(df.iloc[:,2])
                 ar3 = df.iloc[:,2].values
-                print(df.isnull().sum().sum())
-                print(df)
 
                 if (df.isnull().sum().sum())>0:
                     flash("You uploaded a file which has null values. System will not process it.")
