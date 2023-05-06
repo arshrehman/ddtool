@@ -18,7 +18,7 @@ lib/
 lib64/
 parts/
 sdist/
-#var/
+var/
 wheels/
 pip-wheel-metadata/
 share/python-wheels/
@@ -121,8 +121,7 @@ venv.bak/
 # mkdocs documentation
 /site
 .idea
-static/
-styles_css/
+static/*.csv
 #instance/site.db
 # mypy
 .mypy_cache/

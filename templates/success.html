@@ -71,8 +71,9 @@
             {% endif  %}
             <td>{{row.agent_name}}</td>
             <td>{{row.bank_status}}</td>
+            {% if current_user.userlevel=="5" %}
             <td>{{row.bank_name}}</td>
-
+            {% endif %}
                <td>
                    {% if row.bank_name=="ALHILAL" %}
                   <a href=/updatehilal/{{row.id}} class="btn btn-warning btn-xs">Edit</a>
@@ -86,7 +87,7 @@
                    </td>
                <td>
                    {% if current_user.userlevel == "5" %}
-                   <a href=/delete/{{row.id}} class="btn btn-warning btn-xs">Delete</a>
+                   <a onclick="checker()" href=/delete/{{row.id}} class="btn btn-warning btn-xs">Delete</a>
                    {% endif %}
                </td>
         </tr>
@@ -95,4 +96,16 @@
     </table>
   <!-- Modal Add Employee-->
 </div>
+
+<script>
+    function checker() {
+        var result = confirm("Are you sure of deleting this record?");
+        if (result==false) {
+            event.preventDefault();
+            }
+        }
+</script>
+
   {% endblock %}
+
+

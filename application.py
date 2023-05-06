@@ -20,6 +20,7 @@ from flask_migrate import Migrate
 #from modelform import Download
 from sqlalchemy import and_, or_,func
 import csv
+import re
 import secrets
 from OpenSSL import SSL
 context=SSL.Context(SSL.SSLv23_METHOD)
@@ -67,21 +68,6 @@ class User(db.Model, UserMixin):
     userlevel = db.Column(db.String(10))
 
 
-#class Customer(db.Model):
-    #id = db.Column(db.Integer, primary_key=True)
-    #entry_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
-    #agent_id = db.Column(db.Integer, nullable=False)
-    #customer_name = db.Column(db.String(200), nullable=False)
-    #customer_email = db.Column(db.String(200), nullable=False)
-    #gender = db.Column(db.String(2), nullable=False, default="M")
-    #dob = db.Column(db.DateTime, nullable=False)
-    #emirates_id = db.Column(db.String(100), nullable=False)
-    #mobile = db.Column(db.String(20), nullable=False)
-    #passport_number = db.Column(db.String(100), nullable=False)
-    #nationality = db.Column(db.String(200), nullable=False, )
-    #salary = db.Column(db.Float, nullable=True)
-    #product = db.Column(db.String(200), nullable=False)
-    #company = db.Column(db.String(200), nullable=False)
 
 
 class Appdata(db.Model):
@@ -160,15 +146,20 @@ def load_user(user_id):
 
 @application.route('/')
 def index():
-    return render_template('index.html')
+    form=LoginForm()
+    return render_template('login3.html', form=form)
+
 
 
 @application.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    print("I am the boss")
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
+            print(user)
+            print(user.password)
             g = bcrypt.generate_password_hash(user.password)
             if user.userlevel == "2":
                 if bcrypt.check_password_hash(g, form.password.data):
@@ -189,39 +180,8 @@ def login():
         else:
             flash("Invalid user name or password")
             return redirect(url_for('login'))
-    return render_template('login.html', form=form)
+    return render_template('login3.html', form=form)
 
-
-#@app.route('/customer', methods=['GET', 'POST'])
-#@login_required
-#def customer():
-    #form1 = Customer1()
-    #if form1.validate_on_submit():
-        #customer_details = Customer()
-        #customer_details.agent_id = form1.agent_id.data
-        #customer_details.customer_name = form1.customer_name.data
-        #customer_details.customer_email = form1.customer_email.data
-        #customer_details.gender = form1.gender.data
-        #customer_details.dob = form1.dob.data
-        #customer_details.emirates_id = form1.emirates_id.data
-        #customer_details.mobile = form1.mobile.data
-        #customer_details.passport_number = form1.passport_number.data
-        #customer_details.nationality = form1.nationality.data
-        #customer_details.salary = form1.salary.data
-        #customer_details.product = form1.product.data
-        #customer_details.company = form1.company.data
-        #db.session.add(customer_details)
-        #db.session.commit()
-        #msg = EmailMessage()
-        #msg['Subject'] = 'Please reply with the mentioned documents in this email'
-        #msg['From'] = 'rehmanarsh781@gmail.com'
-        #msg['To'] = form1.customer_email.data
-        #msg.set_content("Please reply with the required documents to check your AECB Score")
-        #with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-            #smtp.login('rehmanarsh781@gmail.com', 'tzjuimfblnprndnz')
-            #smtp.send_message(msg)
-        #return redirect(url_for('aecb'))
-    #return render_template('customer.html', form1=form1)
 
 
 @application.route('/success')
@@ -1014,10 +974,10 @@ def download():
                     'product_type', 'product_name', 'bank_reference', 'bank_status', 'application_type','submission_date',
                     'promo','remarks', 'cpv', 'bookingdate']
 
-        lst_scb = ['leadid', 'entry_date', 'agent_id', 'mngrhrmsid', 'agent_name', 'customer_name', 'customer_email',
-                    'gender', 'mobile', 'salary', 'nationality', 'company', 'designation', 'ale_status',
-                    'emirates_id', 'salary_account', 'product_type', 'product_name',
-                    'bank_reference', 'bank_status', 'application_type', 'submission_date', 'remarks', 'booking_date']
+        lst_scb = ['leadid', 'entry_date', 'agent_id', 'mngrhrmsid', 'agent_name', 'bank_reference','application_type',
+                   'customer_name', 'mobile','company','salary','designation','nationality','ale_status','customer_email',
+                    'gender', 'emirates_id', 'salary_account', 'product_type', 'product_name',
+                     'bank_status',  'submission_date', 'remarks', 'booking_date']
 
         if current_user.bankname=='ENBD':
             with open(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
@@ -1050,11 +1010,18 @@ def download():
                 csvwriter = csv.writer(csvfile, delimiter=",")
                 csvwriter.writerow(lst_adcb)
                 for p in data:
+                    eid=p.emirates_id
+                    if eid:
+                        eid2 = str.join("-",re.findall('(\w{3})(\w{4})(\w{7})(\w{1})', eid)[0])
+                    else:
+                        eid2=eid
                     csvwriter.writerow(
-                        [p.leadid, datetime.date(p.entry_date),p.agent_id, p.tlhrmsid,p.mngrhrmsid,p.agent_name,p.customer_name,
-                         p.mobile,p.customer_email, p.nationality, p.salary, p.company, p.ale_status, p.emirates_id,p.passport_number,
-                         p.product_type, p.product_name,p.bank_reference,p.bank_status,p.application_type,p.submissiondate,p.promo,
-                         p.remarks, p.cpv, p.bookingdate])
+                      [p.leadid, datetime.date(p.entry_date),p.agent_id, p.tlhrmsid,p.mngrhrmsid,str(p.agent_name).upper(),
+                         str(p.customer_name).upper(),p.mobile,str(p.customer_email).upper(), str(p.nationality).upper(),
+                         p.salary, str(p.company).upper(), str(p.ale_status).upper(), eid2,str(p.passport_number).upper(),
+                         str(p.product_type).upper(), str(p.product_name).upper(),str(p.bank_reference).upper(),
+                         str(p.bank_status).upper(),str(p.application_type).upper(),p.submissiondate,str(p.promo).upper(),
+                         str(p.remarks).upper(), p.cpv, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
 
@@ -1064,10 +1031,10 @@ def download():
                 csvwriter.writerow(lst_scb)
                 for p in data:
                     csvwriter.writerow(
-                        [p.leadid, datetime.date(p.entry_date),p.agent_id, p.mngrhrmsid,p.agent_name,p.customer_name,
-                         p.customer_email, p.gender, p.mobile, p.salary,p.nationality,p.company, p.designation,p.ale_status,
-                         p.emirates_id,p.bankingwith,p.product_type, p.product_name,p.bank_reference,p.bank_status,
-                         p.application_type,p.submissiondate,p.remarks, p.bookingdate])
+                        [p.leadid, datetime.date(p.entry_date),p.agent_id, p.mngrhrmsid,p.agent_name,p.bank_reference,p.application_type,p.customer_name,p.mobile,p.company,p.salary,p.designation,
+                         p.nationality,p.ale_status,p.customer_email, p.gender,
+                         p.emirates_id,p.bankingwith,p.product_type, p.product_name,p.bank_status,
+                         p.submissiondate,p.remarks, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
 
@@ -1214,6 +1181,8 @@ def upload():
                 df.columns = lst_df
                 ar = df.iloc[:,0].values
                 ar2 = df.iloc[:,1].values
+                df.iloc[:,2] = pd.to_datetime(df.iloc[:,2])
+                ar3 = df.iloc[:,2].values
                 print(df.isnull().sum().sum())
                 print(df)
 
@@ -1230,7 +1199,7 @@ def upload():
                             if row:
                                 lst_updated.append(str(ar[i]))
                                 row.bank_status=str(ar2[i]).strip().capitalize()
-                                row.bookingdate=datetime.now()
+                                row.bookingdate=ar3[i]
                                 db.session.commit()
                             else:
                                 lst_not_updated.append(str(ar[i]))
