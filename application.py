@@ -1062,10 +1062,12 @@ def download():
                     else:
                         eid2=eid
                     csvwriter.writerow(
-                        [p.leadid, datetime.date(p.entry_date),p.agent_id, p.tlhrmsid,p.mngrhrmsid,p.agent_name,p.customer_name,
-                         p.mobile,p.customer_email, p.nationality, p.salary, p.company, p.ale_status, eid2,p.passport_number,
-                         p.product_type, p.product_name,p.bank_reference,p.bank_status,p.application_type,p.submissiondate,p.promo,
-                         p.remarks, p.cpv, p.bookingdate])
+                        [p.leadid, datetime.date(p.entry_date),p.agent_id, p.tlhrmsid,p.mngrhrmsid,str(p.agent_name).upper(),
+                         str(p.customer_name).upper(),p.mobile,str(p.customer_email).upper(), str(p.nationality).upper(),
+                         p.salary, str(p.company).upper(), str(p.ale_status).upper(), eid2,str(p.passport_number).upper(),
+                         str(p.product_type).upper(), str(p.product_name).upper(),str(p.bank_reference).upper(),
+                         str(p.bank_status).upper(),str(p.application_type).upper(),p.submissiondate,str(p.promo).upper(),
+                         str(p.remarks).upper(), p.cpv, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
 
