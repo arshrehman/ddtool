@@ -51,7 +51,7 @@
     <a class="navbar-brand" href="{{url_for('create')}}">CreateUser</a>
   {% endif %}
     {% if current_user.userlevel in ["2","3","4","5"] %}
-    <a class="navbar-brand" href="{{url_for('agnt_prfrmnc')}}">agnt_prfrmnc</a>
+    <a class="navbar-brand" href="#">agnt_prfrmnc</a>
     {% endif %}
   </div>
     {% if (request.path=="/success") %}

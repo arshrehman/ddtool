@@ -161,15 +161,20 @@ def load_user(user_id):
 
 @application.route('/')
 def index():
-    return render_template('index.html')
+    form=LoginForm()
+    return render_template('login3.html', form=form)
+
 
 
 @application.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    print("I am the boss")
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
+            print(user)
+            print(user.password)
             g = bcrypt.generate_password_hash(user.password)
             if user.userlevel == "2":
                 if bcrypt.check_password_hash(g, form.password.data):
@@ -190,7 +195,7 @@ def login():
         else:
             flash("Invalid user name or password")
             return redirect(url_for('login'))
-    return render_template('login.html', form=form)
+    return render_template('login3.html', form=form)
 
 
 #@app.route('/customer', methods=['GET', 'POST'])
