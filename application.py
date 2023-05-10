@@ -154,12 +154,9 @@ def index():
 @application.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    print("I am the boss")
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
-            print(user)
-            print(user.password)
             g = bcrypt.generate_password_hash(user.password)
             if user.userlevel == "2":
                 if bcrypt.check_password_hash(g, form.password.data):
@@ -213,7 +210,7 @@ def success():
             all_data = Appdata.query.filter(Appdata.customer_email.contains(q)).all()
         else:
             all_data = Appdata.query.order_by(Appdata.id.desc()).all()
-    return render_template('success.html', record=all_data, datetime=datetime)
+    return render_template('success2.html', record=all_data, datetime=datetime)
 
 
 @application.route('/aecb', methods=['GET', 'POST'])
@@ -262,7 +259,6 @@ def insert():
             appdata.leadid = "719" + str(form.mobile.data[-6:]) + "EN23"
 
         # customer details
-        print(datetime.now())
         appdata.entry_date=datetime.now()
         appdata.customer_name = form.customer_name.data
         appdata.mobile = form.mobile.data
@@ -417,7 +413,7 @@ def insertadcb():
                                       "14-VISA TOUCH POINTS GOLD CARD","16-VISA TOUCH POINTS PLATINUM CARD",
                                      "32-MASTERCARD LULU PLATINUM CARD", "30-MASTERCARD LULU TITANIUM CARD",
                                       "ADCB INFINITE CARD", "ADCB SIGNATURE CARD ", "CASHBACK CARD", "BETAQTI CARD"]
-        form1.application_type.choices = ['CONVENTIONAL', 'ISLAMIC']
+        form1.application_type.choices = ['ADCB', 'ISLAMIC', 'SIMPLYLIFE']
 
 
     form1.gender.validators=[Optional()]
@@ -666,7 +662,6 @@ def update(id):
         #print(form.data)
         dct_ordered_form = {m: form_dct[m] for m in lst_dsrd}
         dct_form = dict(list(zip(dct_ordered_form, dct_ordered.values())))
-        print(dct_form)
         for i in dct_form.keys():
             if isinstance(dct_form[i], datetime):
                 form[i].data = dct_form[i]

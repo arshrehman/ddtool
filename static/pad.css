@@ -1,2 +1,14 @@
-body { padding-top: 49px;
-       margin:5px;}
+body { padding-top: 45px;
+       margin:5px;
+       font-family:'Lato' cursive;
+       font-family: 'Playfair Display', serif;}
+
+.form-control {
+       font-family: 'Lato', sans-serif;
+       font-family: 'Crete Round', serif;
+}
+
+.form-floating>.form-control, .form-floating>.form-control-plaintext, .form-floating>.form-select {
+    height: calc(4.5rem + calc(var(--bs-border-width) * 2));
+    line-height: 1.25;
+}
