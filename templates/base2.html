@@ -1,17 +1,76 @@
 <!doctype html>
-<html xmlns="http://www.w3.org/1999/html">
+<html lang="en">
   <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ title }}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <!--link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous"-->
     <!--link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.css"-->
     <link rel="stylesheet" href="/static/pad.css">
-    <link rel="stylesheet" href="/styles_css/aside.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
     <link href='https://fonts.googleapis.com/css?family=Lato:400,300,700' rel='stylesheet' type='text/css'>
   </head>
 
 <body>
+
+<div class="container">
+  <nav class="navbar fixed-top justify-content-between" style="background-color: #36486b; padding-bottom:5px">
+  <div class="row">
+    <a class="navbar-brand" style="padding:5px;m-5" href="{{url_for('logout')}}">Logout</a>
+  {% if current_user.userlevel == "1" %}
+    <a class="navbar-brand" href="{{url_for('aecb')}}">Home<span class="sr-only">(current)</span> </a>
+  {% else %}
+    <a class="navbar-brand" href="{{url_for('success')}}">Home<span class="sr-only">(current)</span> </a>
+  {% endif %}
+  {% if (current_user.bankname=="ENBD") %}
+  <a class="navbar-brand" href="{{url_for('insert')}}">Create</a>
+  {% elif current_user.bankname=="ALHILAL" %}
+    <a class="navbar-brand" href="{{url_for('insert2')}}">Create</a>
+  {% elif current_user.bankname=="ADCB" %}
+    <a class="navbar-brand" href="{{url_for('insertadcb')}}">Create</a>
+  {% elif current_user.bankname=="SCB" %}
+    <a class="navbar-brand" href="{{url_for('insertscb')}}">Create</a>
+  {% endif %}
+  {% if current_user.userlevel in ["4", "5"] %}
+      <a class="navbar-brand" href="{{url_for('download')}}">Download</a>
+  <ul class="navbar-nav">
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+          BulkUpdate
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="{{url_for('upload')}}">BankStatus</a>
+          {% if current_user.bankname!="ALHILAL" %}
+          <a class="dropdown-item" href="{{url_for('upload_cpv')}}">CPV</a>
+          {% endif %}
+          <a class="dropdown-item" href="{{url_for('upload_bankref')}}">BankReference</a>
+        </div></li></ul>
+    {% endif %}
+  {% if current_user.userlevel == "5" %}
+    <a class="navbar-brand" href="{{url_for('users')}}">Users</a>
+    <a class="navbar-brand" href="{{url_for('create')}}">CreateUser</a>
+  {% endif %}
+    {% if current_user.userlevel in ["2","3","4","5"] %}
+    <a class="navbar-brand" href="#">agnt_prfrmnc</a>
+    {% endif %}
+  </div>
+    {% if (request.path=="/success") %}
+  <form class="form-inline" style="padding-left:10px" method="GET">
+    <input class="form-control mr-sm-2" type="search" placeholder="Search with email" aria-label="Search" name="q">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+  </form>
+    {% endif %}
+
+    {% if (request.path=="/aecb") %}
+  <form class="form-inline" style="padding-left:10px" method="GET">
+    <input class="form-control mr-sm-2" type="search" placeholder="Search with name" aria-label="Search" name="q">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+  </form>
+    {% endif %}
+</nav></div>
+
 {% block content %} {% endblock %}
 
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>

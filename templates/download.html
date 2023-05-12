@@ -1,20 +1,12 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+
 {% block title %}
 ECSA
 {% endblock %}
 
 {% block content %}
-<div class="container">
-        <!--div class="col md-12">
-            <div class="jumbotron p-3">
-                 <form class="form-inline my-2 my-lg-0" method="GET"><input type="text" class="form-control" placeholder="Search a record by mobile number" aria-label="search" aria-describedby="basic-addon2" name="q">
-                     <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" style="pd-right:3" type="submit">Search</button>
-                     </div></form>
-                      </div>
-                </div-->
-
+<div class="container text-center">
                 {% with messages = get_flashed_messages() %}
                 {% if messages %}
 
@@ -29,14 +21,14 @@ ECSA
 
                 {% endif %}
                 {% endwith %}
-    </div>
+</div>
 
-<div class="container">
+<div class="d-flex justify-content-center" style="padding:10px;">
     <form method="POST" action="/download">
         {{ form.hidden_tag() }}
-            <div class="form-row">
-            <div class="col-md-5">{{ form.start.label()}}
+            <div class="form-floating">
             {{form.start(type="date", class="form-control")}}
+            {{ form.start.label()}}
                 <ul class="erros">
                     {% for error in form.start.errors %}
                     <li>{{error}}</li>
@@ -44,20 +36,19 @@ ECSA
                 </ul>
             </div>
 
-            <div class="col-md-5">{{form.stime.label()}}
+            <div class="form-floating">
             {{form.stime(class="form-control")}}
+                {{form.stime.label()}}
           <ul class="erros">
             {% for error in form.start.errors %}
                   <li>{{error}}</li>
             {% endfor %}
           </ul>
-        </div>
     </div>
 
-    <div class="form-row">
-          <div class="col-md-5">
-          {{ form.end.label()}}
+    <div class="form-floating">
           {{form.end(type="date", class="form-control")}}
+          {{ form.end.label()}}
           <ul class="erros">
             {% for error in form.end.errors %}
                   <li>{{error}}</li>
@@ -65,12 +56,16 @@ ECSA
           </ul>
         </div>
 
-        <div class="col-md-5">
-            {{ form.etime.label()}}
+        <div class="form-floating">
             {{form.etime(class="form-control")}}
-            </div>
+            {{ form.etime.label()}}
         </div>
-        <div class="container">{{form.download}}</div>
+
+        <div class="container text-center" style="padding:10px">
+            {{form.download(class="btn btn-success btn-lg btn-block")}}
+       </div>
+
         </form>
 </div>
+
 {% endblock %}

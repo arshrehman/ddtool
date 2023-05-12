@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import Form, DateTimeField, SubmitField, StringField, PasswordField, BooleanField, IntegerField, \
-    SelectField, ValidationError, DateField, FileField,DecimalField,HiddenField
+    SelectField, ValidationError, DateField, FileField,DecimalField,TextAreaField
 from wtforms.validators import NumberRange, Email, InputRequired, Length, Regexp, DataRequired, Optional
 import pandas as pd
 from wtforms_components import TimeField
@@ -10,10 +10,8 @@ from wtforms_components import TimeField
 from application import current_user, request
 
 
-df = pd.read_csv("static/nationality.csv")
-lst = list(range(1, 226))
-lst2 = list(zip(lst, df['Nationality']))
-lst3 = list(df['Nationality'])
+df = pd.read_csv("static/all_countries.csv")
+lst3 = list(df.iloc[:,1])
 
 
 def length(min=-1, max=-1):
@@ -122,9 +120,9 @@ class Appdata1(FlaskForm):
     passport_expiry = DateField("ExpireOn", validators=[Optional()])
     cheque_number = StringField("ChequeNumber", validators=[Optional()])
     cheque_bank = StringField("ChequeBank", validators=[Optional()])
-    bankingwith=SelectField("SalaryAccount", validators=[Optional()], choices=["ADCB", "ENBD", "MASHREQ", "RAK", "CBD", "SCB", "HSBC", "DIB",
+    bankingwith=SelectField("SalaryAccount", validators=[Optional()], choices=["ADCB","ADIB", "ENBD", "MASHREQ", "RAK", "CBD", "SCB", "HSBC", "DIB",
                                                                                 "FAB","CBI","EIB", "OTHER"])
-    iban = StringField("IBAN", validators=[Optional()])
+    iban = StringField("IBAN", validators=[Optional(), length4(23,23)])
     visa_expiry_date = DateField("VisaExpiryDate", validators=[Optional()])
 
     product_type = SelectField('Product_type', validators=[InputRequired()],choices=[("CreditCard", "CreditCard"), ("Loan", "Loan")], default="CreditCard")
@@ -135,7 +133,7 @@ class Appdata1(FlaskForm):
     submissiondate = DateField("SubmissionDate", validators=[Optional()])
     bookingdate = DateField("BookingDate", validators=[Optional()])
     supplementary_card=SelectField("SupplCard", validators=[Optional()], choices=['NotRequired', 'Required'],default="NotRequired")
-    remarks=StringField("Remarks", validators=[Optional()])
+    remarks=TextAreaField("Remarks", validators=[Optional()])
     cpv=SelectField("CPV", validators=[Optional()])
     submit = SubmitField('Submit')
     promo = SelectField("Promo", validators=[Optional()], choices=['AECB', 'NCC', 'STC', 'CHLD', 'EMRT'])
