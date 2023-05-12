@@ -10,287 +10,262 @@ ECSA
 {% block content %}
 
 <div class="container">
-      <div class="input-group mb-3">
 
                 {% with messages = get_flashed_messages() %}
                 {% if messages %}
 
                 {% for message in messages %}
-                <div class="alert alert-success alert-dismissable" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="close">
-                        <span aria-hidden="true">x</span>
-                    </button>
-                {{message}}
+                <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 {% endfor %}
 
                 {% endif %}
                 {% endwith %}
-      </div>
+
 </div>
 
+<div class="container" style="background-color:#f5f5f5; padding-top:10px;">
 <form method="POST" action=/updatehilal/{{id}}>
         {{ form.hidden_tag() }}
 
         <div class="form-row">
 
-          <div class="col">
+          <div class="form-floating mb-3">
+            {{form.customer_name(class="form-control", placeholder="Please enter customer name")}}
             {{ form.customer_name.label()}}
-            {{form.customer_name(class="form-control")}}
-            <ul class="errors">
+            <ul class="erros">
               {% for error in form.customer_name.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+        </div>
 
 
-          <div class="col">
-            {{ form.homecountrynumber.label()}}
-            {{form.homecountrynumber(class="form-control")}}
-            <ul class="errors">
+<div class="form-floating mb-3">
+     {{form.homecountrynumber(class="form-control", placeholder="homecountrynumber")}}
+     {{ form.homecountrynumber.label()}}
+         <ul class="errors">
               {% for error in form.homecountrynumber.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
-        </div>
+   </div>
 
-    <div class="form-row">
-            <div class="col">
+   <div class="form-floating mb-3">
+            {{form.salary(class="form-control", placeholder="Salary")}}
             {{ form.salary.label()}}
-            {{form.salary(class="form-control")}}
             <ul class="errors">
               {% for error in form.salary.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+   </div>
 
-            <div class="col">
+    <div class="form-floating mb-3">
+            {{form.bank_reference(class="form-control", placeholder="BankReference")}}
             {{ form.bank_reference.label()}}
-            {{form.bank_reference(class="form-control")}}
             <ul class="errors">
               {% for error in form.bank_reference.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
     </div>
 
-    <div class="form-row">
-            <div class="col">
+    <div class="form-floating mb-3">
+            {{form.cclimit(class="form-control", placeholder="CC-Limit")}}
             {{ form.cclimit.label()}}
-            {{form.cclimit(class="form-control")}}
             <ul class="errors">
               {% for error in form.cclimit.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+       </div>
 
-            <div class="col">
+  <div class="form-floating mb-3">
+            {{form.mothername(class="form-control", placeholder="MotherName")}}
             {{ form.mothername.label()}}
-            {{form.mothername(class="form-control")}}
             <ul class="errors">
               {% for error in form.mothername.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
           </div>
-    </div>
 
-    <div class="form-row">
-            <div class="col">
+    <div class="form-floating mb-3">
+            {{form.company(class="form-control", placeholder="CompanyName")}}
             {{ form.company.label()}}
-            {{form.company(class="form-control")}}
             <ul class="errors">
               {% for error in form.company.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+    </div>
 
-            <div class="col">
+  <div class="form-floating mb-3">
+            {{form.designation(class="form-control", placeholder="Designation")}}
             {{ form.designation.label()}}
-            {{form.designation(class="form-control")}}
             <ul class="errors">
               {% for error in form.designation.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
-    </div>
+  </div>
 
-    <div class="form-row">
-            <div class="col">
+  <div class="form-floating mb-3">
+            {{form.ale_status(class="form-select")}}
             {{ form.ale_status.label()}}
-            {{form.ale_status(class="form-control")}}
             <ul class="errors">
               {% for error in form.ale_status.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+  </div>
 
 
-           <div class="col">
+  <div class="form-floating mb-3">
+            {{form.uaeaddress(class="form-control", placeholder="AddressUAE")}}
             {{ form.uaeaddress.label()}}
-            {{form.uaeaddress(class="form-control")}}
             <ul class="errors">
               {% for error in form.uaeaddress.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
-    </div>
+  </div>
 
-    <div class="form-row">
-            <div class="col">
+  <div class="form-floating mb-3">
+            {{form.homecountryaddress(class="form-control", placeholder="Address")}}
             {{ form.homecountryaddress.label()}}
-            {{form.homecountryaddress(class="form-control")}}
             <ul class="errors">
               {% for error in form.homecountryaddress.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+  </div>
 
 
-            <div class="col">
+  <div class="form-floating mb-3">
+            {{form.iban(class="form-control", placeholder="IBAN")}}
             {{ form.iban.label()}}
-            {{form.iban(class="form-control")}}
             <ul class="errors">
               {% for error in form.iban.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
-    </div>
+  </div>
 
-          <div class="form-row">
-            <div class="col">
+    <div class="form-floating mb-3">
+            {{form.ref1name(class="form-control", placeholder="Ref1")}}
             {{ form.ref1name.label()}}
-            {{form.ref1name(class="form-control")}}
             <ul class="errors">
               {% for error in form.ref1name.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+  </div>
 
-            <div class="col">
+  <div class="form-floating mb-3">
+            {{form.ref2name(class="form-control", placeholder="ref2")}}
             {{ form.ref2name.label()}}
-            {{form.ref2name(class="form-control")}}
+
             <ul class="errors">
               {% for error in form.ref2name.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
-          </div>
+  </div>
 
-    <div class="form-row">
-            <div class="col">
+    <div class="form-floating mb-3">
+            {{form.ref1mobile(class="form-control", placeholder="ref1Mobile")}}
             {{ form.ref1mobile.label()}}
-            {{form.ref1mobile(class="form-control")}}
             <ul class="errors">
               {% for error in form.ref1mobile.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+  </div>
 
-         <div class="col">
+  <div class="form-floating mb-3">
+            {{form.ref2mobile(class="form-control", placeholder="ref2Mobile")}}
             {{ form.ref2mobile.label()}}
-            {{form.ref2mobile(class="form-control")}}
             <ul class="errors">
               {% for error in form.ref2mobile.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
-    </div>
+  </div>
 
-    <div class="form-row">
-            <div class="col">
-            {{ form.joiningdate.label()}}
-            {{form.joiningdate(class="form-control")}}
+          <div class="form-floating">
+            {{form.joiningdate(class="form-select")}}
+              {{ form.joiningdate.label()}}
             <ul class="errors">
               {% for error in form.joiningdate.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
-        <div class="col">
+  </div>
+
+    <div class="form-floating">
+            {{form.bank_status(class="form-select")}}
             {{ form.bank_status.label()}}
-            {{form.bank_status(class="form-control")}}
-            <ul class="errors">
-              {% for error in form.bank_status.errors %}
-                  <li>{{error}}</li>
-              {% endfor %}
-            </ul>
-          </div>
-    </div>
-
-    <div class="form-row">
-
-        <div class="col">
-            {{ form.product_name.label()}}
-            {{form.product_name(class="form-control")}}
-            <ul class="errors">
-              {% for error in form.product_name.errors %}
-                  <li>{{error}}</li>
-              {% endfor %}
-            </ul>
-          </div>
-
-            <div class="col">
-            {{ form.remarks.label()}}
-            {{form.remarks(class="form-control")}}
             <ul class="errors">
               {% for error in form.remarks.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+  </div>
 
-    </div>
+  <div class="form-floating">
+            {{form.product_name(class="form-select")}}
+                  {{ form.product_name.label()}}
 
-    <div class="form-row">
-            {% if user.userlevel=="4" %}
-            <div class="col">
+            <ul class="errors">
+              {% for error in form.remarks.errors %}
+                  <li>{{error}}</li>
+              {% endfor %}
+            </ul>
+  </div>
+
+  <div class="form-floating mb-3">
+            {{form.remarks(class="form-control", placeholder="Remarks")}}
+            {{ form.remarks.label()}}
+            <ul class="errors">
+              {% for error in form.remarks.errors %}
+                  <li>{{error}}</li>
+              {% endfor %}
+            </ul>
+  </div>
+
+    <div class="form-floating">
+          {% if user.userlevel in ["4","5"] %}
+            {{form.sent(class="form-select")}}
             {{ form.sent.label()}}
-            {{form.sent(class="form-control")}}
             <ul class="errors">
               {% for error in form.sent.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
             {% endif %}
+  </div>
 
-          {% if user.userlevel=="4" %}
-            <div class="col">
+  <div class="form-floating">
+            {% if user.userlevel in ["4","5"] %}
+            {{form.bookingdate(class="form-select")}}
             {{ form.bookingdate.label()}}
-            {{form.bookingdate(class="form-control")}}
             <ul class="errors">
               {% for error in form.bookingdate.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+           {% endif %}
     </div>
-            {% endif %}
 
 
-            <div class="container">
-            {{form.submit(class="form-control", class="btn btn-primary btn-lg btn-block")}}
-        </div>
+<div class="container text-center" style="padding-bottom:10px">
+            {{form.submit(class="btn btn-success btn-lg btn-block")}}
+    </div>
 
-
-      </form>
-
-
+</form></div>
 
 {% endblock %}

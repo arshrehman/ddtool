@@ -120,9 +120,9 @@ class Appdata1(FlaskForm):
     passport_expiry = DateField("ExpireOn", validators=[Optional()])
     cheque_number = StringField("ChequeNumber", validators=[Optional()])
     cheque_bank = StringField("ChequeBank", validators=[Optional()])
-    bankingwith=SelectField("SalaryAccount", validators=[Optional()], choices=["ADCB", "ENBD", "MASHREQ", "RAK", "CBD", "SCB", "HSBC", "DIB",
+    bankingwith=SelectField("SalaryAccount", validators=[Optional()], choices=["ADCB","ADIB", "ENBD", "MASHREQ", "RAK", "CBD", "SCB", "HSBC", "DIB",
                                                                                 "FAB","CBI","EIB", "OTHER"])
-    iban = StringField("IBAN", validators=[Optional()])
+    iban = StringField("IBAN", validators=[Optional(), length4(23,23)])
     visa_expiry_date = DateField("VisaExpiryDate", validators=[Optional()])
 
     product_type = SelectField('Product_type', validators=[InputRequired()],choices=[("CreditCard", "CreditCard"), ("Loan", "Loan")], default="CreditCard")

@@ -9,242 +9,215 @@ ECSA
 
 {% block content %}
 <div class="container">
-      <div class="input-group mb-3">
 
                 {% with messages = get_flashed_messages() %}
                 {% if messages %}
 
                 {% for message in messages %}
-                <div class="alert alert-success alert-dismissable" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="close">
-                        <span aria-hidden="true">x</span>
-                    </button>
-                {{message}}
+                <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 {% endfor %}
 
                 {% endif %}
                 {% endwith %}
-      </div>
+
 </div>
 
-
+<div class="container" style="background-color:#f5f5f5; padding-top:10px;">
 <form method="POST" action=/updateadcb/{{id}}>
         {{ form.hidden_tag() }}
 
-        <div class="form-row">
-
-          <div class="col">
+<div class="form-floating mb-3">
+            {{form.customer_name(class="form-control", placeholder="Please enter customer name")}}
             {{ form.customer_name.label()}}
-            {{form.customer_name(class="form-control")}}
             <ul class="erros">
               {% for error in form.customer_name.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+        </div>
 
-          <div class="col">
+  <div class="form-floating mb-3">
+            {{form.customer_email(class="form-control", placeholder="Enter a valid email")}}
             {{ form.customer_email.label()}}
-            {{form.customer_email(class="form-control")}}
             <ul class="erros">
               {% for error in form.customer_email.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
-        </div>
+    </div>
 
-  <div class="form-row">
-            <div class="col">
+    <div class="form-floating">
+            {{form.nationality(class="form-select")}}
             {{ form.nationality.label()}}
-            {{form.nationality(class="form-control")}}
             <ul class="erros">
               {% for error in form.nationality.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+    </div>
 
-
-            <div class="col">
+    <div class="form-floating mb-3">
+            {{form.salary(class="form-control", placeholder="Values must be equal or more than 5k")}}
             {{ form.salary.label()}}
-            {{form.salary(class="form-control")}}
             <ul class="erros">
               {% for error in form.salary.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
-  </div>
+    </div>
 
-  <div class="form-row">
-            <div class="col">
+  <div class="form-floating mb-3">
+            {{form.company(class="form-control", placeholder="Enter company name")}}
             {{ form.company.label()}}
-            {{form.company(class="form-control")}}
             <ul class="erros">
               {% for error in form.company.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+    </div>
 
-            <div class="col">
+  <div class="form-floating">
+            {{form.ale_status(class="form-select")}}
             {{ form.ale_status.label()}}
-            {{form.ale_status(class="form-control")}}
             <ul class="erros">
               {% for error in form.ale_status.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
-  </div>
+    </div>
 
-  <div class="form-row">
-    <div class="col">
+
+        <div class="form-floating mb-3">
+            {{form.emirates_id(class="form-control", placeholder="emirates-id")}}
             {{ form.emirates_id.label()}}
-            {{form.emirates_id(class="form-control")}}
             <ul class="erros">
               {% for error in form.emirates_id.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+    </div>
 
-
-            <div class="col">
+ <div class="form-floating mb-3">
+            {{form.passport_number(class="form-control", placeholder="Passport Number")}}
             {{ form.passport_number.label()}}
-            {{form.passport_number(class="form-control")}}
             <ul class="erros">
               {% for error in form.passport_number.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
-  </div>
+    </div>
 
-  <div class="form-row">
-            <div class="col">
+<div class="form-floating">
+            {{form.product_type(class="form-select")}}
             {{ form.product_type.label()}}
-            {{form.product_type(class="form-control")}}
             <ul class="erros">
               {% for error in form.product_type.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+        </div>
 
-            <div class="col">
+<div class="form-floating">
+            {{form.product_name(class="form-select")}}
             {{ form.product_name.label()}}
-            {{form.product_name(class="form-control")}}
             <ul class="erros">
               {% for error in form.product_name.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
-  </div>
+        </div>
 
-  <div class="form-row">
-
-            <div class="col">
+        <div class="form-floating mb-3">
+            {{form.bank_reference(class="form-control",placeholder="BankReference")}}
             {{ form.bank_reference.label()}}
-            {{form.bank_reference(class="form-control")}}
             <ul class="erros">
               {% for error in form.bank_reference.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+        </div>
 
-
-            <div class="col">
+          <div class="form-floating">
+            {{form.bank_status(class="form-select")}}
             {{ form.bank_status.label()}}
-            {{form.bank_status(class="form-control")}}
             <ul class="erros">
               {% for error in form.bank_status.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
-  </div>
+        </div>
 
-  <div class="form-row">
-            <div class="col">
+            <div class="form-floating">
+            {{form.application_type(class="form-select")}}
             {{ form.application_type.label()}}
-            {{form.application_type(class="form-control")}}
             <ul class="erros">
               {% for error in form.application_type.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+        </div>
 
-          <div class="col">
+  <div class="form-floating">
+            {{form.submissiondate(class="form-select")}}
             {{ form.submissiondate.label()}}
-            {{form.submissiondate(class="form-control")}}
             <ul class="erros">
               {% for error in form.submissiondate.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
           </div>
-  </div>
-  <div class="form-row">
-            <div class="col">
+
+    <div class="form-floating">
+            {{form.promo(class="form-select")}}
             {{ form.promo.label()}}
-            {{form.promo(class="form-control")}}
             <ul class="erros">
               {% for error in form.promo.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
+  </div>
 
-            <div class="col">
+      <div class="form-floating mb-3">
+            {{form.remarks(class="form-control", placeholder="Remarks")}}
             {{ form.remarks.label()}}
-            {{form.remarks(class="form-control")}}
             <ul class="erros">
               {% for error in form.remarks.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
   </div>
 
-
-
-  <div class="form-row">
+  <div class="form-floating">
             {% if user.userlevel in ["2","3","4","5"] %}
-            <div class="col">
+            {{form.bookingdate(class="form-select")}}
             {{ form.bookingdate.label()}}
-            {{form.bookingdate(class="form-control")}}
             <ul class="erros">
               {% for error in form.bookingdate.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
+      {% endif %}
           </div>
-            {% endif %}
 
+<div class="form-floating">
             {% if user.userlevel in ["2","3","4","5"] %}
-            <div class="col">
+            {{form.cpv(class="form-select")}}
             {{ form.cpv.label()}}
-            {{form.cpv(class="form-control")}}
             <ul class="erros">
               {% for error in form.cpv.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
-          </div>
-            {% endif %}
+          {% endif %}
 </div>
 
 
 
-            <div class="container">
-            {{form.submit(class="form-control", class="btn btn-primary btn-lg btn-block")}}
-        </div>
-
-      </form>
+       <div class="container text-center" style="padding-bottom:10px">
+            {{form.submit(class="btn btn-success btn-lg btn-block")}}
+       </div>
+</form></div>
 {% endblock %}

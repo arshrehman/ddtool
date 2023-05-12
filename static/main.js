@@ -18,3 +18,13 @@ bgModeBtn.onclick = function(){
     bgModeIcon.classList.toggle("fa-moon-o");
     sectionHeader.classList.toggle("dark-mode");
 }
+
+const d = document.querySelector('#dltusr')
+
+function dntdlt() {
+alert("Do you really want to delete it")
+if alert{
+}
+else{
+preventdefault()}
+}

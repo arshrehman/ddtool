@@ -147,10 +147,12 @@
       </li>
 
       <li>
-        <a href="#" class="nav-link text-white">
+      	{% if current_user.userlevel in ["4","5"] %}
+        <a href="{{url_for('download')}}" class="nav-link text-white">
           <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#speedometer2"/></svg>
-          Dashboard
+          Download
         </a>
+        {% endif %}
       </li>
 
       <li>
@@ -183,13 +185,28 @@
         <strong>Update</strong>
       </a>
       <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-        <li><a class="dropdown-item" href="#">BankStatus</a></li>
+        <li><a class="dropdown-item" href="{{url_for('upload')}}">BankStatus</a></li>
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="{{url_for('logout')}}">BankReference</a></li>
-        <li><a class="dropdown-item" href="{{url_for('logout')}}">CPV</a></li>
+        <li><a class="dropdown-item" href="{{url_for('upload_bankref')}}">BankReference</a></li>
+        <li><a class="dropdown-item" href="{{url_for('upload_cpv')}}">CPV</a></li>
       </ul>
      </li>
 
+      {% endif %}
+
+      {% if current_user.userlevel=="5" %}
+      <li class="nav-item dropdown" style="margin-top:8px;">
+      <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        <!--svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#circle-half"/></svg-->
+        <i class="fa-solid fa-user"></i>
+        <strong>Users</strong>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+        <li><a class="dropdown-item" href="{{url_for('create')}}">Create</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{{url_for('users')}}">AllUsers</a></li>
+      </ul>
+     </li>
       {% endif %}
     <hr>
     <li class="nav-item dropdown">
@@ -206,4 +223,3 @@
 </ul>
   </div></div></div></nav>
       <script src="/static/sidebars.js"></script>
-

@@ -59,8 +59,10 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(80))
     agent_name=db.Column(db.String(50))
     hrmsID = db.Column(db.String(10))
+    bankcode=db.Column(db.String(20))
     bankname = db.Column(db.String(10))
     tlhrmsid=db.Column(db.String(10))
+    tlname=db.Column(db.String(50))
     manager = db.Column(db.String(30))
     mngrhrmsid = db.Column(db.String(30))
     coordinator_hrmsid =db.Column(db.String(30))
@@ -221,7 +223,7 @@ def aecb():
         aecb_all = Appdata.query.filter(Appdata.customer_name.contains(q)).order_by(Appdata.id.desc()).all()
     else:
         aecb_all = Appdata.query.filter(Appdata.agent_id == current_user.hrmsID).order_by(Appdata.id.desc()).all()
-    return render_template('aecb.html', record=aecb_all, id=id, datetime=datetime)
+    return render_template('aecb.html', record=aecb_all, id=id, datetime=datetime, str=str)
 
 
 # insert data to mysql database via html forms
@@ -567,6 +569,8 @@ def update(id):
     dct = dict(lst)
     form.mobile.validators=[Optional()]
     usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
+    form.nationality.choices[0] = data.nationality
+    form.ale_status.choices[0]=data.ale_status
 
     if current_user.userlevel=="4":
         form.bank_status.choices=['InProcess','Booked','Declined','Dsa-pending','Docs-required']
@@ -577,7 +581,6 @@ def update(id):
     if current_user.userlevel=="1":
         form.bank_status.choices=[data.bank_status]
         form.cpv.choices=[data.cpv]
-
     if (current_user.bankname not in ["ENBD"]) and (current_user.userlevel !="5"):
         abort(403)
 
@@ -681,6 +684,8 @@ def updateadcb(id):
     dct = dict(lst)
     form.mobile.validators = [Optional()]
     usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
+    form.nationality.choices[0] = data.nationality
+    form.ale_status.choices[0]=data.ale_status
 
     if current_user.userlevel == "1":
         form.bank_status.choices = [data.bank_status]
@@ -771,6 +776,7 @@ def updatehilal(id):
     form = Alhilal()
     lst = list(data2.__dict__.items())
     dct = dict(lst)
+    form.ale_status.choices[0]=data2.ale_status
 
     # This is the way to override original form validation of any field.
     form.mobile.validators=[Optional()]
@@ -846,6 +852,8 @@ def updatescb(id):
     lst = list(data.__dict__.items())
     dct = dict(lst)
     form.mobile.validators = [Optional()]
+    form.nationality.choices[0] = data.nationality
+    form.ale_status.choices[0]=data.ale_status
 
     if current_user.userlevel == "1":
         form.bank_status.choices = [data.bank_status]
@@ -979,8 +987,8 @@ def download():
                 csvwriter=csv.writer(csvfile,delimiter=",")
                 csvwriter.writerow(lst_enbd)
                 for p in data:
-                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date),p.agent_id, p.mngrhrmsid,p.agent_name,p.customer_name,
-                                        p.customer_email,p.gender, p.mobile,p.dob, p.salary, p.nationality, p.company, p.designation,
+                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date),p.agent_id, p.mngrhrmsid,str(p.agent_name).upper(),str(p.customer_name).upper(),
+                                        str(p.customer_email).upper(),p.gender, p.mobile,p.dob, p.salary, p.nationality, str(p.company).upper(), str(p.designation).upper(),
                                         p.ale_status, p.office_emirates, p.length_of_residence,
                                         p.length_of_service, p.emirates_id, p.EID_expiry_date, p.passport_number,
                                         p.cheque_number, p.cheque_bank, p.iban,p.bankingwith, p.product_type, p.product_name,
