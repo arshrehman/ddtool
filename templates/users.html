@@ -51,7 +51,7 @@ ECSA
                         <td>{{row.location}}</td>
                         <td>{{row.hrmsID}}</td>
                         <td><a href=/updateuser/{{row.id}}>Update</a></td>
-                        <td><a id="dltusr" href=/delete_user/{{row.id}}>Delete</a></td>
+                        <td><a onclick="dltchecker()" id="dltusr" href=/delete_user/{{row.id}}>Delete</a></td>
                     </tr>
 
                     {% endfor %}
@@ -59,6 +59,11 @@ ECSA
   <!-- Modal Add Employee-->
             </div>
 <script>
-    const d = document.getElementById
+function dltchecker() {
+        var result = confirm("Are you sure of deleting this record?");
+        if (result==false) {
+            event.preventDefault();
+            }
+        }
 </script>
 {% endblock %}

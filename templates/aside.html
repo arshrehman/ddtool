@@ -175,6 +175,11 @@
             <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#table"/></svg>
           Create
           </a>
+        {% elif current_user.bankname=="CBD" %}
+          <a class="nav-link text-white" href="{{url_for('insertcbd')}}">
+            <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#table"/></svg>
+          Create
+          </a>
         {% endif %}
       </li>
 
@@ -198,7 +203,7 @@
       <li class="nav-item dropdown" style="margin-top:8px;">
       <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
         <!--svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#circle-half"/></svg-->
-        <i class="fa-solid fa-user"></i>
+        <i class="fa-solid fa-user" style="padding-right:10px;"></i>
         <strong>Users</strong>
       </a>
       <ul class="dropdown-menu dropdown-menu-dark text-small shadow">

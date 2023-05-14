@@ -140,6 +140,8 @@ class Appdata(db.Model):
     sent = db.Column(db.DateTime)
     promo = db.Column(db.String(100))
 
+    # CBD bank specific
+    last6salaries=db.Column(db.String(10))
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -558,6 +560,201 @@ def insertscb():
             return redirect(url_for('success'))
 
     return render_template('insertscb.html', form=form1, user=usr)
+
+
+
+
+@application.route('/insertcbd', methods=['GET', 'POST'])
+@login_required
+def insertcbd():
+    form1 = Appdata1()
+    form1.cpv.choices = ['Verified', 'Not-verified']
+
+    if current_user.userlevel == "1":
+        form1.bank_status.choices = ['InProcess']
+    else:
+        form1.bank_status.choices = ['InProcess','Booked','Declined','Dsa-pending','Docs-required']
+
+
+
+    if (current_user.bankname == "CBD") or (current_user.userlevel=="5"):
+        form1.product_name.choices = ["CBD ONE", "CBD SMILES VISA PLATINUM", "CBD SMILES VISA SIGNATURE", "CBD YES CREDIT CARD",
+                                      "SUPER SAVER", "TITANIUM MASTER CARD", "WORLD MASTER CARD"]
+        form1.application_type.choices = ['DFC','DCC']
+
+    if (current_user.bankname not in ["CBD"]) and (current_user.userlevel !="5"):
+        abort(403)
+
+    form1.office_emirates.validators=[Optional()]
+    form1.gender.validators=[Optional()]
+
+    if form1.validate_on_submit():
+        appdata = Appdata()
+
+        if (current_user.bankname == "CBD") or (current_user.userlevel=="5"):
+            appdata.leadid = "789" + str(form1.mobile.data[-6:]) + "CB23"
+
+
+        print("If validation is happening print it")
+        # customer details
+        appdata.customer_name = form1.customer_name.data
+        appdata.entry_date=datetime.now()
+        appdata.mobile = form1.mobile.data
+        appdata.customer_email = form1.customer_email.data
+        appdata.nationality = form1.nationality.data
+        appdata.salary = form1.salary.data
+        appdata.company = form1.company.data
+        appdata.ale_status = form1.ale_status.data
+        appdata.designation=form1.designation.data
+        appdata.bankingwith=form1.bankingwith.data
+
+
+
+
+        # customer's documents details
+        appdata.emirates_id = form1.emirates_id.data
+        appdata.submissiondate = form1.submissiondate.data
+        appdata.bookingdate = form1.bookingdate.data
+
+
+        # Agent specific details
+        appdata.agent_id = current_user.hrmsID
+        appdata.agent_name = current_user.agent_name
+        appdata.bank_name = current_user.bankname
+        appdata.tlhrmsid = current_user.tlhrmsid
+        appdata.mngrhrmsid = current_user.mngrhrmsid
+        appdata.crdntr_hrmsid = current_user.coordinator_hrmsid
+        appdata.agent_location=current_user.location
+
+        # Bank Specific details
+        appdata.product_type=form1.product_type.data
+        appdata.product_name = form1.product_name.data
+        appdata.bank_reference = form1.bank_reference.data
+        appdata.bank_status = form1.bank_status.data
+        appdata.application_type = form1.application_type.data
+        appdata.remarks = form1.remarks.data
+        appdata.cpv = form1.cpv.data
+        appdata.last6salaries=form1.last6salaries.data
+
+
+        # commiting to the database
+        db.session.add(appdata)
+        db.session.commit()
+        flash("Record Inserted Successfully")
+        if current_user.userlevel == "1":
+            return redirect(url_for('aecb'))
+        else:
+            return redirect(url_for('success'))
+
+    return render_template('insertcbd.html', form=form1)
+
+
+
+@application.route('/updatecbd/<int:id>', methods=['GET', 'POST'])
+@login_required
+def updatecbd(id):
+    data = Appdata.query.get_or_404(id)
+    form = Appdata1()
+    lst = list(data.__dict__.items())
+    dct = dict(lst)
+    form.mobile.validators=[Optional()]
+    usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
+    form.nationality.choices[0] = data.nationality
+    form.ale_status.choices[0]=data.ale_status
+    form.gender.validators=[Optional()]
+    form.office_emirates.validators=[Optional()]
+    form.mobile.validators=[Optional()]
+
+    if current_user.userlevel=="4":
+        form.bank_status.choices=['InProcess','Booked','Declined','Dsa-pending','Docs-required']
+        form.cpv.choices=['Verified','Not-verified']
+        form.cpv.choices[0]=data.cpv
+        form.bank_status.choices[0]=data.bank_status
+
+    if current_user.userlevel=="1":
+        form.bank_status.choices=[data.bank_status]
+        form.cpv.choices=[data.cpv]
+    if (current_user.bankname not in ["CBD"]) and (current_user.userlevel !="5"):
+        abort(403)
+
+
+    if (current_user.userlevel=="4") or (current_user.userlevel=="5"):
+        form.product_name.choices = ["CBD ONE", "CBD SMILES VISA PLATINUM", "CBD SMILES VISA SIGNATURE", "CBD YES CREDIT CARD",
+                                      "SUPER SAVER", "TITANIUM MASTER CARD", "WORLD MASTER CARD"]
+        form.application_type.choices = ['DFC','DCC']
+        form.product_name.choices[0]=data.product_name
+        form.application_type.choices[0]=data.application_type
+    else:
+        form.product_name.choices=[data.product_name]
+        form.application_type.choices=[data.application_type]
+
+
+    # dct.pop("entry_date")
+    lst_dsrd = ['customer_name', 'mobile', 'customer_email', 'gender', 'nationality', 'salary', 'company','designation',
+                  'ale_status', 'emirates_id', 'passport_number', 'product_type', 'product_name', 'bank_reference', 'bank_status',
+                'bankingwith','submissiondate','bookingdate','application_type', 'supplementary_card', 'remarks', 'cpv']
+    dct_ordered = {k: dct[k] for k in lst_dsrd}
+    if form.validate_on_submit():
+        data.customer_name = form.customer_name.data
+        data.customer_email = form.customer_email.data
+        data.gender = form.gender.data
+        data.nationality = form.nationality.data
+        data.salary = form.salary.data
+        data.company = form.company.data
+        data.designation = form.designation.data
+        data.ale_status = form.ale_status.data
+        data.office_emirates = form.office_emirates.data
+        data.length_of_residence = str(form.length_of_residence.data)
+        data.length_of_service = str(form.length_of_service.data)
+        data.dob = form.dob.data
+
+
+
+
+        data.emirates_id = form.emirates_id.data
+        data.EID_expiry_date = form.EID_expiry_date.data
+        data.passport_number = form.passport_number.data
+        data.passport_expiry = form.passport_expiry.data
+        data.cheque_number = form.cheque_number.data
+        data.cheque_bank = form.cheque_bank.data
+        data.bankingwith = form.bankingwith.data
+        data.iban = form.iban.data
+
+        data.visa_expiry_date = form.visa_expiry_date.data
+        data.product_type = form.product_type.data
+        data.product_name = form.product_name.data
+        data.bank_reference = form.bank_reference.data
+        data.bank_status = form.bank_status.data
+
+        data.application_type=form.application_type.data
+        data.submissiondate=form.submissiondate.data
+        data.bookingdate=form.bookingdate.data
+        data.supplementary_card=form.supplementary_card.data
+        data.remarks=form.remarks.data
+        data.cpv=form.cpv.data
+
+
+        # for i in lst_dsrd:
+        # data.i=form.i.data
+        db.session.commit()
+        flash("Record Updated Successfully")
+        if usr.userlevel=="1":
+            return redirect(url_for('aecb'))
+        else:
+            return redirect(url_for('success'))
+    elif request.method == 'GET':
+        form_dct = form.data
+        #print(form.data)
+        dct_ordered_form = {m: form_dct[m] for m in lst_dsrd}
+        dct_form = dict(list(zip(dct_ordered_form, dct_ordered.values())))
+        for i in dct_form.keys():
+            if isinstance(dct_form[i], datetime):
+                form[i].data = dct_form[i]
+            elif isinstance(dct_form[i], float):
+                form[i].data = int(dct_form[i])
+            else:
+                form[i].data = dct_form[i]
+    return render_template('insertcbd.html', form=form, id=id, user=usr)
 
 # update customer record
 @application.route('/update/<int:id>', methods=['GET', 'POST'])
