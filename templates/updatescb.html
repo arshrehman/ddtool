@@ -210,7 +210,7 @@ ECSA
     </div>
 
   <div class="form-floating">
-            {% if user.userlevel in ["2","3","4","5"] %}
+            {% if current_user.userlevel in ["2","3","4","5"] %}
             {{form.bookingdate(class="form-select")}}
             {{ form.bookingdate.label()}}
             <ul class="erros">
@@ -222,7 +222,7 @@ ECSA
             {% endif %}
 
     <div class="form-floating">
-            {% if user.userlevel in ["2","3","4","5"] %}
+            {% if current_user.userlevel in ["2","3","4","5"] %}
             {{form.cpv(class="form-select")}}
             {{ form.cpv.label()}}
             <ul class="erros">

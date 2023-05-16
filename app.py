@@ -142,6 +142,7 @@ class Appdata(db.Model):
 
     # CBD bank specific
     last6salaries=db.Column(db.String(10))
+    cbdsource=db.Column(db.String(20))
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -403,7 +404,7 @@ def insertadcb():
     if usr.userlevel == "1":
         form1.bank_status.choices = ['InProcess']
     else:
-        form1.bank_status.choices = ['InProcess','Booked','Declined','Dsa-pending','Docs-required']
+        form1.bank_status.choices = ['InProcess','Booked','Declined','Approved','Not-workable','Pending-with-sales', 'WIP']
 
     if (current_user.bankname not in ["ADCB"]) and (current_user.userlevel !="5"):
         abort(403)
@@ -635,6 +636,7 @@ def insertcbd():
         appdata.remarks = form1.remarks.data
         appdata.cpv = form1.cpv.data
         appdata.last6salaries=form1.last6salaries.data
+        appdata.cbdsource=form1.cbdsource.data
 
 
         # commiting to the database
@@ -690,37 +692,23 @@ def updatecbd(id):
 
 
     # dct.pop("entry_date")
-    lst_dsrd = ['customer_name', 'mobile', 'customer_email', 'gender', 'nationality', 'salary', 'company','designation',
-                  'ale_status', 'emirates_id', 'passport_number', 'product_type', 'product_name', 'bank_reference', 'bank_status',
-                'bankingwith','submissiondate','bookingdate','application_type', 'supplementary_card', 'remarks', 'cpv']
+    lst_dsrd = ['customer_name', 'customer_email', 'nationality', 'salary', 'company','designation',
+                  'ale_status', 'emirates_id', 'passport_number', 'bankingwith', 'product_type', 'product_name', 'bank_reference', 'bank_status',
+                'application_type', 'submissiondate','bookingdate', 'supplementary_card','last6salaries','cbdsource','remarks', 'cpv']
     dct_ordered = {k: dct[k] for k in lst_dsrd}
     if form.validate_on_submit():
         data.customer_name = form.customer_name.data
         data.customer_email = form.customer_email.data
-        data.gender = form.gender.data
         data.nationality = form.nationality.data
         data.salary = form.salary.data
         data.company = form.company.data
         data.designation = form.designation.data
         data.ale_status = form.ale_status.data
-        data.office_emirates = form.office_emirates.data
-        data.length_of_residence = str(form.length_of_residence.data)
-        data.length_of_service = str(form.length_of_service.data)
-        data.dob = form.dob.data
-
-
-
 
         data.emirates_id = form.emirates_id.data
-        data.EID_expiry_date = form.EID_expiry_date.data
         data.passport_number = form.passport_number.data
-        data.passport_expiry = form.passport_expiry.data
-        data.cheque_number = form.cheque_number.data
-        data.cheque_bank = form.cheque_bank.data
         data.bankingwith = form.bankingwith.data
-        data.iban = form.iban.data
 
-        data.visa_expiry_date = form.visa_expiry_date.data
         data.product_type = form.product_type.data
         data.product_name = form.product_name.data
         data.bank_reference = form.bank_reference.data
@@ -730,6 +718,7 @@ def updatecbd(id):
         data.submissiondate=form.submissiondate.data
         data.bookingdate=form.bookingdate.data
         data.supplementary_card=form.supplementary_card.data
+        data.last6salaries=form.last6salaries.data
         data.remarks=form.remarks.data
         data.cpv=form.cpv.data
 
@@ -1158,7 +1147,7 @@ def download():
         if current_user.userlevel =="5":
             data = Appdata.query.filter(and_(func.date(Appdata.entry_date) >= str(sd2),
                                              func.date(Appdata.entry_date) <= str(ed2))).all()
-        lst_enbd = ['leadid','entry_date','agent_id','mngrhrmsid', 'agent_name', 'customer_name','customer_email',
+        lst_enbd = ['leadid','entry_date','agent_hrmsid','agent_code','mngrhrmsid', 'agent_name', 'customer_name','customer_email',
                     'gender', 'mobile',  'dob', 'salary','nationality', 'company', 'designation', 'ale_status',
                     'office_emirate', 'HRLandline', 'los', 'emirates_id','emiratesid_expiry','passport',
                     'cheque_number', 'cheque_bank', 'iban', 'bank_name', 'product_type',  'product_name',
@@ -1169,22 +1158,49 @@ def download():
                      'homecountrynumber','joiningdate', 'ref1name', 'ref2name','ref1mobile', 'ref2mobile',
                      'product_name','bank_reference','bank_status','sent','bookingdate', 'remarks']
 
-        lst_adcb = ['leadid', 'entry_date', 'agent_id', 'tlhrmsid', 'mngrhrmsid', 'agent_name', 'customer_name',
-                     'mobile','customer_email', 'nationality', 'salary','company', 'ale_status', 'emirates_id', 'passport',
-                    'product_type', 'product_name', 'bank_reference', 'bank_status', 'application_type','submission_date',
-                    'promo','remarks', 'cpv', 'bookingdate']
+        lst_adcb = ['leadid', 'entry_date', 'agent_code', 'customer_name', 'passport', 'salary',
+                    'mobile', 'emirates_id', 'company', 'promo', 'nationality', 'ale_status', 'product_name',
+                    'application_type', 'agent_name', 'tlname', 'mngrname', 'customer_email', 'bank_reference',
+                    'bank_status', 'remarks', 'cpv', 'bookingdate']
 
         lst_scb = ['leadid', 'entry_date', 'agent_id', 'mngrhrmsid', 'agent_name', 'bank_reference','application_type',
                    'customer_name', 'mobile','company','salary','designation','nationality','ale_status','customer_email',
                     'gender', 'emirates_id', 'salary_account', 'product_type', 'product_name',
                      'bank_status',  'submission_date', 'remarks', 'booking_date']
 
+        lst_cbd = ['leadid', 'entry_date', 'agent_code', 'application_type','customer_name','mobile','product_name',
+                   'bank_status', 'remarks', 'nationality', 'company', 'designation', 'salary','customer_email',
+                   'salary_account','last6salaries', 'ale_status', 'supplementary_card', 'agent_name', 'bank_reference',
+                   'emirates_id', 'cpv', 'booking_date']
+
+        if current_user.bankname=='CBD':
+            with open(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+                csvwriter=csv.writer(csvfile,delimiter=",")
+                csvwriter.writerow(lst_cbd)
+                for p in data:
+                    bank_code = User.query.filter_by(hrmsID=p.agent_id).first()
+                    if bank_code:
+                        bankcode=bank_code.bankcode
+                    else:
+                        bankcode="NA"
+                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date), bankcode, p.application_type,str(p.customer_name).upper(),
+                                        p.mobile,p.product_name,p.bank_status,p.remarks,p.nationality,str(p.company).upper(),
+                                        str(p.designation).upper(),p.salary,str(p.customer_email).upper(),p.bankingwith,p.last6salaries,
+                                        p.ale_status,p.supplementary_card,str(p.agent_name).upper(),p.bank_reference,
+                                        p.emirates_id, p.cpv, p.bookingdate])
+            return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
+
         if current_user.bankname=='ENBD':
             with open(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter=csv.writer(csvfile,delimiter=",")
                 csvwriter.writerow(lst_enbd)
                 for p in data:
-                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date),p.agent_id, p.mngrhrmsid,str(p.agent_name).upper(),str(p.customer_name).upper(),
+                    bank_code = User.query.filter_by(hrmsID=p.agent_id).first()
+                    if bank_code:
+                        bankcode = bank_code.bankcode
+                    else:
+                        bankcode="NA"
+                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date),p.agent_id, bankcode,p.mngrhrmsid,str(p.agent_name).upper(),str(p.customer_name).upper(),
                                         str(p.customer_email).upper(),p.gender, p.mobile,p.dob, p.salary, p.nationality, str(p.company).upper(), str(p.designation).upper(),
                                         p.ale_status, p.office_emirates, p.length_of_residence,
                                         p.length_of_service, p.emirates_id, p.EID_expiry_date, p.passport_number,
@@ -1215,13 +1231,18 @@ def download():
                         eid2 = str.join("-",re.findall('(\w{3})(\w{4})(\w{7})(\w{1})', eid)[0])
                     else:
                         eid2=eid
+
+                    bank_code = User.query.filter_by(hrmsID=p.agent_id).first()
+                    if bank_code:
+                        bankcode = bank_code.bankcode
+                    else:
+                        bankcode="NA"
                     csvwriter.writerow(
-                      [p.leadid, datetime.date(p.entry_date),p.agent_id, p.tlhrmsid,p.mngrhrmsid,str(p.agent_name).upper(),
-                         str(p.customer_name).upper(),p.mobile,str(p.customer_email).upper(), str(p.nationality).upper(),
-                         p.salary, str(p.company).upper(), str(p.ale_status).upper(), eid2,str(p.passport_number).upper(),
-                         str(p.product_type).upper(), str(p.product_name).upper(),str(p.bank_reference).upper(),
-                         str(p.bank_status).upper(),str(p.application_type).upper(),p.submissiondate,str(p.promo).upper(),
-                         str(p.remarks).upper(), p.cpv, p.bookingdate])
+                      [p.leadid, datetime.date(p.entry_date), bankcode, str(p.customer_name).upper(),str(p.passport_number).upper(),
+                       p.salary, p.mobile, eid2, str(p.company).upper(),str(p.promo).upper(),p.nationality,str(p.ale_status).upper(),
+                       str(p.product_name).upper(),str(p.application_type).upper(),str(p.agent_name).upper(),
+                       p.tlname,p.manager, str(p.customer_email).upper(),str(p.bank_reference).upper(),
+                    str(p.bank_status).upper(), str(p.remarks).upper(), p.cpv, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
 
@@ -1389,8 +1410,8 @@ def upload():
                     return redirect(url_for('upload'))
                 else:
                     for i in range(len(ar)):
-                        if str(ar2[i]).strip().capitalize() not in ['InProcess','Booked','Declined','Dsa-pending','Docs-required']:
-                            flash(f"second column must have any one of [InProcess,Booked,Declined,Dsa-pending,Docs-required], {i}th cell in second column has invalid value \'{ar2[i]}\'")
+                        if str(ar2[i]).strip().capitalize() not in ['InProcess','Booked','Declined','Approved',"Not-workable","Pending-with-sales","Wip"]:
+                            flash(f"second column must have any one of [InProcess,Booked,Declined,Approved,Not-workable, Pending-with-sales, Wip], {i}th cell in second column has invalid value \'{ar2[i]}\'")
                             return redirect(url_for('upload'))
                         else:
                             row = Appdata.query.filter_by(leadid=str(ar[i])).order_by(Appdata.id.desc()).first()

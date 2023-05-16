@@ -7,7 +7,7 @@ from wtforms_components import TimeField
 
 #from app import current_user, request
 
-from application import current_user, request
+#from application import current_user, request
 
 
 df = pd.read_csv("static/all_countries.csv")
@@ -137,7 +137,8 @@ class Appdata1(FlaskForm):
     cpv=SelectField("CPV", validators=[Optional()])
     submit = SubmitField('Submit')
     promo = SelectField("Promo", validators=[Optional()], choices=['AECB', 'NCC', 'STC', 'CHLD', 'EMRT'])
-    last6salaries=SelectField("Last6Salaries", validators=[InputRequired()], choices=['YES', 'NO'])
+    last6salaries=SelectField("Last6Salaries", validators=[Optional()], choices=['YES', 'NO'])
+    cbdsource = SelectField("Source", validators=[Optional()], choices=['DIRECT'])
 
 
     # Al Hilal Bank specific fields.

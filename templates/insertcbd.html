@@ -7,13 +7,13 @@ ECSA
 
 {% block content %}
 
-<div class="container" style="margin-top:20px;">
+<div class="container">
 
                 {% with messages = get_flashed_messages() %}
                 {% if messages %}
 
                 {% for message in messages %}
-                <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+                <div class="alert alert-warning alert-dismissible fade show text-center" role="alert"  style="margin-top:50px;">
                     <strong>{{ message }}</strong>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
@@ -28,7 +28,7 @@ ECSA
     <span><p>Enter customer details for {{current_user.bankname}} application</p></span>
 </div>
 <div class="container" style="background-color:#f5f5f5; padding-top:10px;">
-<form method="POST" action=/insertcbd>
+<form method="POST" {% if request.path=="/insertcbd" %} action=/insertcbd {% elif request.path=="/updatecdb/{{id}}" %} action="/updatecbd/{{id}}" {% endif %}>
         {{ form.hidden_tag() }}
     <div class="form-floating mb-3">
             {{form.customer_name(class="form-control", placeholder="Please enter customer name")}}
@@ -104,6 +104,15 @@ ECSA
             </ul>
     </div>
 
+    <div class="form-floating mb-3">
+            {{form.designation(class="form-control", placeholder="Designation")}}
+            {{ form.designation.label()}}
+            <ul class="erros">
+              {% for error in form.company.errors %}
+                  <li>{{error}}</li>
+              {% endfor %}
+            </ul>
+    </div>
 
         <div class="form-floating mb-3">
             {{form.emirates_id(class="form-control", placeholder="emirates-id")}}
@@ -212,6 +221,16 @@ ECSA
             {{ form.last6salaries.label()}}
             <ul class="erros">
               {% for error in form.supplementary_card.errors %}
+                  <li>{{error}}</li>
+              {% endfor %}
+            </ul>
+          </div>
+
+    <div class="form-floating">
+            {{form.cbdsource(class="form-select")}}
+            {{ form.cbdsource.label()}}
+            <ul class="erros">
+              {% for error in form.cbdsource.errors %}
                   <li>{{error}}</li>
               {% endfor %}
             </ul>
