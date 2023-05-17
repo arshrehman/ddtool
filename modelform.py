@@ -7,7 +7,7 @@ from wtforms_components import TimeField
 
 #from app import current_user, request
 
-from application import current_user, request
+#from application import current_user, request
 
 
 df = pd.read_csv("static/all_countries.csv")
@@ -126,7 +126,7 @@ class Appdata1(FlaskForm):
     visa_expiry_date = DateField("VisaExpiryDate", validators=[Optional()])
 
     product_type = SelectField('Product_type', validators=[InputRequired()],choices=[("CreditCard", "CreditCard"), ("Loan", "Loan")], default="CreditCard")
-    product_name = SelectField('ProductName', validators=[InputRequired()])
+    product_name = SelectField('ProductName', validators=[InputRequired()], choices=[])
     bank_reference = StringField("BankReference", validators=[Optional()])
     bank_status = SelectField("BankStatus", validators=[Optional()], choices=[], default="Inprocess")
     application_type=SelectField("ApplicationType", validators=[Optional()], choices=[])
@@ -137,6 +137,8 @@ class Appdata1(FlaskForm):
     cpv=SelectField("CPV", validators=[Optional()])
     submit = SubmitField('Submit')
     promo = SelectField("Promo", validators=[Optional()], choices=['AECB', 'NCC', 'STC', 'CHLD', 'EMRT'])
+    last6salaries=SelectField("Last6Salaries", validators=[Optional()], choices=['YES', 'NO'])
+    cbdsource = SelectField("Source", validators=[Optional()], choices=['DIRECT'])
 
 
     # Al Hilal Bank specific fields.

@@ -49,6 +49,7 @@
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date</th>
                     <th class="text-secondary opacity-7"></th>
+                    <th class="text-secondary opacity-7"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -105,9 +106,16 @@
                       <a href="/updatescb/{{row.id}}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit user">
                         Edit
                       </a>
+                        {% elif row.bank_name in ["CBD", "ALL"] %}
+                      <a href="/updatecbd/{{row.id}}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit user">
+                        Edit
+                      </a>
                         {% endif %}
                     </td>
-
+                    <td class="align-middle">
+                   {% if current_user.userlevel == "5" %}
+                    <a onclick="checker()" href="/delete/{{row.id}}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit user">Delete</a>
+                   {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
@@ -119,5 +127,12 @@
       </div>
     </div>
 </div>
-
+<script>
+function checker() {
+        var result = confirm("Are you sure of deleting this record?");
+        if (result==false) {
+            event.preventDefault();
+            }
+        }
+</script>
 {% endblock %}

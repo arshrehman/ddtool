@@ -99,6 +99,10 @@
                       <a href="/updatescb/{{row.id}}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit user">
                         Edit
                       </a>
+                        {% elif row.bank_name =="CBD" %}
+                      <a href="/updatecbd/{{row.id}}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit user">
+                        Edit
+                      </a>
                         {% endif %}
                     </td>
                 </tr>
