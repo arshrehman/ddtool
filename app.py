@@ -1203,9 +1203,9 @@ def download():
                     csvwriter.writerow([p.leadid, datetime.date(p.entry_date),p.agent_id, bankcode,p.mngrhrmsid,str(p.agent_name).upper(),str(p.customer_name).upper(),
                                         str(p.customer_email).upper(),p.gender, p.mobile,p.dob, p.salary, p.nationality, str(p.company).upper(), str(p.designation).upper(),
                                         p.ale_status, p.office_emirates, p.length_of_residence,
-                                        p.length_of_service, p.emirates_id, p.EID_expiry_date, p.passport_number,
+                                        p.length_of_service, str(p.emirates_id), p.EID_expiry_date, p.passport_number,
                                         p.cheque_number, p.cheque_bank, p.iban,p.bankingwith, p.product_type, p.product_name,
-                                        p.bank_reference,p.bank_status, p.application_type,p.submissiondate,p.remarks,p.cpv, p.bookingdate])
+                                        str(p.bank_reference),p.bank_status, p.application_type,p.submissiondate,p.remarks,p.cpv, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
 
         elif current_user.bankname=="ALHILAL":
@@ -1235,13 +1235,15 @@ def download():
                     bank_code = User.query.filter_by(hrmsID=p.agent_id).first()
                     if bank_code:
                         bankcode = bank_code.bankcode
+                        tlname=bankcode.tlname
+                        manager=bankcode.manager
                     else:
                         bankcode="NA"
                     csvwriter.writerow(
                       [p.leadid, datetime.date(p.entry_date), bankcode, str(p.customer_name).upper(),str(p.passport_number).upper(),
                        p.salary, p.mobile, eid2, str(p.company).upper(),str(p.promo).upper(),p.nationality,str(p.ale_status).upper(),
                        str(p.product_name).upper(),str(p.application_type).upper(),str(p.agent_name).upper(),
-                       p.tlname,p.manager, str(p.customer_email).upper(),str(p.bank_reference).upper(),
+                       tlname,manager, str(p.customer_email).upper(),str(p.bank_reference).upper(),
                     str(p.bank_status).upper(), str(p.remarks).upper(), p.cpv, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv',
                              as_attachment=True)
