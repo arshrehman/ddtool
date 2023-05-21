@@ -1237,6 +1237,8 @@ def download():
                         manager=bankcode.manager
                     else:
                         bankcode="NA"
+                        tlname="NA"
+                        manager="NA"
                     csvwriter.writerow(
                       [p.leadid, datetime.date(p.entry_date), bankcode, str(p.customer_name).upper(),str(p.passport_number).upper(),
                        p.salary, p.mobile, eid2, str(p.company).upper(),str(p.promo).upper(),p.nationality,str(p.ale_status).upper(),
