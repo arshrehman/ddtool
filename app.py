@@ -1233,8 +1233,8 @@ def download():
                     bank_code = User.query.filter_by(hrmsID=p.agent_id).first()
                     if bank_code:
                         bankcode = bank_code.bankcode
-                        tlname=bankcode.tlname
-                        manager=bankcode.manager
+                        tlname=bank_code.tlname
+                        manager=bank_code.manager
                     else:
                         bankcode="NA"
                         tlname="NA"
