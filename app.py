@@ -209,12 +209,12 @@ def success():
         else:
             all_data = Appdata.query.filter(and_(Appdata.bank_name == current_user.bankname,
                                              Appdata.crdntr_hrmsid == current_user.hrmsID)).order_by(Appdata.id.desc()).all()
-
     else:
         if q:
             all_data = Appdata.query.filter(Appdata.customer_email.contains(q)).all()
         else:
             all_data = Appdata.query.order_by(Appdata.id.desc()).all()
+
     return render_template('success2.html', record=all_data, datetime=datetime)
 
 
@@ -234,11 +234,9 @@ def aecb():
 @login_required
 def insert():
     form = Appdata1()
-    usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
-
     form.cpv.choices=['Verified', 'Not-verified']
 
-    if usr.userlevel=="1":
+    if current_user.userlevel=="1":
         form.bank_status.choices=['InProcess']
     else:
         form.bank_status.choices=['InProcess','Booked','Declined','Dsa-pending','Docs-required']
@@ -246,7 +244,7 @@ def insert():
     if (current_user.bankname not in ["ENBD"]) and (current_user.userlevel !="5"):
         abort(403)
 
-    if (usr.bankname=="ENBD") or (current_user.userlevel=="5"):
+    if (current_user.bankname=="ENBD") or (current_user.userlevel=="5"):
         form.product_name.choices=["TITANIUM MASTERCARD","GO 4 IT GOLD VISA CARD","GO 4 IT PLATINUM VISA CARD",
                                    "VISA FLEXI VISA CARD","DNATA PLATINUM MASTERCARD","DNATA WORLD MASTERCARD",
                                    "BUSINESS MASTERCARD","BUSINESS REWARDS SIGNATURE VISA CARD","MANCHESTER UNITED MASTERCARD",
@@ -260,7 +258,7 @@ def insert():
     if form.validate_on_submit():
         appdata = Appdata()
 
-        if (usr.bankname=="ENBD") or (current_user.userlevel=="5"):
+        if (current_user.bankname=="ENBD") or (current_user.userlevel=="5"):
             appdata.leadid = "719" + str(form.mobile.data[-6:]) + "EN23"
 
         # customer details
@@ -294,14 +292,14 @@ def insert():
 
 
         # Agent specific details
-        appdata.agent_id = usr.hrmsID
-        appdata.agent_name = usr.agent_name
-        appdata.agent_level = usr.userlevel
-        appdata.bank_name = usr.bankname
-        appdata.tlhrmsid = usr.tlhrmsid
-        appdata.mngrhrmsid=usr.mngrhrmsid
-        appdata.crdntr_hrmsid=usr.coordinator_hrmsid
-        appdata.agent_location = usr.location
+        appdata.agent_id = current_user.hrmsID
+        appdata.agent_name = current_user.agent_name
+        appdata.agent_level = current_user.userlevel
+        appdata.bank_name = current_user.bankname
+        appdata.tlhrmsid = current_user.tlhrmsid
+        appdata.mngrhrmsid=current_user.mngrhrmsid
+        appdata.crdntr_hrmsid=current_user.coordinator_hrmsid
+        appdata.agent_location = current_user.location
 
 
 
@@ -322,12 +320,12 @@ def insert():
         db.session.add(appdata)
         db.session.commit()
         flash("Record Inserted Successfully")
-        if usr.userlevel=="1":
+        if current_user.userlevel=="1":
             return redirect(url_for('aecb'))
         else:
             return redirect(url_for('success'))
 
-    return render_template('insert.html', form=form, user=usr)
+    return render_template('insert.html', form=form)
 
 
 
@@ -572,7 +570,7 @@ def insertcbd():
     form1.cpv.choices = ['Verified', 'Not-verified']
 
     if current_user.userlevel == "1":
-        form1.bank_status.choices = ['InProcess']
+        form1.bank_status.choices = ['InProcess','Booked','Declined']
     else:
         form1.bank_status.choices = ['InProcess','Booked','Declined','Dsa-pending','Docs-required']
 
@@ -895,7 +893,7 @@ def updateadcb(id):
                                       "LULU PLATINUM CARD", "LULU TITANIUM CARD"]
         form.application_type.choices = ['CONVENTIONAL', 'ISLAMIC']
         form.application_type.choices[0]=data.application_type
-        form.application_type.choices[0]=data.product_name
+        form.product_name.choices[0]=data.product_name
     else:
         form.product_name.choices=[data.product_name]
         form.application_type.choices=[data.application_type]
