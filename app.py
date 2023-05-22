@@ -1404,8 +1404,8 @@ def upload():
                 df.columns = lst_df
                 ar = df.iloc[:,0].values
                 ar2 = df.iloc[:,1].values
-                df.iloc[:,2] = pd.to_datetime(df.iloc[:,2], errors='coerce')
-                ar3 = df.iloc[:,2].values
+                df.iloc[:,2] = pd.to_datetime(df.iloc[:,2]).dt.date
+                ar3 = list(df.iloc[:,2])
 
                 if (df.isnull().sum().sum())>0:
                     flash("You uploaded a file which has null values. System will not process it.")
@@ -1420,7 +1420,7 @@ def upload():
                             if row:
                                 lst_updated.append(str(ar[i]))
                                 row.bank_status=str(ar2[i]).strip().capitalize()
-                                row.bookingdate=ar3[i]
+                                row.bookingdate=(ar3[i])
                                 db.session.commit()
                             else:
                                 lst_not_updated.append(str(ar[i]))
@@ -1430,7 +1430,6 @@ def upload():
                 flash("Not uploaded, please upload only xlsx file")
                 return redirect(url_for('upload'))
         return render_template('upload.html', form=form)
-
 
 
 @application.route('/upload_cpv', methods=['GET', 'POST'])
