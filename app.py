@@ -1404,7 +1404,7 @@ def upload():
                 df.columns = lst_df
                 ar = df.iloc[:,0].values
                 ar2 = df.iloc[:,1].values
-                df.iloc[:,2] = pd.to_datetime(df.iloc[:,2])
+                df.iloc[:,2] = pd.to_datetime(df.iloc[:,2], errors='coerce')
                 ar3 = df.iloc[:,2].values
 
                 if (df.isnull().sum().sum())>0:
