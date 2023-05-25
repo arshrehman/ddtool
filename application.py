@@ -144,6 +144,9 @@ class Appdata(db.Model):
     last6salaries=db.Column(db.String(10))
     cbdsource=db.Column(db.String(20))
 
+    #ENBD specific
+    aecb=db.Column(db.String(20))
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -235,6 +238,10 @@ def aecb():
 def insert():
     form = Appdata1()
     form.cpv.choices=['Verified', 'Not-verified']
+    form.aecb.choices=['No-Hit', 'Enter AECB score']
+    if request.method=="POST":
+        aecb2=request.form.get('aecb')
+        form.aecb.choices.append(aecb2)
 
     if current_user.userlevel=="1":
         form.bank_status.choices=['InProcess']
@@ -253,8 +260,7 @@ def insert():
                                    "SKYWARDS INFINITE VISA CARD","GENERIC INFINITE VISA CARD","MARRIOTT BONVOY WORLD",
                                    "ETHIHAD GUEST VISA INSPIRE","ETHIHAD GUEST VISA ELEVATE","PLATINUM VISA CARD","DUO CREDIT CARD"]
         form.application_type.choices=['PHYSICAL','TAB-StandAlone','Tab-Bundle']
-
-
+    aecb1=request.args.get('aecb')
     if form.validate_on_submit():
         appdata = Appdata()
 
@@ -312,6 +318,7 @@ def insert():
         appdata.supplementary_card=form.supplementary_card.data
         appdata.remarks=form.remarks.data
         appdata.cpv=form.cpv.data
+        appdata.aecb=form.aecb.data
 
 
 
@@ -1148,7 +1155,7 @@ def download():
         lst_enbd = ['leadid','entry_date','agent_hrmsid','agent_code','mngrhrmsid', 'agent_name', 'customer_name','customer_email',
                     'gender', 'mobile',  'dob', 'salary','nationality', 'company', 'designation', 'ale_status',
                     'office_emirate', 'HRLandline', 'los', 'emirates_id','emiratesid_expiry','passport',
-                    'cheque_number', 'cheque_bank', 'iban', 'bank_name', 'product_type',  'product_name',
+                    'cheque_number', 'cheque_bank', 'iban', 'bank_name', 'product_type',  'product_name', 'aecb',
                      'bank_reference', 'bank_status', 'application_type', 'submission_date','remarks', 'cpv', 'booking_date']
 
         lst_hilal = ['leadid','entry_date','agent_id','tlhrmsid','mngrhrmsid', 'agent_name', 'customer_name', 'mobile', 'salary',
@@ -1202,7 +1209,7 @@ def download():
                                         str(p.customer_email).upper(),p.gender, p.mobile,p.dob, p.salary, p.nationality, str(p.company).upper(), str(p.designation).upper(),
                                         p.ale_status, p.office_emirates, p.length_of_residence,
                                         p.length_of_service, str(p.emirates_id), p.EID_expiry_date, p.passport_number,
-                                        p.cheque_number, p.cheque_bank, p.iban,p.bankingwith, p.product_type, p.product_name,
+                                        p.cheque_number, p.cheque_bank, p.iban,p.bankingwith, p.product_type, p.product_name,p.aecb,
                                         str(p.bank_reference),p.bank_status, p.application_type,p.submissiondate,p.remarks,p.cpv, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
 
@@ -1531,4 +1538,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    application.run(debug=True)
+    application.run()
