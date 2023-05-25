@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-
-
 {% block title %}
 ECSA
 {% endblock %}
@@ -268,6 +266,16 @@ ECSA
             </ul>
         </div>
 
+    <div class="form-floating mb-3">
+            {{form.aecb(class="form-select", id="aecb", onchange="aecbother(this)")}}
+            {{ form.aecb.label()}}
+            <ul class="erros">
+              {% for error in form.aecb.errors %}
+                  <li>{{error}}</li>
+              {% endfor %}
+            </ul>
+        </div>
+
         <div class="form-floating mb-3">
             {{form.bank_reference(class="form-control",placeholder="BankReference")}}
             {{ form.bank_reference.label()}}
@@ -320,7 +328,7 @@ ECSA
 
             
           <div class="form-floating">
-            {% if user.userlevel in ["2","3","4","5"] %}
+            {% if current_user.userlevel in ["2","3","4","5"] %}
             {{form.cpv(class="form-select")}}
               {{ form.cpv.label()}}
             <ul class="erros">
@@ -333,7 +341,7 @@ ECSA
 
 
 
-            {% if user.userlevel in ["2","3","4","5"] %}
+            {% if current_user.userlevel in ["2","3","4","5"] %}
             <div class="form-floating">
             {{form.bookingdate(class="form-select")}}
             {{ form.bookingdate.label()}}
@@ -362,4 +370,10 @@ ECSA
        </div>
       </form>
 </div>
+<script>
+    var aecbother = function(el) { // note, its html element
+  if ('Enter AECB score' !== el.value) return;
+  el.parentNode.innerHTML = "<input type=\"number\" min=\"300\" max=\"900\" class=\"form-control\" placeholder=\"Enter AECB score\" maxlength=\"3\" name='" + el.name + "' required  />"
+};
+</script>
 {% endblock %}

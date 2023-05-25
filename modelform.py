@@ -121,7 +121,12 @@ class Appdata1(FlaskForm):
     cheque_number = StringField("ChequeNumber", validators=[Optional()])
     cheque_bank = StringField("ChequeBank", validators=[Optional()])
     bankingwith=SelectField("SalaryAccount", validators=[Optional()], choices=["ADCB","ADIB", "ENBD", "MASHREQ", "RAK", "CBD", "SCB", "HSBC", "DIB",
-                                                                                "FAB","CBI","EIB", "OTHER"])
+                                                                                "FAB","CBI","EIB", "ALMASRAF","BANK OF SHARJAH",
+                                                                               "UNITED ARAB BANK","CBI","NBF","NBQ",
+                                                                               "SHARJAH ISLAMIC BANK","AL HILAL BANK","AJMAN BANK",
+                                                                               "ARAB BANK","BANQUE MISR","BANK OF BARODA","NATIONAL BANK OF BAHRAIN","HBL","CITI",
+                                                                               "BANK SEDARAT IRAN","BANK MELLI IRAN","UBL","DEUSTCHE BANK","NBK","BANK OF CHINA",
+                                                                               "OTHER"])
     iban = StringField("IBAN", validators=[Optional(), length4(23,23)])
     visa_expiry_date = DateField("VisaExpiryDate", validators=[Optional()])
 
@@ -139,7 +144,7 @@ class Appdata1(FlaskForm):
     promo = SelectField("Promo", validators=[Optional()], choices=['AECB', 'NCC', 'STC', 'CHLD', 'EMRT'])
     last6salaries=SelectField("Last6Salaries", validators=[Optional()], choices=['YES', 'NO'])
     cbdsource = SelectField("Source", validators=[Optional()], choices=['DIRECT'])
-
+    aecb=SelectField("AECB", validators=[Optional()])
 
     # Al Hilal Bank specific fields.
 class Alhilal(FlaskForm):

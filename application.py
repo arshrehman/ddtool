@@ -144,6 +144,9 @@ class Appdata(db.Model):
     last6salaries=db.Column(db.String(10))
     cbdsource=db.Column(db.String(20))
 
+    #ENBD specific
+    aecb=db.Column(db.String(20))
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -209,12 +212,12 @@ def success():
         else:
             all_data = Appdata.query.filter(and_(Appdata.bank_name == current_user.bankname,
                                              Appdata.crdntr_hrmsid == current_user.hrmsID)).order_by(Appdata.id.desc()).all()
-
     else:
         if q:
             all_data = Appdata.query.filter(Appdata.customer_email.contains(q)).all()
         else:
             all_data = Appdata.query.order_by(Appdata.id.desc()).all()
+
     return render_template('success2.html', record=all_data, datetime=datetime)
 
 
@@ -234,11 +237,13 @@ def aecb():
 @login_required
 def insert():
     form = Appdata1()
-    usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
-
     form.cpv.choices=['Verified', 'Not-verified']
+    form.aecb.choices=['No-Hit', 'Enter AECB score']
+    if request.method=="POST":
+        aecb2=request.form.get('aecb')
+        form.aecb.choices.append(aecb2)
 
-    if usr.userlevel=="1":
+    if current_user.userlevel=="1":
         form.bank_status.choices=['InProcess']
     else:
         form.bank_status.choices=['InProcess','Booked','Declined','Dsa-pending','Docs-required']
@@ -246,7 +251,7 @@ def insert():
     if (current_user.bankname not in ["ENBD"]) and (current_user.userlevel !="5"):
         abort(403)
 
-    if (usr.bankname=="ENBD") or (current_user.userlevel=="5"):
+    if (current_user.bankname=="ENBD") or (current_user.userlevel=="5"):
         form.product_name.choices=["TITANIUM MASTERCARD","GO 4 IT GOLD VISA CARD","GO 4 IT PLATINUM VISA CARD",
                                    "VISA FLEXI VISA CARD","DNATA PLATINUM MASTERCARD","DNATA WORLD MASTERCARD",
                                    "BUSINESS MASTERCARD","BUSINESS REWARDS SIGNATURE VISA CARD","MANCHESTER UNITED MASTERCARD",
@@ -255,12 +260,11 @@ def insert():
                                    "SKYWARDS INFINITE VISA CARD","GENERIC INFINITE VISA CARD","MARRIOTT BONVOY WORLD",
                                    "ETHIHAD GUEST VISA INSPIRE","ETHIHAD GUEST VISA ELEVATE","PLATINUM VISA CARD","DUO CREDIT CARD"]
         form.application_type.choices=['PHYSICAL','TAB-StandAlone','Tab-Bundle']
-
-
+    aecb1=request.args.get('aecb')
     if form.validate_on_submit():
         appdata = Appdata()
 
-        if (usr.bankname=="ENBD") or (current_user.userlevel=="5"):
+        if (current_user.bankname=="ENBD") or (current_user.userlevel=="5"):
             appdata.leadid = "719" + str(form.mobile.data[-6:]) + "EN23"
 
         # customer details
@@ -294,14 +298,14 @@ def insert():
 
 
         # Agent specific details
-        appdata.agent_id = usr.hrmsID
-        appdata.agent_name = usr.agent_name
-        appdata.agent_level = usr.userlevel
-        appdata.bank_name = usr.bankname
-        appdata.tlhrmsid = usr.tlhrmsid
-        appdata.mngrhrmsid=usr.mngrhrmsid
-        appdata.crdntr_hrmsid=usr.coordinator_hrmsid
-        appdata.agent_location = usr.location
+        appdata.agent_id = current_user.hrmsID
+        appdata.agent_name = current_user.agent_name
+        appdata.agent_level = current_user.userlevel
+        appdata.bank_name = current_user.bankname
+        appdata.tlhrmsid = current_user.tlhrmsid
+        appdata.mngrhrmsid=current_user.mngrhrmsid
+        appdata.crdntr_hrmsid=current_user.coordinator_hrmsid
+        appdata.agent_location = current_user.location
 
 
 
@@ -314,6 +318,7 @@ def insert():
         appdata.supplementary_card=form.supplementary_card.data
         appdata.remarks=form.remarks.data
         appdata.cpv=form.cpv.data
+        appdata.aecb=form.aecb.data
 
 
 
@@ -322,12 +327,12 @@ def insert():
         db.session.add(appdata)
         db.session.commit()
         flash("Record Inserted Successfully")
-        if usr.userlevel=="1":
+        if current_user.userlevel=="1":
             return redirect(url_for('aecb'))
         else:
             return redirect(url_for('success'))
 
-    return render_template('insert.html', form=form, user=usr)
+    return render_template('insert.html', form=form)
 
 
 
@@ -572,7 +577,7 @@ def insertcbd():
     form1.cpv.choices = ['Verified', 'Not-verified']
 
     if current_user.userlevel == "1":
-        form1.bank_status.choices = ['InProcess']
+        form1.bank_status.choices = ['InProcess','Booked','Declined']
     else:
         form1.bank_status.choices = ['InProcess','Booked','Declined','Dsa-pending','Docs-required']
 
@@ -895,7 +900,7 @@ def updateadcb(id):
                                       "LULU PLATINUM CARD", "LULU TITANIUM CARD"]
         form.application_type.choices = ['CONVENTIONAL', 'ISLAMIC']
         form.application_type.choices[0]=data.application_type
-        form.application_type.choices[0]=data.product_name
+        form.product_name.choices[0]=data.product_name
     else:
         form.product_name.choices=[data.product_name]
         form.application_type.choices=[data.application_type]
@@ -1150,7 +1155,7 @@ def download():
         lst_enbd = ['leadid','entry_date','agent_hrmsid','agent_code','mngrhrmsid', 'agent_name', 'customer_name','customer_email',
                     'gender', 'mobile',  'dob', 'salary','nationality', 'company', 'designation', 'ale_status',
                     'office_emirate', 'HRLandline', 'los', 'emirates_id','emiratesid_expiry','passport',
-                    'cheque_number', 'cheque_bank', 'iban', 'bank_name', 'product_type',  'product_name',
+                    'cheque_number', 'cheque_bank', 'iban', 'bank_name', 'product_type',  'product_name', 'aecb',
                      'bank_reference', 'bank_status', 'application_type', 'submission_date','remarks', 'cpv', 'booking_date']
 
         lst_hilal = ['leadid','entry_date','agent_id','tlhrmsid','mngrhrmsid', 'agent_name', 'customer_name', 'mobile', 'salary',
@@ -1204,7 +1209,7 @@ def download():
                                         str(p.customer_email).upper(),p.gender, p.mobile,p.dob, p.salary, p.nationality, str(p.company).upper(), str(p.designation).upper(),
                                         p.ale_status, p.office_emirates, p.length_of_residence,
                                         p.length_of_service, str(p.emirates_id), p.EID_expiry_date, p.passport_number,
-                                        p.cheque_number, p.cheque_bank, p.iban,p.bankingwith, p.product_type, p.product_name,
+                                        p.cheque_number, p.cheque_bank, p.iban,p.bankingwith, p.product_type, p.product_name,p.aecb,
                                         str(p.bank_reference),p.bank_status, p.application_type,p.submissiondate,p.remarks,p.cpv, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
 
@@ -1235,10 +1240,12 @@ def download():
                     bank_code = User.query.filter_by(hrmsID=p.agent_id).first()
                     if bank_code:
                         bankcode = bank_code.bankcode
-                        tlname=bankcode.tlname
-                        manager=bankcode.manager
+                        tlname=bank_code.tlname
+                        manager=bank_code.manager
                     else:
                         bankcode="NA"
+                        tlname="NA"
+                        manager="NA"
                     csvwriter.writerow(
                       [p.leadid, datetime.date(p.entry_date), bankcode, str(p.customer_name).upper(),str(p.passport_number).upper(),
                        p.salary, p.mobile, eid2, str(p.company).upper(),str(p.promo).upper(),p.nationality,str(p.ale_status).upper(),
@@ -1404,8 +1411,8 @@ def upload():
                 df.columns = lst_df
                 ar = df.iloc[:,0].values
                 ar2 = df.iloc[:,1].values
-                df.iloc[:,2] = pd.to_datetime(df.iloc[:,2])
-                ar3 = df.iloc[:,2].values
+                df.iloc[:,2] = pd.to_datetime(df.iloc[:,2]).dt.date
+                ar3 = list(df.iloc[:,2])
 
                 if (df.isnull().sum().sum())>0:
                     flash("You uploaded a file which has null values. System will not process it.")
@@ -1420,7 +1427,7 @@ def upload():
                             if row:
                                 lst_updated.append(str(ar[i]))
                                 row.bank_status=str(ar2[i]).strip().capitalize()
-                                row.bookingdate=ar3[i]
+                                row.bookingdate=(ar3[i])
                                 db.session.commit()
                             else:
                                 lst_not_updated.append(str(ar[i]))
@@ -1430,7 +1437,6 @@ def upload():
                 flash("Not uploaded, please upload only xlsx file")
                 return redirect(url_for('upload'))
         return render_template('upload.html', form=form)
-
 
 
 @application.route('/upload_cpv', methods=['GET', 'POST'])
@@ -1532,4 +1538,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    application.run(debug=True)
+    application.run()

@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-
-
 {% block title %}
 ECSA
 {% endblock %}
@@ -173,10 +171,9 @@ ECSA
             </ul>
     </div>
 
-     <div class="form-row">
-            <div class="col">
-            {{ form.passport_number.label()}}
+     <div class="form-floating mb-3">
             {{form.passport_number(class="form-control")}}
+            {{ form.passport_number.label()}}
             <ul class="erros">
               {% for error in form.passport_number.errors %}
                   <li>{{error}}</li>
@@ -309,7 +306,7 @@ ECSA
 
 
                    <div class="form-floating">
-            {% if user.userlevel in ["2","3","4","5"] %}
+            {% if current_user.userlevel in ["2","3","4","5"] %}
             {{form.cpv(class="form-select")}}
               {{ form.cpv.label()}}
             <ul class="erros">
@@ -322,7 +319,7 @@ ECSA
 
 
 
-            {% if user.userlevel in ["2","3","4","5"] %}
+            {% if current_user.userlevel in ["2","3","4","5"] %}
             <div class="form-floating">
             {{form.bookingdate(class="form-select")}}
             {{ form.bookingdate.label()}}
@@ -344,7 +341,6 @@ ECSA
             </ul>
         </div>
 
-</div>
 
        <div class="container text-center" style="padding-bottom:10px">
             {{form.submit(class="btn btn-success btn-lg btn-block")}}
