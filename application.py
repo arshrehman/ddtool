@@ -238,7 +238,6 @@ def aecb():
 def insert():
     form = Appdata1()
     form.cpv.choices=['Verified', 'Not-verified']
-    form.aecb.choices=['No-Hit', 'Enter AECB score']
     if request.method=="POST":
         aecb2=request.form.get('aecb')
         form.aecb.choices.append(aecb2)
@@ -601,7 +600,6 @@ def insertcbd():
             appdata.leadid = "789" + str(form1.mobile.data[-6:]) + "CB23"
 
 
-        print("If validation is happening print it")
         # customer details
         appdata.customer_name = form1.customer_name.data
         appdata.entry_date=datetime.now()
@@ -1152,11 +1150,14 @@ def download():
         if current_user.userlevel =="5":
             data = Appdata.query.filter(and_(func.date(Appdata.entry_date) >= str(sd2),
                                              func.date(Appdata.entry_date) <= str(ed2))).all()
-        lst_enbd = ['leadid','entry_date','agent_hrmsid','agent_code','mngrhrmsid', 'agent_name', 'customer_name','customer_email',
-                    'gender', 'mobile',  'dob', 'salary','nationality', 'company', 'designation', 'ale_status',
-                    'office_emirate', 'HRLandline', 'los', 'emirates_id','emiratesid_expiry','passport',
-                    'cheque_number', 'cheque_bank', 'iban', 'bank_name', 'product_type',  'product_name', 'aecb',
-                     'bank_reference', 'bank_status', 'application_type', 'submission_date','remarks', 'cpv', 'booking_date']
+        lst_enbd = ['bank_reference', 'leadid', 'entry_date', 'customer_name', 'mobile', 'agent_name', 'agent_hrmsid',
+                    'agent_code', 'manager',
+                    'nationality', 'product_name', 'bank_name', 'cheque_number', 'office_emirate', 'customer_email',
+                    'HRLandline', 'designation',
+                    'salary', 'company', 'ale_status', 'emirates_id', 'iban', 'gender', 'dob',
+                    'los', 'emiratesid_expiry', 'passport', 'cheque_bank', 'product_type', 'aecb',
+                    'bank_status', 'application_type', 'submission_date', 'remarks', 'cpv',
+                    'booking_date']
 
         lst_hilal = ['leadid','entry_date','agent_id','tlhrmsid','mngrhrmsid', 'agent_name', 'customer_name', 'mobile', 'salary',
                    'company','designation','ale_status', 'iban', 'cclimit', 'mothername', 'uaeaddress', 'homecountryaddress',
@@ -1195,6 +1196,8 @@ def download():
                                         p.emirates_id, p.cpv, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
 
+
+
         if current_user.bankname=='ENBD':
             with open(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
                 csvwriter=csv.writer(csvfile,delimiter=",")
@@ -1203,14 +1206,16 @@ def download():
                     bank_code = User.query.filter_by(hrmsID=p.agent_id).first()
                     if bank_code:
                         bankcode = bank_code.bankcode
+                        manager=bankcode.manager
                     else:
                         bankcode="NA"
-                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date),p.agent_id, bankcode,p.mngrhrmsid,str(p.agent_name).upper(),str(p.customer_name).upper(),
-                                        str(p.customer_email).upper(),p.gender, p.mobile,p.dob, p.salary, p.nationality, str(p.company).upper(), str(p.designation).upper(),
-                                        p.ale_status, p.office_emirates, p.length_of_residence,
-                                        p.length_of_service, str(p.emirates_id), p.EID_expiry_date, p.passport_number,
-                                        p.cheque_number, p.cheque_bank, p.iban,p.bankingwith, p.product_type, p.product_name,p.aecb,
-                                        str(p.bank_reference),p.bank_status, p.application_type,p.submissiondate,p.remarks,p.cpv, p.bookingdate])
+                        manager="NA"
+                    csvwriter.writerow([str(p.bank_reference),p.leadid, datetime.date(p.entry_date),str(p.customer_name).upper(),p.mobile,str(p.agent_name).upper(),p.agent_id, bankcode,
+                                        manager,p.nationality,p.product_name,p.bankingwith,p.cheque_number,p.office_emirates,str(p.customer_email).upper(),
+                                        p.length_of_residence,str(p.designation).upper(),p.salary,str(p.company).upper(),p.ale_status, str(p.emirates_id),
+                                        p.iban,p.gender, p.dob,p.length_of_service, p.EID_expiry_date, p.passport_number,
+                                        p.cheque_bank,  p.product_type, p.aecb,
+                                        p.bank_status, p.application_type,p.submissiondate,p.remarks,p.cpv, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
 
         elif current_user.bankname=="ALHILAL":
@@ -1530,6 +1535,14 @@ def upload_bankref():
                 return redirect(url_for('upload_bankref'))
         return render_template('upload_bankref.html', form=form)
 
+
+@application.route('/dashboard')
+@login_required
+def dashboard():
+    pass
+
+
+
 @application.route('/logout')
 @login_required
 def logout():
@@ -1538,4 +1551,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    application.run()
+    application.run(debug=True)

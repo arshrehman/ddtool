@@ -144,7 +144,7 @@ class Appdata1(FlaskForm):
     promo = SelectField("Promo", validators=[Optional()], choices=['AECB', 'NCC', 'STC', 'CHLD', 'EMRT'])
     last6salaries=SelectField("Last6Salaries", validators=[Optional()], choices=['YES', 'NO'])
     cbdsource = SelectField("Source", validators=[Optional()], choices=['DIRECT'])
-    aecb=SelectField("AECB", validators=[Optional()])
+    aecb=SelectField("AECB", validators=[Optional()], choices=['No-Hit', 'Enter AECB score'])
 
     # Al Hilal Bank specific fields.
 class Alhilal(FlaskForm):
