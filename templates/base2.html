@@ -32,6 +32,8 @@
     <a class="navbar-brand" href="{{url_for('insertadcb')}}">Create</a>
   {% elif current_user.bankname=="SCB" %}
     <a class="navbar-brand" href="{{url_for('insertscb')}}">Create</a>
+  {% elif current_user.bankname=="RAK" %}
+    <a class="navbar-brand" href="{{url_for('insertrak')}}">Create</a>
   {% endif %}
   {% if current_user.userlevel in ["4", "5"] %}
       <a class="navbar-brand" href="{{url_for('download')}}">Download</a>

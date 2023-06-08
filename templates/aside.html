@@ -180,6 +180,11 @@
             <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#table"/></svg>
           Create
           </a>
+        {% elif current_user.bankname=="RAK" %}
+          <a class="nav-link text-white" href="{{url_for('insertrak')}}">
+            <svg class="bi pe-none me-2" width="16" height="16"><use xlink:href="#table"/></svg>
+          Create
+          </a>
         {% endif %}
       </li>
 
