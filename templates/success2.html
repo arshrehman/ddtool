@@ -62,13 +62,13 @@
                           <img src="/static/assets/img/record.jpeg" class="avatar avatar-xs me-3 border-radius-lg" alt="user1">
                         </div-->
                         <div class="d-flex flex-column justify-content-center">
-                          <h6 class="mb-0 text-sm">{{row.customer_name}}</h6>
+                          <h6 class="mb-0 text-sm">{{str(row.customer_name).capitalize()}}</h6>
                           <p class="text-xs text-secondary mb-0">{{row.customer_email}}</p>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <p class="text-xs font-weight-bold mb-0">{{row.agent_name}}</p>
+                      <p class="text-xs font-weight-bold mb-0">{{str(row.agent_name).capitalize()}}</p>
                       <p class="text-xs text-secondary mb-0">{{row.agent_id}}</p>
                     </td>
                     <td class="align-middle text-center">

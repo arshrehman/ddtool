@@ -218,7 +218,7 @@ def success():
         else:
             all_data = Appdata.query.order_by(Appdata.id.desc()).all()
 
-    return render_template('success2.html', record=all_data, datetime=datetime)
+    return render_template('success2.html', record=all_data, datetime=datetime, str=str)
 
 
 @application.route('/aecb', methods=['GET', 'POST'])
@@ -1343,7 +1343,7 @@ def download():
                     'gender', 'emirates_id', 'salary_account', 'product_type', 'product_name',
                      'bank_status',  'submission_date', 'remarks', 'booking_date']
 
-        lst_cbd = ['leadid', 'entry_date', 'agent_code', 'application_type','customer_name','mobile','product_name',
+        lst_cbd = ['leadid', 'entry_date', 'agent_code', 'agent_hrms', 'application_type','customer_name','mobile','product_name',
                    'bank_status', 'remarks', 'nationality', 'company', 'designation', 'salary','customer_email',
                    'salary_account','last6salaries', 'ale_status', 'supplementary_card', 'agent_name', 'bank_reference',
                    'emirates_id', 'cpv', 'booking_date']
@@ -1382,7 +1382,7 @@ def download():
                         bankcode=bank_code.bankcode
                     else:
                         bankcode="NA"
-                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date), bankcode, p.application_type,str(p.customer_name).upper(),
+                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date), bankcode, p.agent_id, p.application_type,str(p.customer_name).upper(),
                                         p.mobile,p.product_name,p.bank_status,p.remarks,p.nationality,str(p.company).upper(),
                                         str(p.designation).upper(),p.salary,str(p.customer_email).upper(),p.bankingwith,p.last6salaries,
                                         p.ale_status,p.supplementary_card,str(p.agent_name).upper(),p.bank_reference,
@@ -1665,7 +1665,7 @@ def upload_cpv():
                     for i in range(len(ar2)):
                         #ar2[i]=str(ar2[i]).strip().capitalize().replace(" ", "_")
                         #ar2[i]="".join(y.capitalize() for y in ar2[i].split("_"))
-                        if str(ar2[i]).strip().capitalize() not in ['Verified','Not-verified']:
+                        if str(ar2[i]).strip().capitalize() not in ['Verified','Not-verified','Discrepant']:
                             flash(f"Second column must have any one of [Verified, Not-verified] value, {i}th cell in second column has invalid value \'{ar2[i]}\'")
                             return redirect(url_for('upload_cpv'))
                         else:
