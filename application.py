@@ -218,7 +218,7 @@ def success():
         else:
             all_data = Appdata.query.order_by(Appdata.id.desc()).all()
 
-    return render_template('success2.html', record=all_data, datetime=datetime)
+    return render_template('success2.html', record=all_data, datetime=datetime, str=str)
 
 
 @application.route('/aecb', methods=['GET', 'POST'])
@@ -238,7 +238,6 @@ def aecb():
 def insert():
     form = Appdata1()
     form.cpv.choices=['Verified', 'Not-verified']
-    form.aecb.choices=['No-Hit', 'Enter AECB score']
     if request.method=="POST":
         aecb2=request.form.get('aecb')
         form.aecb.choices.append(aecb2)
@@ -601,7 +600,6 @@ def insertcbd():
             appdata.leadid = "789" + str(form1.mobile.data[-6:]) + "CB23"
 
 
-        print("If validation is happening print it")
         # customer details
         appdata.customer_name = form1.customer_name.data
         appdata.entry_date=datetime.now()
@@ -655,6 +653,85 @@ def insertcbd():
 
     return render_template('insertcbd.html', form=form1)
 
+@application.route('/insertrak', methods=['GET', 'POST'])
+@login_required
+def insertrak():
+    form1 = Appdata1()
+    form1.cpv.choices = ['Verified', 'Not-verified']
+
+    if current_user.userlevel == "1":
+        form1.bank_status.choices = ['InProcess']
+    else:
+        form1.bank_status.choices = ['InProcess','Booked','Declined','Dsa-pending','Docs-required']
+
+
+
+    if (current_user.bankname == "RAK") or (current_user.userlevel=="5"):
+        form1.product_name.choices = ["MASTERCARD WORLD", "HIGH FLYER PLATINUM", "TITANIUM CARD", "RED CARD",
+                                      "ISLAMIC WORLD", "ISLAMIC PLATINUM", "ISLAMIC GOLD", "EMIRATES SKYWARDS WORLD ELITE CARD"]
+
+    if (current_user.bankname not in ["RAK"]) and (current_user.userlevel !="5"):
+        abort(403)
+
+    form1.office_emirates.validators=[Optional()]
+    form1.gender.validators=[Optional()]
+
+    if form1.validate_on_submit():
+        appdata = Appdata()
+
+        if (current_user.bankname == "RAK") or (current_user.userlevel=="5"):
+            appdata.leadid = "789" + str(form1.mobile.data[-6:]) + "RK23"
+
+
+        # customer details
+        appdata.customer_name = form1.customer_name.data
+        appdata.entry_date=datetime.now()
+        appdata.mobile = form1.mobile.data
+        appdata.customer_email = form1.customer_email.data
+        appdata.nationality = form1.nationality.data
+        appdata.salary = form1.salary.data
+        appdata.company = form1.company.data
+        appdata.ale_status = form1.ale_status.data
+        appdata.designation=form1.designation.data
+        appdata.bankingwith=form1.bankingwith.data
+
+
+
+
+        # customer's documents details
+        appdata.emirates_id = form1.emirates_id.data
+        appdata.submissiondate = form1.submissiondate.data
+        appdata.bookingdate = form1.bookingdate.data
+
+
+        # Agent specific details
+        appdata.agent_id = current_user.hrmsID
+        appdata.agent_name = current_user.agent_name
+        appdata.bank_name = current_user.bankname
+        appdata.tlhrmsid = current_user.tlhrmsid
+        appdata.mngrhrmsid = current_user.mngrhrmsid
+        appdata.crdntr_hrmsid = current_user.coordinator_hrmsid
+        appdata.agent_location=current_user.location
+
+        # Bank Specific details
+        appdata.product_type=form1.product_type.data
+        appdata.product_name = form1.product_name.data
+        appdata.bank_reference = form1.bank_reference.data
+        appdata.bank_status = form1.bank_status.data
+        appdata.remarks = form1.remarks.data
+        appdata.cpv = form1.cpv.data
+
+
+        # commiting to the database
+        db.session.add(appdata)
+        db.session.commit()
+        flash("Record Inserted Successfully")
+        if current_user.userlevel == "1":
+            return redirect(url_for('aecb'))
+        else:
+            return redirect(url_for('success'))
+
+    return render_template('insertrak.html', form=form1)
 
 
 @application.route('/updatecbd/<int:id>', methods=['GET', 'POST'])
@@ -749,6 +826,96 @@ def updatecbd(id):
             else:
                 form[i].data = dct_form[i]
     return render_template('insertcbd.html', form=form, id=id, user=usr)
+
+
+@application.route('/updaterak/<int:id>', methods=['GET', 'POST'])
+@login_required
+def updaterak(id):
+    data = Appdata.query.get_or_404(id)
+    form = Appdata1()
+    lst = list(data.__dict__.items())
+    dct = dict(lst)
+    form.mobile.validators=[Optional()]
+    usr = User.query.filter_by(hrmsID=current_user.hrmsID).first()
+    form.nationality.choices[0] = data.nationality
+    form.ale_status.choices[0]=data.ale_status
+    form.gender.validators=[Optional()]
+    form.office_emirates.validators=[Optional()]
+    form.mobile.validators=[Optional()]
+
+    if current_user.userlevel=="4":
+        form.bank_status.choices=['InProcess','Booked','Declined','Dsa-pending','Docs-required']
+        form.cpv.choices=['Verified','Not-verified']
+        form.cpv.choices[0]=data.cpv
+        form.bank_status.choices[0]=data.bank_status
+
+    if current_user.userlevel=="1":
+        form.bank_status.choices=[data.bank_status]
+        form.cpv.choices=[data.cpv]
+    if (current_user.bankname not in ["RAK"]) and (current_user.userlevel !="5"):
+        abort(403)
+
+
+    if (current_user.userlevel=="4") or (current_user.userlevel=="5"):
+        form.product_name.choices = ["MASTERCARD WORLD", "HIGH FLYER PLATINUM", "TITANIUM CARD", "RED CARD",
+                                      "ISLAMIC WORLD", "ISLAMIC PLATINUM", "ISLAMIC GOLD", "EMIRATES SKYWARDS WORLD ELITE CARD"]
+        form.product_name.choices[0]=data.product_name
+    else:
+        form.product_name.choices=[data.product_name]
+
+
+    # dct.pop("entry_date")
+    lst_dsrd = ['customer_name', 'customer_email', 'nationality', 'salary', 'company','designation',
+                  'ale_status', 'emirates_id', 'passport_number', 'bankingwith', 'product_type', 'product_name', 'bank_reference', 'bank_status',
+                 'submissiondate','bookingdate', 'supplementary_card','iban','remarks', 'cpv']
+    dct_ordered = {k: dct[k] for k in lst_dsrd}
+    if form.validate_on_submit():
+        data.customer_name = form.customer_name.data
+        data.customer_email = form.customer_email.data
+        data.nationality = form.nationality.data
+        data.salary = form.salary.data
+        data.company = form.company.data
+        data.designation = form.designation.data
+        data.ale_status = form.ale_status.data
+
+        data.emirates_id = form.emirates_id.data
+        data.passport_number = form.passport_number.data
+        data.bankingwith = form.bankingwith.data
+
+        data.product_type = form.product_type.data
+        data.product_name = form.product_name.data
+        data.bank_reference = form.bank_reference.data
+        data.bank_status = form.bank_status.data
+
+        data.submissiondate=form.submissiondate.data
+        data.bookingdate=form.bookingdate.data
+        data.supplementary_card=form.supplementary_card.data
+        data.iban=form.iban.data
+        data.remarks=form.remarks.data
+        data.cpv=form.cpv.data
+
+
+        # for i in lst_dsrd:
+        # data.i=form.i.data
+        db.session.commit()
+        flash("Record Updated Successfully")
+        if usr.userlevel=="1":
+            return redirect(url_for('aecb'))
+        else:
+            return redirect(url_for('success'))
+    elif request.method == 'GET':
+        form_dct = form.data
+        #print(form.data)
+        dct_ordered_form = {m: form_dct[m] for m in lst_dsrd}
+        dct_form = dict(list(zip(dct_ordered_form, dct_ordered.values())))
+        for i in dct_form.keys():
+            if isinstance(dct_form[i], datetime):
+                form[i].data = dct_form[i]
+            elif isinstance(dct_form[i], float):
+                form[i].data = int(dct_form[i])
+            else:
+                form[i].data = dct_form[i]
+    return render_template('insertrak.html', form=form, id=id, user=usr)
 
 # update customer record
 @application.route('/update/<int:id>', methods=['GET', 'POST'])
@@ -1152,11 +1319,14 @@ def download():
         if current_user.userlevel =="5":
             data = Appdata.query.filter(and_(func.date(Appdata.entry_date) >= str(sd2),
                                              func.date(Appdata.entry_date) <= str(ed2))).all()
-        lst_enbd = ['leadid','entry_date','agent_hrmsid','agent_code','mngrhrmsid', 'agent_name', 'customer_name','customer_email',
-                    'gender', 'mobile',  'dob', 'salary','nationality', 'company', 'designation', 'ale_status',
-                    'office_emirate', 'HRLandline', 'los', 'emirates_id','emiratesid_expiry','passport',
-                    'cheque_number', 'cheque_bank', 'iban', 'bank_name', 'product_type',  'product_name', 'aecb',
-                     'bank_reference', 'bank_status', 'application_type', 'submission_date','remarks', 'cpv', 'booking_date']
+        lst_enbd = ['bank_reference', 'leadid', 'entry_date', 'customer_name', 'mobile', 'agent_name', 'agent_hrmsid',
+                    'agent_code', 'manager',
+                    'nationality', 'product_name', 'bank_name', 'cheque_number', 'office_emirate', 'customer_email',
+                    'HRLandline', 'designation',
+                    'salary', 'company', 'ale_status', 'emirates_id', 'iban', 'gender', 'dob',
+                    'los', 'emiratesid_expiry', 'passport', 'cheque_bank', 'product_type', 'aecb',
+                    'bank_status', 'application_type', 'submission_date', 'remarks', 'cpv',
+                    'booking_date']
 
         lst_hilal = ['leadid','entry_date','agent_id','tlhrmsid','mngrhrmsid', 'agent_name', 'customer_name', 'mobile', 'salary',
                    'company','designation','ale_status', 'iban', 'cclimit', 'mothername', 'uaeaddress', 'homecountryaddress',
@@ -1173,10 +1343,34 @@ def download():
                     'gender', 'emirates_id', 'salary_account', 'product_type', 'product_name',
                      'bank_status',  'submission_date', 'remarks', 'booking_date']
 
-        lst_cbd = ['leadid', 'entry_date', 'agent_code', 'application_type','customer_name','mobile','product_name',
+        lst_cbd = ['leadid', 'entry_date', 'agent_code', 'agent_hrms', 'application_type','customer_name','mobile','product_name',
                    'bank_status', 'remarks', 'nationality', 'company', 'designation', 'salary','customer_email',
                    'salary_account','last6salaries', 'ale_status', 'supplementary_card', 'agent_name', 'bank_reference',
                    'emirates_id', 'cpv', 'booking_date']
+
+        lst_rak = ['leadid', 'entry_date', 'customer_name', 'mobile', 'bank_reference', 'agent_code', 'agent_name',
+                   'tlname', 'product_name', 'salary', 'company', 'designation', 'supplementary_card', 'gender',
+                   'nationality','customer_email', 'ale_status', 'emirates_id', 'passport', 'bank_name', 'iban', 'bank_status',
+                   'remarks','cpv', 'booking_date']
+
+        if current_user.bankname=='RAK':
+            with open(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
+                csvwriter=csv.writer(csvfile,delimiter=",")
+                csvwriter.writerow(lst_rak)
+                for p in data:
+                    bank_code = User.query.filter_by(hrmsID=p.agent_id).first()
+                    if bank_code:
+                        bankcode=bank_code.bankcode
+                        tlname=bank_code.tlname
+                    else:
+                        bankcode="NA"
+                        tlname="NA"
+                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date), str(p.customer_name).upper(),p.mobile,p.bank_reference,
+                                        bankcode, str(p.agent_name).upper(), tlname, p.product_name,p.salary,str(p.company).upper(),
+                                        str(p.designation).upper(),p.supplementary_card,p.gender,p.nationality,str(p.customer_email).upper(),
+                                        p.ale_status,p.emirates_id,p.passport_number,p.bankingwith,p.iban,p.bank_status,
+                                        p.remarks,p.cpv, p.bookingdate])
+            return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
 
         if current_user.bankname=='CBD':
             with open(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
@@ -1188,12 +1382,14 @@ def download():
                         bankcode=bank_code.bankcode
                     else:
                         bankcode="NA"
-                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date), bankcode, p.application_type,str(p.customer_name).upper(),
+                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date), bankcode, p.agent_id, p.application_type,str(p.customer_name).upper(),
                                         p.mobile,p.product_name,p.bank_status,p.remarks,p.nationality,str(p.company).upper(),
                                         str(p.designation).upper(),p.salary,str(p.customer_email).upper(),p.bankingwith,p.last6salaries,
                                         p.ale_status,p.supplementary_card,str(p.agent_name).upper(),p.bank_reference,
                                         p.emirates_id, p.cpv, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
+
+
 
         if current_user.bankname=='ENBD':
             with open(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", 'w',encoding='UTF8', newline='') as csvfile:
@@ -1203,14 +1399,15 @@ def download():
                     bank_code = User.query.filter_by(hrmsID=p.agent_id).first()
                     if bank_code:
                         bankcode = bank_code.bankcode
+                        manager=bank_code.manager
                     else:
                         bankcode="NA"
-                    csvwriter.writerow([p.leadid, datetime.date(p.entry_date),p.agent_id, bankcode,p.mngrhrmsid,str(p.agent_name).upper(),str(p.customer_name).upper(),
-                                        str(p.customer_email).upper(),p.gender, p.mobile,p.dob, p.salary, p.nationality, str(p.company).upper(), str(p.designation).upper(),
-                                        p.ale_status, p.office_emirates, p.length_of_residence,
-                                        p.length_of_service, str(p.emirates_id), p.EID_expiry_date, p.passport_number,
-                                        p.cheque_number, p.cheque_bank, p.iban,p.bankingwith, p.product_type, p.product_name,p.aecb,
-                                        str(p.bank_reference),p.bank_status, p.application_type,p.submissiondate,p.remarks,p.cpv, p.bookingdate])
+                        manager="NA"
+                    csvwriter.writerow([str(p.bank_reference),p.leadid, datetime.date(p.entry_date),str(p.customer_name).upper(),p.mobile,str(p.agent_name).upper(),p.agent_id, bankcode,
+                                        manager,p.nationality,p.product_name,p.bankingwith,p.cheque_number,p.office_emirates,str(p.customer_email).upper(),
+                                        p.length_of_residence,str(p.designation).upper(),p.salary,str(p.company).upper(),p.ale_status, str(p.emirates_id),
+                                        p.iban,p.gender, p.dob,p.length_of_service, p.EID_expiry_date, p.passport_number,
+                                        p.cheque_bank,  p.product_type, p.aecb,p.bank_status, p.application_type,p.submissiondate,p.remarks,p.cpv, p.bookingdate])
             return send_file(f"/var/www/html/ecsa/static/all_record_{current_user.hrmsID}.csv", mimetype='text/csv', as_attachment=True)
 
         elif current_user.bankname=="ALHILAL":
@@ -1468,7 +1665,7 @@ def upload_cpv():
                     for i in range(len(ar2)):
                         #ar2[i]=str(ar2[i]).strip().capitalize().replace(" ", "_")
                         #ar2[i]="".join(y.capitalize() for y in ar2[i].split("_"))
-                        if str(ar2[i]).strip().capitalize() not in ['Verified','Not-verified']:
+                        if str(ar2[i]).strip().capitalize() not in ['Verified','Not-verified','Discrepant']:
                             flash(f"Second column must have any one of [Verified, Not-verified] value, {i}th cell in second column has invalid value \'{ar2[i]}\'")
                             return redirect(url_for('upload_cpv'))
                         else:
@@ -1530,6 +1727,14 @@ def upload_bankref():
                 return redirect(url_for('upload_bankref'))
         return render_template('upload_bankref.html', form=form)
 
+
+@application.route('/dashboard')
+@login_required
+def dashboard():
+    pass
+
+
+
 @application.route('/logout')
 @login_required
 def logout():
@@ -1538,4 +1743,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    application.run()
+    application.run(debug=True)
